@@ -1,1 +1,82 @@
-<mxfile host="app.diagrams.net" modified="2020-10-18T12:21:06.979Z" agent="5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36" version="13.8.0" etag="bVga5f4DQLqGQrTVIqFW" type="github"><diagram id="3fK5vN8RPXVWfIg-_w7T">UzV2zq1wL0osyPDNT0nNUTV2VTV2LsrPL4GwciucU3NyVI0MMlNUjV1UjYwMgFjVyA2HrCFY1qAgsSg1rwSLBiADYTaQg2Y1AA==</diagram></mxfile>
+<mxfile host="app.diagrams.net" modified="2020-10-18T12:25:17.456Z" agent="5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36" etag="ovJdLkMddpHe78vXsP0_" version="13.8.0" type="github">
+  <diagram id="3fK5vN8RPXVWfIg-_w7T" name="Page-1">
+    <mxGraphModel dx="1376" dy="725" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aSrbsUSHFQLLSgJbVuRG-3" target="aSrbsUSHFQLLSgJbVuRG-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-3" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;fillColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="80" y="160" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aSrbsUSHFQLLSgJbVuRG-6" target="aSrbsUSHFQLLSgJbVuRG-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aSrbsUSHFQLLSgJbVuRG-6" target="aSrbsUSHFQLLSgJbVuRG-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-6" value="未开始" style="rounded=0;whiteSpace=wrap;html=1;shadow=0;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="340" y="145" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aSrbsUSHFQLLSgJbVuRG-8">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="895" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-8" value="已关闭" style="rounded=0;whiteSpace=wrap;html=1;shadow=0;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="690" y="330" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-9" value="商家管理员创建价格浮动" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="160" y="140" width="150" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;curved=1;" edge="1" parent="1" source="aSrbsUSHFQLLSgJbVuRG-13" target="aSrbsUSHFQLLSgJbVuRG-8">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="340" />
+              <mxPoint x="520" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;curved=1;" edge="1" parent="1" source="aSrbsUSHFQLLSgJbVuRG-13" target="aSrbsUSHFQLLSgJbVuRG-8">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="380" />
+              <mxPoint x="520" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-12" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aSrbsUSHFQLLSgJbVuRG-13" target="aSrbsUSHFQLLSgJbVuRG-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-13" value="进行中" style="rounded=0;whiteSpace=wrap;html=1;shadow=0;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="340" y="330" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-14" value="开始时间到" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="414" y="250" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-15" value="结束时间到" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="538" y="320" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-16" value="销售数量达到限额" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="523" y="340" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-17" value="管理员逻辑删除价格浮动" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="500" y="140" width="146" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-18" value="价格浮动结束" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="900" y="270" width="93" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-19" value="管理员逻辑删除价格浮动" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="500" y="360" width="146" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-21" value="" style="shape=mxgraph.bpmn.shape;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;outline=standard;symbol=general;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="880" y="130" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aSrbsUSHFQLLSgJbVuRG-22" value="" style="ellipse;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;fillColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="885" y="135" width="20" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
