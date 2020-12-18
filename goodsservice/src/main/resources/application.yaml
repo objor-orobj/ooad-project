@@ -1,0 +1,17 @@
+goods-service:
+  coupon-activity:
+    redis-timeout: 60
+    bloom-estimated-coupon-qty: 1000000
+    bloom-acceptable-error-rate: 0.0001
+spring:
+  profiles:
+    active: dev
+mybatis:
+  type-aliases-package: cn.edu.xmu.goods.model
+  mapper-locations: classpath*:cn.edu.xmu.goods.mapper/*.xml
+  configuration:
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+dubbo:
+  application:
+    name: goods-service
