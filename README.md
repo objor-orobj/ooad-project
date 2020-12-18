@@ -40,5 +40,3 @@ goods-service:
     dav-password: 123456
     max-file-size: 2
 ```
-
-And change accordingly.
