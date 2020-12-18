@@ -9,6 +9,7 @@ import cn.edu.xmu.goods.model.bo.Coupon;
 import cn.edu.xmu.goods.model.bo.CouponActivity;
 import cn.edu.xmu.goods.model.bo.Shop;
 import cn.edu.xmu.goods.model.dto.CouponActivityDTO;
+import cn.edu.xmu.goods.model.po.CouponPoExample;
 import cn.edu.xmu.goods.model.po.CouponSkuPo;
 import cn.edu.xmu.goods.model.po.GoodsSkuPo;
 import cn.edu.xmu.goods.model.ro.*;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static cn.edu.xmu.goods.model.Status.*;
 
@@ -342,8 +344,47 @@ public class CouponService implements CouponServiceInterface {
     }
 
     @Override
-    public CouponActivityDTO getCouponActivityAlone(Long userId, Long goodsSkuId) {
-        // todo ???
-        return new CouponActivityDTO();
+    public ArrayList<CouponActivityDTO> getCouponActivityAlone(Long userId, Long goodsSkuId) {
+        List<CouponActivity> all = couponDao.selectApplicableActivityOfGoods(goodsSkuId);
+        // exception occurred
+        if (all == null)
+            return null;
+        // if non-existent
+        if (all.size() == 0)
+            return new ArrayList<>();
+        // no need for coupon
+        List<CouponActivity> eligible = all.stream()
+                .filter(activity -> activity.getQuantity().equals(0))
+                .collect(Collectors.toList());
+        List<Long> eligibleIds = eligible.stream().map(CouponActivity::getId).collect(Collectors.toList());
+        // coupon needed
+        List<CouponActivity> needCoup = all.stream()
+                .filter(activity -> !activity.getQuantity().equals(0))
+                .collect(Collectors.toList());
+        List<Long> needCoupIds = needCoup.stream().map(CouponActivity::getId).collect(Collectors.toList());
+        // user owned coupons
+        List<Coupon> owned = couponDao.selectCouponOfActivitiesOwnedByUser(needCoupIds, userId);
+        List<Long> ownedIds = owned.stream().map(Coupon::getActivityId).collect(Collectors.toList());
+        // intersection of
+        //   activities that requires a coupon
+        //   and activities that user owns a coupon
+        ownedIds.retainAll(needCoupIds);
+        // union of
+        //   activities that requires no coupon
+        //   and activities that user owns coupon of
+        eligibleIds.addAll(ownedIds);
+        // load activity
+        eligible = all.stream().filter(activity -> eligibleIds.contains(activity.getId())).collect(Collectors.toList());
+        // load dto
+        ArrayList<CouponActivityDTO> view =
+                eligible.stream().map(po -> {
+                    CouponActivityDTO dto = new CouponActivityDTO();
+                    dto.setId(po.getId());
+                    dto.setName(po.getName());
+                    dto.setBeginTime(po.getBeginTime());
+                    dto.setEndTIme(po.getEndTime());
+                    return dto;
+                }).collect(Collectors.toCollection(ArrayList::new));
+        return view;
     }
 }

@@ -3,56 +3,15 @@ goods-service:
     redis-timeout: 60
     bloom-estimated-coupon-qty: 1000000
     bloom-acceptable-error-rate: 0.0001
-  image-pool:
-    dav-url: http://123.456.789.10/blabla
-    dav-username: davuser
-    dav-password: 12345
-    max-file-size: 2
-
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/oomall?serverTimezone=GMT%2B8
-    username: dbuser
-    password: 123456
-  redis:
-    # Redis服务器地址
-    host: localhost
-    # Redis服务器连接端口
-    port: 6379
-    # Redis服务器连接密码
-    password: 123456
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
-
+  profiles:
+    active: dev
 mybatis:
-  #po对象的包
   type-aliases-package: cn.edu.xmu.goods.model
-  #mapper.xml所在的位置
   mapper-locations: classpath*:cn.edu.xmu.goods.mapper/*.xml
-  #自动将SQL中查出来的带下划线的字段，转换为驼峰标志，再去匹配类中的属性
   configuration:
-    #输出产生的SQL
     #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
-
 dubbo:
-  # 配置服务信息
   application:
     name: goods-service
-    # 禁用QOS同一台机器可能会有端口冲突现象
-    qos-enable: false
-    qos-accept-foreign-ip: false
-  # 配置注册中心
-  registry:
-    address: nacos://localhost:8848
-  # 设置协议-协议由提供方指定消费方被动接受
-
-  protocol:
-    name: dubbo
-    port: 20890
-    # 设置超时时间
-  consumer:
-    timeout: 4000
-    check: false
