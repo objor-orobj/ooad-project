@@ -7,6 +7,7 @@ import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.dto.GoodsInfoDTO;
 import cn.edu.xmu.goods.model.dto.GoodsSkuDTO;
+import cn.edu.xmu.goods.model.dto.GoodsSkuInfo;
 import cn.edu.xmu.goods.model.po.GoodsSkuPo;
 import cn.edu.xmu.goods.model.vo.*;
 import cn.edu.xmu.ooad.util.ReturnObject;
@@ -80,6 +81,13 @@ public class GoodsService implements GoodsServiceInterface {
     @Override
     public GoodsInfoDTO getGoodsInfoDTOBySkuId(Long skuId) {
         return goodsSkuDao.getGoodsInfoDTOBySkuId(skuId);
+    }
+
+    //TODO 需求api
+    @Override
+    public GoodsSkuInfo getGoodsSkuInfoAlone(Long goodsSkuId)
+    {
+        return null;
     }
 
     public ResponseEntity<StatusWrap> getGoodsSkus(GetGoodsSkuVo getSkuVo) {
