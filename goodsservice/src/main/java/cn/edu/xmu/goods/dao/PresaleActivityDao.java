@@ -19,6 +19,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
@@ -50,7 +51,7 @@ public class PresaleActivityDao {
         }
         int ret = presaleActivityPoMapper.insert(po);
         if (ret != 0) {
-            return StatusWrap.of(po);
+            return StatusWrap.of(po, HttpStatus.CREATED);
         } else {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
