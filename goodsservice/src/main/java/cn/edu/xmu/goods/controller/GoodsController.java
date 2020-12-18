@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
+@RequestMapping(value = "", produces = "application/json;charset=UTF-8")
 public class GoodsController {
     @Autowired
     private GoodsService goodsService;

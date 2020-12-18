@@ -13,6 +13,7 @@ import cn.edu.xmu.ooad.util.ResponseCode;
 import cn.edu.xmu.ooad.util.ReturnObject;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.yaml.snakeyaml.Yaml;
@@ -88,7 +89,7 @@ public class GoodsSpuDao
         int ret =goodsSpuPoMapper.insertSelective(spuPo);
         if (ret != 0) {
             ReturnGoodsSpuVo returnGoodsSpuVo=new ReturnGoodsSpuVo(spuPo);
-            return StatusWrap.of(returnGoodsSpuVo);
+            return StatusWrap.of(returnGoodsSpuVo, HttpStatus.CREATED);
         } else {
             return StatusWrap.just(Status.DATABASE_OPERATION_ERROR);
         }

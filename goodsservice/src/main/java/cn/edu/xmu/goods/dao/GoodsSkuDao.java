@@ -20,6 +20,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.bouncycastle.LICENSE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
@@ -273,7 +274,7 @@ public class GoodsSkuDao {
         int ret = (goodsSkuPoMapper.insertSelective(po));
         if (ret != 0) {
             ReturnGoodsSkuVo returnGoodsSkuVo = new ReturnGoodsSkuVo(po, selectFloatPrice(po.getId()));
-            return StatusWrap.of(returnGoodsSkuVo);
+            return StatusWrap.of(returnGoodsSkuVo, HttpStatus.CREATED);
         } else {
             return StatusWrap.just(Status.DATABASE_OPERATION_ERROR);
         }
@@ -399,7 +400,7 @@ public class GoodsSkuDao {
             if (ret != 0) {
                 FloatPricesReturnVo floatPricesReturnVo = new FloatPricesReturnVo(po);
                 floatPricesReturnVo.setCreatedBy(userId,userName);
-                return StatusWrap.of(floatPricesReturnVo);
+                return StatusWrap.of(floatPricesReturnVo,HttpStatus.CREATED);
             } else {
                 return StatusWrap.just(Status.DATABASE_OPERATION_ERROR);
             }
