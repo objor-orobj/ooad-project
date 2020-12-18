@@ -211,8 +211,8 @@ public class CouponDao implements InitializingBean {
         }
         PageInfo<CouponActivityPo> info = PageInfo.of(activityPos);
         List<CouponActivity> activities = activityPos.stream().map(CouponActivity::new).collect(Collectors.toList());
-        for (CouponActivity activity : activities)
-            redis.opsForValue().set("CA" + activity.getId(), activity, timeout, TimeUnit.SECONDS);
+//        for (CouponActivity activity : activities)
+//            redis.opsForValue().set("CA" + activity.getId(), activity, timeout, TimeUnit.SECONDS);
         List<CouponActivityShrunkView> view
                 = activities.stream().map(CouponActivityShrunkView::new).collect(Collectors.toList());
         return PageWrap.of(info, view);
@@ -265,7 +265,9 @@ public class CouponDao implements InitializingBean {
         } catch (DataAccessException exception) {
             return null;
         }
-        return new CouponSkuPo();
+        if (po == null)
+            return new CouponSkuPo();
+        return po;
     }
 
     /*
@@ -426,4 +428,58 @@ public class CouponDao implements InitializingBean {
         return StatusWrap.of(new CouponUserView(new Coupon(his), activity), HttpStatus.CREATED);
     }
 
+    // for interface
+    public List<CouponActivity> selectApplicableActivityOfGoods(Long skuId) {
+        // find coupon_spu's of given skuId
+        CouponSkuPoExample couponSkuExample = new CouponSkuPoExample();
+        CouponSkuPoExample.Criteria couponSkuCriteria = couponSkuExample.createCriteria();
+        couponSkuCriteria.andSkuIdEqualTo(skuId);
+        List<CouponSkuPo> itemPos;
+        try {
+            itemPos = couponSkuPoMapper.selectByExample(couponSkuExample);
+        } catch (DataAccessException exception) {
+            return null;
+        }
+        // return empty list if no such activity
+        if (itemPos.size() == 0)
+            return new ArrayList<>();
+        // preserve only activityId
+        List<Long> activityIds = itemPos.stream().map(CouponSkuPo::getActivityId).collect(Collectors.toList());
+        // load coupon_activities of activityIds
+        CouponActivityPoExample activityExample = new CouponActivityPoExample();
+        CouponActivityPoExample.Criteria activityCriteria = activityExample.createCriteria();
+        activityCriteria.andIdIn(activityIds)
+                .andStateEqualTo(CouponActivity.State.ONLINE.getCode().byteValue())// online only
+                .andEndTimeGreaterThan(LocalDateTime.now());// not expired
+        List<CouponActivityPo> activityPos;
+        try {
+            activityPos = couponActivityPoMapper.selectByExample(activityExample);
+        } catch (DataAccessException exception) {
+            return null;
+        }
+        // return empty list if no eligible ones
+        if (activityPos.size() == 0)
+            return new ArrayList<>();
+        return activityPos.stream().map(CouponActivity::new).collect(Collectors.toList());
+    }
+
+    // for interface
+    public List<Coupon> selectCouponOfActivitiesOwnedByUser(List<Long> activityIds, Long userId) {
+        CouponPoExample example = new CouponPoExample();
+        CouponPoExample.Criteria criteria = example.createCriteria();
+        criteria.andCustomerIdEqualTo(userId) // owned by user
+                .andActivityIdIn(activityIds) // belong to activities
+                .andStateEqualTo(Coupon.State.TAKEN.getCode().byteValue()) // usable
+                .andEndTimeGreaterThan(LocalDateTime.now());// not expired
+        List<CouponPo> couponPos;
+        try {
+            couponPos = couponPoMapper.selectByExample(example);
+        } catch (DataAccessException exception) {
+            return null;
+        }
+        // if empty
+        if (couponPos.size() == 0)
+            return new ArrayList<>();
+        return couponPos.stream().map(Coupon::new).collect(Collectors.toList());
+    }
 }

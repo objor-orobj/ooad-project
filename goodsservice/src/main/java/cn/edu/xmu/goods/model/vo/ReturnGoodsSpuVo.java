@@ -1,6 +1,6 @@
 package cn.edu.xmu.goods.model.vo;
 
-import cn.edu.xmu.goods.model.dto.FreightModelDTO;
+import cn.edu.xmu.order.model.dto.FreightModelDTO;
 import cn.edu.xmu.goods.model.po.BrandPo;
 import cn.edu.xmu.goods.model.po.GoodsCategoryPo;
 import cn.edu.xmu.goods.model.po.GoodsSpuPo;
@@ -52,10 +52,7 @@ public class ReturnGoodsSpuVo
 
     public void setShop(ShopPo shop)
     {
-        System.out.println(shop);
-        System.out.println("TEST10");
         this.shop.id=shop.getId();
-        System.out.println("TEST11");
         this.shop.name=shop.getName();
     }
 

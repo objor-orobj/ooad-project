@@ -5,12 +5,13 @@ import cn.edu.xmu.goods.dao.GoodsSkuDao;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.FlashSale;
-import cn.edu.xmu.goods.model.dto.FlashSaleTimeSegmentDTO;
+import cn.edu.xmu.other.model.dto.FlashSaleTimeSegmentDTO;
 import cn.edu.xmu.goods.model.po.FlashSaleItemPo;
 import cn.edu.xmu.goods.model.po.GoodsSkuPo;
 import cn.edu.xmu.goods.model.ro.FlashSaleItemExtendedView;
 import cn.edu.xmu.goods.model.ro.FlashSaleWithTimeSegmentView;
 import cn.edu.xmu.goods.model.vo.*;
+import cn.edu.xmu.other.service.TimeServiceInterface;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +31,8 @@ public class FlashSaleService {
     private FlashSaleDao flashSaleDao;
     @Autowired
     private GoodsSkuDao goodsSkuDao;
-    @DubboReference
-    private TimeSegmentServiceInterface timeSegmentService;
+    @DubboReference(version="0.0.1")
+    private TimeServiceInterface timeSegmentService;
 
 
     public ResponseEntity<StatusWrap> createWithinTimeSegment(FlashSaleCreatorValidation vo, Long timeSegId) {
@@ -138,6 +139,9 @@ public class FlashSaleService {
 
     public Flux<FlashSaleItemExtendedView> getCurrentFlashSaleItems() {
         List<Long> ids = timeSegmentService.getCurrentFlashSaleTimeSegs();
+        if(ids==null||ids.size()<=0)return null;
+        System.out.println(ids.size());
+        // TODO change this !!!
         return flashSaleDao.getAllFlashSaleItemsWithinTimeSegments(ids);
     }
 
