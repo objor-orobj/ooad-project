@@ -24,6 +24,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -82,7 +83,7 @@ public class CouponService implements CouponServiceInterface {
                 new ShopIdAndNameView(shop),
                 new UserIdAndView(userId, userName),
                 null
-        ));
+        ), HttpStatus.CREATED);
     }
 
     public ResponseEntity<StatusWrap> modifyActivityInfo(
@@ -188,7 +189,7 @@ public class CouponService implements CouponServiceInterface {
             return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
         }
         ImgHelper.deleteRemoteImg(delete, davUsername, davPassword, davUrl);
-        return StatusWrap.ok();
+        return StatusWrap.ok(HttpStatus.CREATED);
     }
 
     public ResponseEntity<StatusWrap> selectOnlineActivities(
@@ -304,7 +305,7 @@ public class CouponService implements CouponServiceInterface {
             written.add(saved.getId());
         }
         // seems good
-        return StatusWrap.ok();
+        return StatusWrap.ok(HttpStatus.CREATED);
     }
 
     public ResponseEntity<StatusWrap> removeItem(Long itemId, Long departId) {

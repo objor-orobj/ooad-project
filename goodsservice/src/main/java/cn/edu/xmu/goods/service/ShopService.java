@@ -11,6 +11,7 @@ import cn.edu.xmu.privilegeservice.client.IUserService;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +50,7 @@ public class ShopService implements ShopServiceInterface {
             shopDao.prune(saved.getId());
             return StatusWrap.just(Status.SHOP_CREATE_GATEWAY_DENIED);
         }
-        return StatusWrap.of(new ShopView(saved));
+        return StatusWrap.of(new ShopView(saved), HttpStatus.CREATED);
     }
 
     public ResponseEntity<StatusWrap> modifyInfo(Long shopId, ShopCreatorValidation vo) {

@@ -15,6 +15,7 @@ import cn.edu.xmu.other.service.TimeServiceInterface;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -48,7 +49,7 @@ public class FlashSaleService implements FlashSaleServiceInterface {
         FlashSale saved = flashSaleDao.createActivity(create);
         if (saved == null)
             return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
-        return StatusWrap.of(new FlashSaleWithTimeSegmentView(saved, timeSegment));
+        return StatusWrap.of(new FlashSaleWithTimeSegmentView(saved, timeSegment), HttpStatus.CREATED);
     }
 
     public ResponseEntity<StatusWrap> modifyInfo(Long activityId, FlashSaleModifierValidation vo) {
@@ -121,7 +122,7 @@ public class FlashSaleService implements FlashSaleServiceInterface {
         if (saved == null)
             return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
         ReturnGoodsSkuVo retSkuVo = goodsSkuDao.getSingleSimpleSku(vo.getSkuId().intValue());
-        return StatusWrap.of(new FlashSaleItemExtendedView(saved, retSkuVo));
+        return StatusWrap.of(new FlashSaleItemExtendedView(saved, retSkuVo), HttpStatus.CREATED);
     }
 
     public ResponseEntity<StatusWrap> removeItem(Long id) {

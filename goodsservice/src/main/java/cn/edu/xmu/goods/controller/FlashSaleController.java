@@ -26,7 +26,10 @@ public class FlashSaleController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PostMapping("/shops/{shopId}/timesegments/{timeSegmentId}/flashsales")
+    @PostMapping(
+            path = "/shops/{shopId}/timesegments/{timeSegmentId}/flashsales",
+            produces = "application/json;charset=UTF-8"
+    )
     public ResponseEntity<StatusWrap> createFlashSale(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -43,7 +46,7 @@ public class FlashSaleController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PutMapping("/shops/{shopId}/flashsales/{flashSaleId}")
+    @PutMapping(path = "/shops/{shopId}/flashsales/{flashSaleId}", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> modifyFlashSaleInfo(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -60,7 +63,10 @@ public class FlashSaleController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PutMapping("/shops/{shopId}/flashsales/{flashSaleId}/onshelves")
+    @PutMapping(
+            path = "/shops/{shopId}/flashsales/{flashSaleId}/onshelves",
+            produces = "application/json;charset=UTF-8"
+    )
     public ResponseEntity<StatusWrap> bringFlashSaleOnline(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -76,7 +82,10 @@ public class FlashSaleController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PutMapping("/shops/{shopId}/flashsales/{flashSaleId}/offshelves")
+    @PutMapping(
+            path = "/shops/{shopId}/flashsales/{flashSaleId}/offshelves",
+            produces = "application/json;charset=UTF-8"
+    )
     public ResponseEntity<StatusWrap> bringFlashSaleOffline(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -92,7 +101,10 @@ public class FlashSaleController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @DeleteMapping("/shops/{shopId}/flashsales/{flashSaleId}")
+    @DeleteMapping(
+            path = "/shops/{shopId}/flashsales/{flashSaleId}",
+            produces = "application/json;charset=UTF-8"
+    )
     public ResponseEntity<StatusWrap> cancelFlashSale(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -108,7 +120,10 @@ public class FlashSaleController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PostMapping("/shops/{shopId}/flashsales/{flashSaleId}/flashitems")
+    @PostMapping(
+            path = "/shops/{shopId}/flashsales/{flashSaleId}/flashitems",
+            produces = "application/json;charset=UTF-8"
+    )
     public ResponseEntity<StatusWrap> addItemToFlashSale(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -125,7 +140,10 @@ public class FlashSaleController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @DeleteMapping("/shops/{shopId}/flashsales/{flashSaleId}/flashitems/{flashSaleItemId}")
+    @DeleteMapping(
+            path = "/shops/{shopId}/flashsales/{flashSaleId}/flashitems/{flashSaleItemId}",
+            produces = "application/json;charset=UTF-8"
+    )
     public ResponseEntity<StatusWrap> removeFlashSaleItemById(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -140,14 +158,14 @@ public class FlashSaleController {
         return flashSaleService.removeItem(flashSaleItemId);
     }
 
-    @GetMapping(path = "/timesegments/{timeSegmentId}/flashsales", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @GetMapping(path = "/timesegments/{timeSegmentId}/flashsales", produces = "application/stream+json;charset=UTF-8")
     public Flux<FlashSaleItemExtendedView> getFlashSaleItemsWithinTimeSegment(
             @PathVariable Long timeSegmentId
     ) {
         return flashSaleService.getFlashSaleItemsWithinTimeSegment(timeSegmentId);
     }
 
-    @GetMapping(path = "/flashsale/current", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @GetMapping(path = "/flashsale/current", produces = "application/stream+json;charset=UTF-8")
     public Flux<FlashSaleItemExtendedView> getCurrentFlashSaleItems() {
         return flashSaleService.getCurrentFlashSaleItems();
     }
