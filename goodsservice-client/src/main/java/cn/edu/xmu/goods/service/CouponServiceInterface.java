@@ -2,6 +2,8 @@ package cn.edu.xmu.goods.service;
 
 import cn.edu.xmu.goods.model.dto.CouponActivityDTO;
 
+import java.util.ArrayList;
+
 public interface CouponServiceInterface {
-    CouponActivityDTO getCouponActivityAlone(Long userId, Long goodsSkuId);
+    ArrayList<CouponActivityDTO> getCouponActivityAlone(Long userId, Long goodsSkuId);
 }
