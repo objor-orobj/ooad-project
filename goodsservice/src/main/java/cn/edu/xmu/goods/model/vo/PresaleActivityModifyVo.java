@@ -12,16 +12,12 @@ public class PresaleActivityModifyVo
 {
     @ApiModelProperty(value = "活动名称")
     private String name;
-    @Range(min=0)
     @ApiModelProperty(value = "活动库存量")
     private Integer quantity;
-    @Range(min=0)
     @ApiModelProperty(value = "定金")
     private Long advancePayPrice;
-    @Range(min=0)
     @ApiModelProperty(value = "尾款")
     private Long restPayPrice;
-    @NotNull
     @ApiModelProperty(value = "店铺id")
     private Long shopId;
     @ApiModelProperty(value = "活动开始时间")

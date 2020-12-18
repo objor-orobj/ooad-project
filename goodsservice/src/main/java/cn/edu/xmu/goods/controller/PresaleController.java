@@ -1,5 +1,6 @@
 package cn.edu.xmu.goods.controller;
 
+import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.PresaleActivity;
 import cn.edu.xmu.goods.model.vo.*;
 import cn.edu.xmu.goods.service.PresaleService;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
+@RequestMapping(value = "", produces = "application/json;charset=UTF-8")
 public class PresaleController {
     @Autowired
     private PresaleService presaleService;
@@ -40,8 +42,8 @@ public class PresaleController {
             @ApiResponse(code=0,message="成功")
     })
     @GetMapping(path = "/presales/states")
-    public  List<PresaleActivity.State> getPresaleActivityStates(){
-        return Arrays.asList(PresaleActivity.State.values());
+    public  Object getPresaleActivityStates(){
+        return StatusWrap.of(Arrays.asList(PresaleActivity.State.values()));
     }
 
     @ApiOperation(value="查询所有有效的预售活动")
@@ -100,8 +102,9 @@ public class PresaleController {
             @ApiResponse(code=0,message="成功")
     })
     @PutMapping(path = "/shops/{shopId}/presales/{id}")
-    public Object modifyPresaleActivity(@PathVariable Long id, @Validated @RequestBody PresaleActivityModifyVo vo)
+    public Object modifyPresaleActivity(@PathVariable Long shopId ,@PathVariable Long id, @Validated @RequestBody PresaleActivityModifyVo vo)
     {
+        vo.setShopId(shopId);
         return presaleService.modifyPresaleActivityById(id,vo);
     }
 

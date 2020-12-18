@@ -15,8 +15,8 @@ public class PresaleActivity {
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum State implements Serializable {
-        OFFLINE(0, "下线"),
-        ONLINE(1,"上线"),
+        OFFLINE(0, "已下线"),
+        ONLINE(1,"已上线"),
         DELETE(2, "已删除");
         private final Integer code;
         private final String name;
