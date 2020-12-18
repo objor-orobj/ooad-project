@@ -13,8 +13,11 @@ import cn.edu.xmu.ooad.annotation.LoginUser;
 import cn.edu.xmu.ooad.util.ResponseCode;
 import cn.edu.xmu.ooad.util.Common;
 import cn.edu.xmu.ooad.util.ReturnObject;
+import cn.edu.xmu.other.service.FootprintServiceInterface;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.*;
+import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -280,6 +283,8 @@ public class GoodsController {
         return goodsService.getGoodsSkus(getSkuVo);
     }
 
+    @DubboReference(version = "0.0.1")
+    private FootprintServiceInterface footprint;
     //TODO 缺少运费模板
     @ApiOperation(value="获得sku的详细信息")
     @ApiImplicitParams({
@@ -291,6 +296,7 @@ public class GoodsController {
     })
     @GetMapping(path = "/skus/{id}")
     public Object getSkuDetailedById(@PathVariable Long id) {
+        footprint.addFootprint(1L,id);
         return goodsService.getSkuDetailedById(id);
     }
 

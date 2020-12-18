@@ -1,4 +1,4 @@
-package cn.edu.xmu.goods.service;
+package cn.edu.xmu.order.service;
 
 public interface OrderServiceInterface {
     Long getSkuIdByOrderItemId(Long orderItemId);

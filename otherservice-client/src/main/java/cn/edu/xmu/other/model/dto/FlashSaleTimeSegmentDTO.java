@@ -1,4 +1,4 @@
-package cn.edu.xmu.goods.model.dto;
+package cn.edu.xmu.other.model.dto;
 
 import lombok.Data;
 

@@ -3,14 +3,15 @@ package cn.edu.xmu.goods.dao;
 import cn.edu.xmu.goods.mapper.*;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
-import cn.edu.xmu.goods.model.dto.FreightModelDTO;
+import cn.edu.xmu.order.model.dto.FreightModelDTO;
 import cn.edu.xmu.goods.model.po.*;
 import cn.edu.xmu.goods.model.vo.GoodsSpuVo;
 import cn.edu.xmu.goods.model.vo.ReturnGoodsSkuVo;
 import cn.edu.xmu.goods.model.vo.ReturnGoodsSpuVo;
-import cn.edu.xmu.goods.service.FreightServiceInterface;
+import cn.edu.xmu.order.service.FreightServiceInterface;
 import cn.edu.xmu.ooad.util.ResponseCode;
 import cn.edu.xmu.ooad.util.ReturnObject;
+import cn.edu.xmu.order.model.dto.FreightModelDTO;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,7 +46,7 @@ public class GoodsSpuDao
     @Autowired(required = false)
     private GoodsSkuDao goodsSkuDao;
 
-    @DubboReference(version = "0.0.1-SNAPSHOT")
+    @DubboReference(version = "0.0.1")
     private FreightServiceInterface freightServiceInterface;
 
     public ResponseEntity<StatusWrap> getSpuById(Long spuId)
@@ -61,7 +62,8 @@ public class GoodsSpuDao
         GoodsCategoryPo goodsCategoryPo=goodsCategoryPoMapper.selectByPrimaryKey(spuPo.getCategoryId());
 
         //TODO 此处查询运费模板,skuDao层相同
-        FreightModelDTO freightModelDTO=freightServiceInterface.getFreightModelById(spuPo.getFreightId());
+        FreightModelDTO freightModelDTO;
+        freightModelDTO= freightServiceInterface.getFreightModelById(spuPo.getFreightId());
 
         ShopPo shopPo=shopPoMapper.selectByPrimaryKey(spuPo.getShopId());
         example.or().andGoodsSpuIdEqualTo(spuId);

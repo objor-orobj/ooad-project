@@ -5,15 +5,16 @@ import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.GoodsSku;
 import cn.edu.xmu.goods.model.bo.GoodsSpu;
-import cn.edu.xmu.goods.model.dto.FreightModelDTO;
+import cn.edu.xmu.order.model.dto.FreightModelDTO;
 import cn.edu.xmu.goods.model.dto.GoodsInfoDTO;
 import cn.edu.xmu.goods.model.dto.GoodsSkuDTO;
 import cn.edu.xmu.goods.model.po.*;
 import cn.edu.xmu.goods.model.vo.*;
-import cn.edu.xmu.goods.service.FreightServiceInterface;
+import cn.edu.xmu.order.service.FreightServiceInterface;
 import cn.edu.xmu.goods.service.GoodsService;
 import cn.edu.xmu.ooad.util.ResponseCode;
 import cn.edu.xmu.ooad.util.ReturnObject;
+import cn.edu.xmu.order.model.dto.FreightModelDTO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -50,7 +51,7 @@ public class GoodsSkuDao {
     @Autowired(required = false)
     private FloatPricePoMapper floatPricePoMapper;
 
-    @DubboReference(version = "0.0.1-SNAPSHOT")
+    @DubboReference(version = "0.0.1")
     private FreightServiceInterface freightServiceInterface;
 
     public Long selectFloatPrice(Long id) {
@@ -224,7 +225,8 @@ public class GoodsSkuDao {
             GoodsCategoryPo goodsCategoryPo = goodsCategoryPoMapper.selectByPrimaryKey(spuPo.getCategoryId());
 
             //TODO 查询运费模板
-            FreightModelDTO freightModelDTO= freightServiceInterface.getFreightModelById(spuPo.getFreightId());
+            FreightModelDTO freightModelDTO;
+            freightModelDTO= freightServiceInterface.getFreightModelById(spuPo.getFreightId());
 
             ShopPo shopPo = shopPoMapper.selectByPrimaryKey(spuPo.getShopId());
             //TODO 商品状态判断

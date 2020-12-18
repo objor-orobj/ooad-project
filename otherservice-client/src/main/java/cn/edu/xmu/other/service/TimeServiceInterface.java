@@ -1,10 +1,10 @@
-package cn.edu.xmu.goods.service;
+package cn.edu.xmu.other.service;
 
-import cn.edu.xmu.goods.model.dto.FlashSaleTimeSegmentDTO;
+import cn.edu.xmu.other.model.dto.FlashSaleTimeSegmentDTO;
 
 import java.util.ArrayList;
 
-public interface TimeSegmentServiceInterface {
+public interface TimeServiceInterface {
     ArrayList<Long> getCurrentFlashSaleTimeSegs();
 
     Boolean timeSegIsFlashSale(Long id);
