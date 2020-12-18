@@ -1,7 +1,7 @@
 package cn.edu.xmu.goods.model.ro;
 
 import cn.edu.xmu.goods.model.bo.FlashSale;
-import cn.edu.xmu.goods.model.dto.FlashSaleTimeSegmentDTO;
+import cn.edu.xmu.other.model.dto.FlashSaleTimeSegmentDTO;
 import lombok.Data;
 import lombok.Getter;
 

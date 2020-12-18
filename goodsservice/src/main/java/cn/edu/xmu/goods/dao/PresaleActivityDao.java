@@ -19,6 +19,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
@@ -50,7 +51,7 @@ public class PresaleActivityDao {
         }
         int ret = presaleActivityPoMapper.insert(po);
         if (ret != 0) {
-            return StatusWrap.of(po);
+            return StatusWrap.of(po, HttpStatus.CREATED);
         } else {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
@@ -208,11 +209,21 @@ public class PresaleActivityDao {
 
     public ResponseEntity<StatusWrap> modifyPresaleActivity(Long id, PresaleActivityModifyVo vo) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if (po.getState() != PresaleActivity.State.OFFLINE.getCode().byteValue()) {
+            return StatusWrap.just(Status.PRESALE_STATENOTALLOW);
+        }
         if (po.getShopId() != vo.getShopId() && vo.getShopId() != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        if (po.getState() != PresaleActivity.State.OFFLINE.getCode().byteValue()) {
-            return StatusWrap.just(Status.PRESALE_STATENOTALLOW);
+        if(vo.getBeginTime().isBefore(LocalDateTime.now())
+                || vo.getPayTime().isBefore(LocalDateTime.now())
+                || vo.getEndTime().isAfter(LocalDateTime.now())
+                || vo.getQuantity()<0
+                || vo.getAdvancePayPrice()<0
+                || vo.getRestPayPrice()<0
+        )
+        {
+            return StatusWrap.just(Status.FIELD_NOTVALID);
         }
         po.setQuantity(vo.getQuantity());
         po.setAdvancePayPrice(vo.getAdvancePayPrice());
