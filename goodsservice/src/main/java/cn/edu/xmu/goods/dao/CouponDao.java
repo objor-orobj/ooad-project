@@ -482,4 +482,25 @@ public class CouponDao implements InitializingBean {
             return new ArrayList<>();
         return couponPos.stream().map(Coupon::new).collect(Collectors.toList());
     }
+
+    // for interface
+    public Coupon selectCoupon(@NotNull Long couponId) {
+        CouponPo po;
+        try {
+            po = couponPoMapper.selectByPrimaryKey(couponId);
+        } catch (DataAccessException exception) {
+            return null;
+        }
+        return new Coupon(po);
+    }
+
+    public Coupon updateCoupon(@NotNull Coupon coupon) {
+        CouponPo po = coupon.toCouponPo();
+        try {
+            couponPoMapper.updateByPrimaryKeySelective(po);
+        } catch (DataAccessException exception) {
+            return null;
+        }
+        return new Coupon(po);
+    }
 }

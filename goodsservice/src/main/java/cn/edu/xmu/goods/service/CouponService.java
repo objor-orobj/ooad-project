@@ -387,4 +387,23 @@ public class CouponService implements CouponServiceInterface {
                 }).collect(Collectors.toCollection(ArrayList::new));
         return view;
     }
+
+    @Override
+    public Boolean deleteCoupon(Long couponId, Long userId) {
+        Coupon origin = couponDao.selectCoupon(couponId);
+        if (origin == null) // coupon non-existent
+            return false;
+        if (!origin.getCustomerId().equals(userId)) // coupon not owned by user
+            return false;
+        if (origin.getState() != Coupon.State.TAKEN) // used
+            return false;
+        if (origin.getBeginTime().isAfter(LocalDateTime.now()) // expired
+                || origin.getEndTime().isBefore(LocalDateTime.now()))
+            return false;
+        origin.setState(Coupon.State.USED);
+        Coupon save = couponDao.updateCoupon(origin);
+        if (save == null) // internal error
+            return false;
+        return true;
+    }
 }

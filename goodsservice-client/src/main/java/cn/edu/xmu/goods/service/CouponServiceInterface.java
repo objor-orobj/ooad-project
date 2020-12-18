@@ -6,4 +6,6 @@ import java.util.ArrayList;
 
 public interface CouponServiceInterface {
     ArrayList<CouponActivityDTO> getCouponActivityAlone(Long userId, Long goodsSkuId);
+
+    Boolean deleteCoupon(Long couponId, Long userId);
 }

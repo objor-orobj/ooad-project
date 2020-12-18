@@ -4,10 +4,7 @@ import cn.edu.xmu.goods.mapper.FlashSaleItemPoMapper;
 import cn.edu.xmu.goods.mapper.FlashSalePoMapper;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.FlashSale;
-import cn.edu.xmu.goods.model.po.FlashSaleItemPo;
-import cn.edu.xmu.goods.model.po.FlashSaleItemPoExample;
-import cn.edu.xmu.goods.model.po.FlashSalePo;
-import cn.edu.xmu.goods.model.po.FlashSalePoExample;
+import cn.edu.xmu.goods.model.po.*;
 import cn.edu.xmu.goods.model.ro.FlashSaleItemExtendedView;
 import cn.edu.xmu.goods.model.vo.ReturnGoodsSkuVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +17,7 @@ import reactor.core.publisher.Mono;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -98,22 +96,40 @@ public class FlashSaleDao {
     public Flux<FlashSaleItemExtendedView> getAllFlashSaleItemsWithinTimeSegments(List<Long> timeSegIds) {
         return Mono.just(timeSegIds).map(
                 timeIds -> {
-                    FlashSalePoExample example = new FlashSalePoExample();
-                    FlashSalePoExample.Criteria criteria = example.createCriteria();
-                    criteria.andTimeSegIdIn(timeIds)
-                            .andFlashDateBetween(LocalDate.now().atTime(LocalTime.MIN), LocalDate.now().atTime(LocalTime.MAX));
-                    List<FlashSalePo> allSales = flashSalePoMapper.selectByExample(example);
+                    FlashSalePoExample saleExample = new FlashSalePoExample();
+                    FlashSalePoExample.Criteria saleCriteria = saleExample.createCriteria();
+                    saleCriteria.andTimeSegIdIn(timeIds)
+                            .andFlashDateBetween( // of today
+                                    LocalDate.now().atTime(LocalTime.MIN),
+                                    LocalDate.now().atTime(LocalTime.MAX)
+                            );
+                    List<FlashSalePo> allSales;
+                    try {
+                        allSales = flashSalePoMapper.selectByExample(saleExample);
+                    } catch (DataAccessException exception) {
+                        return new ArrayList<FlashSaleItemPo>();
+                    }
+                    if (allSales == null || allSales.size() == 0) // empty list if no sales
+                        return new ArrayList<FlashSaleItemPo>();
                     List<Long> saleIds = allSales.stream().map(FlashSalePo::getId).collect(Collectors.toList());
-
-                    FlashSaleItemPoExample example2 = new FlashSaleItemPoExample();
-                    FlashSaleItemPoExample.Criteria criteria2 = example2.createCriteria();
-                    criteria2.andIdIn(saleIds);
-                    List<FlashSaleItemPo> items = flashSaleItemPoMapper.selectByExample(example2);
+                    FlashSaleItemPoExample itemExample = new FlashSaleItemPoExample();
+                    FlashSaleItemPoExample.Criteria itemCriteria = itemExample.createCriteria();
+                    itemCriteria.andSaleIdIn(saleIds);
+                    List<FlashSaleItemPo> items;
+                    try {
+                        items = flashSaleItemPoMapper.selectByExample(itemExample);
+                    } catch (DataAccessException exception) {
+                        return new ArrayList<FlashSaleItemPo>();
+                    }
+                    if (items == null || items.size() == 0)
+                        return new ArrayList<FlashSaleItemPo>();// empty list if no items
                     return items;
                 }
         ).flatMapMany(Flux::fromIterable).map(po -> {
             Long skuId = po.getGoodsSkuId();
             ReturnGoodsSkuVo skuVo = goodsSkuDao.getSingleSimpleSku(skuId.intValue());
+            if (skuVo == null)  // if sku non-existence
+                return null;
             return new FlashSaleItemExtendedView(new FlashSale.Item(po), skuVo);
         });
 
@@ -138,5 +154,19 @@ public class FlashSaleDao {
 //        ).collect(Collectors.toList());
 
 //        return views;
+    }
+
+    public List<FlashSale> selectActivityOfTimeSegment(Long timeSegmentId) {
+        FlashSalePoExample example = new FlashSalePoExample();
+        FlashSalePoExample.Criteria criteria = example.createCriteria();
+        criteria.andTimeSegIdEqualTo(timeSegmentId);
+        List<FlashSalePo> salePos;
+        try {
+            salePos = flashSalePoMapper.selectByExample(example);
+        } catch (DataAccessException exception) {
+            return null;
+        }
+        List<FlashSale> view = salePos.stream().map(FlashSale::new).collect(Collectors.toList());
+        return view;
     }
 }
