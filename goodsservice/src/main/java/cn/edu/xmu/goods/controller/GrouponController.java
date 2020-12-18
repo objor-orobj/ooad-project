@@ -1,5 +1,6 @@
 package cn.edu.xmu.goods.controller;
 
+import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.GrouponActivity;
 import cn.edu.xmu.goods.model.vo.*;
 import cn.edu.xmu.goods.service.GrouponService;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
+@RequestMapping(value = "", produces = "application/json;charset=UTF-8")
 public class GrouponController {
     @Autowired
     private GrouponService grouponService;
@@ -42,8 +44,8 @@ public class GrouponController {
             @ApiResponse(code=0,message="成功")
     })
     @GetMapping(path = "/groupons/states")
-    public List<GrouponActivity.State> getGrouponActivityStates() {
-        return Arrays.asList(GrouponActivity.State.values());
+    public Object getGrouponActivityStates() {
+        return StatusWrap.of(Arrays.asList(GrouponActivity.State.values()));
     }
 
     @ApiOperation(value="查询所有有效的预售活动")
