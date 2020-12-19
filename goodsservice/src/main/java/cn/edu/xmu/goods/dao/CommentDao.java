@@ -12,6 +12,7 @@ import cn.edu.xmu.goods.model.vo.CommentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
@@ -40,7 +41,7 @@ public class CommentDao {
         criteria.andGoodsSkuIdEqualTo(skuId);
         criteria.andStateEqualTo(state.getCode().byteValue());
         com=commentMapper.selectByExample(example);
-        if(com==null||com.isEmpty()){
+        if(com.size()==0){
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
         List<CommentRetVo> commentRet=new ArrayList<>(com.size());
@@ -118,8 +119,9 @@ public class CommentDao {
         po.setState(Comment.State.UNCHECK.getCode().byteValue());
         po.setGmtCreate(LocalDateTime.now());
         int ret=commentMapper.insert(po);
+        CommentRetVo retVo=new CommentRetVo(po);
         if (ret != 0) {
-            return StatusWrap.of(po);
+            return StatusWrap.of(retVo, HttpStatus.CREATED);
         } else {
             return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
         }
