@@ -3,6 +3,7 @@ package cn.edu.xmu.goods.dao;
 import cn.edu.xmu.goods.mapper.GoodsSkuPoMapper;
 import cn.edu.xmu.goods.mapper.GoodsSpuPoMapper;
 import cn.edu.xmu.goods.mapper.PresaleActivityPoMapper;
+import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.PresaleActivity;
@@ -160,13 +161,13 @@ public class PresaleActivityDao {
                         return new PresaleActivityCreateVo(shop, goodsSku, x);
                     }
             ).collect(Collectors.toList());
-            PageInfo<PresaleActivityCreateVo> presaleActivityPageInfo = PageInfo.of(presaleActivities);
-            return StatusWrap.of(presaleActivityPageInfo);
+            PageInfo<PresaleActivityPo> presaleActivityPageInfo = PageInfo.of(presaleActivityList);
+            return StatusWrap.of(PageWrap.of(presaleActivityPageInfo, presaleActivities));
         }
     }
 
     public ResponseEntity<StatusWrap> getallPresaleAcitvity(PresaleActivityInVo vo) {
-        if(vo.getGoodsSkuId() != null) {
+        if (vo.getGoodsSkuId() != null) {
             if (goodsSkuDao.getShopIdBySkuId(vo.getGoodsSkuId().longValue()) != vo.getShopid()) {
                 return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
             }
@@ -220,14 +221,13 @@ public class PresaleActivityDao {
         if (po.getShopId() != vo.getShopId() && vo.getShopId() != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        if(vo.getBeginTime().isBefore(LocalDateTime.now())
+        if (vo.getBeginTime().isBefore(LocalDateTime.now())
                 || vo.getPayTime().isBefore(LocalDateTime.now())
                 || vo.getEndTime().isAfter(LocalDateTime.now())
-                || vo.getQuantity()<0
-                || vo.getAdvancePayPrice()<0
-                || vo.getRestPayPrice()<0
-        )
-        {
+                || vo.getQuantity() < 0
+                || vo.getAdvancePayPrice() < 0
+                || vo.getRestPayPrice() < 0
+        ) {
             return StatusWrap.just(Status.FIELD_NOTVALID);
         }
         po.setQuantity(vo.getQuantity());
