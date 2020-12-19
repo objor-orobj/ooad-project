@@ -103,6 +103,9 @@ public class CommentDao {
     }
 
     public ResponseEntity<StatusWrap> createComment(Long customerId,Long orderitemId,CommentVo vo){
+        if(vo.getContent()==null||vo.getType()==null){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         //skuId
         CommentPoExample example=new CommentPoExample();
         CommentPoExample.Criteria criteria=example.createCriteria();
@@ -128,6 +131,9 @@ public class CommentDao {
     }
 
     public ResponseEntity<StatusWrap> confirmComment(Long commentId, CommentConfirmVo vo){
+        if(vo.getConclusion()==null){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         CommentPo po=commentMapper.selectByPrimaryKey(commentId);
         if(po==null)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
