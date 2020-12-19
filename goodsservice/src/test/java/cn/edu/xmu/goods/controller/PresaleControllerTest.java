@@ -1,18 +1,13 @@
 package cn.edu.xmu.goods.controller;
 
 import cn.edu.xmu.goods.GoodsServiceApplication;
-import cn.edu.xmu.goods.service.PresaleService;
-import cn.edu.xmu.ooad.util.JacksonUtil;
+import cn.edu.xmu.goods.util.SqlScript;
 import cn.edu.xmu.ooad.util.JwtHelper;
-import cn.edu.xmu.ooad.util.ResponseCode;
-import org.assertj.core.internal.bytebuddy.asm.Advice;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,21 +18,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = GoodsServiceApplication.class)   //标识本类是一个SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class PresaleControllerTest
-{
+public class PresaleControllerTest {
     @Autowired
     private MockMvc mvc;
 
 
-    private String login(String userName, String password) throws Exception
-    {
+    public PresaleControllerTest() {
+        SqlScript.run("/goods-schema.sql");
+        SqlScript.run("/cn/edu/xmu/goods/controller/PresaleControllerTest.sql");
+    }
+
+
+    private String login(String userName, String password) throws Exception {
         String token = new JwtHelper().createToken(0L, 1L, 3600);
         return token;
     }
 
     @Test
-    public void getpresaleStates() throws Exception{
-        String responseString=this.mvc.perform(get("/presales/states"))
+    public void getpresaleStates() throws Exception {
+        String responseString = this.mvc.perform(get("/presales/states"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -45,9 +44,10 @@ public class PresaleControllerTest
         String expectedResponse = "{\"errno\": 0, \"data\": [{ \"name\": \"已下线\", \"code\": 0 },{ \"name\": \"已上线\", \"code\": 1 },{ \"name\": \"已删除\", \"code\": 2 }],\"errmsg\": \"成功\"}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
+
     @Test
-    public void getpresales1() throws Exception{
-        String responseString=this.mvc.perform(get("/presales?shopId=2&skuId=273"))
+    public void getpresales1() throws Exception {
+        String responseString = this.mvc.perform(get("/presales?shopId=2&skuId=273"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -93,9 +93,10 @@ public class PresaleControllerTest
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
+
     @Test
-    public void getpresales2() throws Exception{
-        String responseString=this.mvc.perform(get("/presales?shopId=1"))
+    public void getpresales2() throws Exception {
+        String responseString = this.mvc.perform(get("/presales?shopId=1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -195,9 +196,10 @@ public class PresaleControllerTest
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
+
     @Test
-    public void getpresales3() throws Exception{
-        String responseString=this.mvc.perform(get("/presales?shopId=2&timeline=3"))
+    public void getpresales3() throws Exception {
+        String responseString = this.mvc.perform(get("/presales?shopId=2&timeline=3"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -243,9 +245,10 @@ public class PresaleControllerTest
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
+
     @Test
-    public void getpresales4() throws Exception{
-        String responseString=this.mvc.perform(get("/presales?skuId=274"))
+    public void getpresales4() throws Exception {
+        String responseString = this.mvc.perform(get("/presales?skuId=274"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -256,10 +259,11 @@ public class PresaleControllerTest
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
+
     @Test
-    public void getallpresales() throws Exception{
-        String token = this.login("13088admin","123456");
-        String responseString=this.mvc.perform(get("/shops/1/presales?skuId=273&state=1").header("authorization",token))
+    public void getallpresales() throws Exception {
+        String token = this.login("13088admin", "123456");
+        String responseString = this.mvc.perform(get("/shops/1/presales?skuId=273&state=1").header("authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -305,10 +309,11 @@ public class PresaleControllerTest
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
+
     @Test
-    public void getallpresales1() throws Exception{
-        String token = this.login("13088admin","123456");
-        String responseString=this.mvc.perform(get("/shops/2/presales?state=0").header("authorization",token))
+    public void getallpresales1() throws Exception {
+        String token = this.login("13088admin", "123456");
+        String responseString = this.mvc.perform(get("/shops/2/presales?state=0").header("authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -354,10 +359,11 @@ public class PresaleControllerTest
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
+
     @Test
-    public void getallpresales2() throws Exception{
-        String token = this.login("13088admin","123456");
-        String responseString=this.mvc.perform(get("/shops/3/presales").header("authorization",token))
+    public void getallpresales2() throws Exception {
+        String token = this.login("13088admin", "123456");
+        String responseString = this.mvc.perform(get("/shops/3/presales").header("authorization", token))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -368,7 +374,7 @@ public class PresaleControllerTest
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
-    @Test
+
     public void createpresale() throws Exception{
         String token = this.login("13088admin","123456");
         String requiredJson = "{\n" +

@@ -1,6 +1,7 @@
 package cn.edu.xmu.goods.controller;
 
 import cn.edu.xmu.goods.GoodsServiceApplication;
+import cn.edu.xmu.goods.util.SqlScript;
 import cn.edu.xmu.ooad.util.JwtHelper;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest(classes = GoodsServiceApplication.class)   //标识本类是一个SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -25,14 +27,20 @@ class GoodsControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    /** 1
+    public GoodsControllerTest() {
+        SqlScript.run("/goods-schema.sql");
+        SqlScript.run("/cn/edu/xmu/goods/controller/GoodsControllerTest.sql");
+    }
+
+    /**
+     * 1
      * 无需登录
      * 获得商品SKU的所有状态
      **/
     @Test
     @Order(1)
     public void getGoodsSpuStates() throws Exception {
-        String responseString=this.mvc.perform(get("/skus/states"))
+        String responseString = this.mvc.perform(get("/skus/states"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -58,7 +66,8 @@ class GoodsControllerTest {
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
-    /** 2
+    /**
+     * 2
      * 无需登录
      * 查询sku
      * 四个参数均不为空
@@ -66,12 +75,12 @@ class GoodsControllerTest {
     @Test
     @Order(2)
     public void getGoodsSkus1() throws Exception {
-        String responseString=this.mvc.perform(get("/skus?shopId=1&skuSn=boxiang-f0001&spuId=800&spuSn=boxiang-f0001"))
+        String responseString = this.mvc.perform(get("/skus?shopId=1&skuSn=boxiang-f0001&spuId=800&spuSn=boxiang-f0001"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         System.out.println(responseString);
-        String expectedResponse ="{\n" +
+        String expectedResponse = "{\n" +
                 "    \"errno\": 0,\n" +
                 "    \"errmsg\": \"成功\",\n" +
                 "    \"data\": {\n" +
@@ -96,21 +105,21 @@ class GoodsControllerTest {
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
-    /** 3
+    /**
+     * 3
      * 无需登录
      * 查询sku
      * shopId与spuSn为空,另外两个不为空
      **/
     @Test
     @Order(3)
-    public void getGoodsSkus2() throws Exception
-    {
-        String responseString=this.mvc.perform(get("/skus?shopId=&skuSn=boxiang-f0001&spuId=800&spuSn="))
+    public void getGoodsSkus2() throws Exception {
+        String responseString = this.mvc.perform(get("/skus?shopId=&skuSn=boxiang-f0001&spuId=800&spuSn="))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         System.out.println(responseString);
-        String expectedResponse ="{\n" +
+        String expectedResponse = "{\n" +
                 "    \"errno\": 0,\n" +
                 "    \"errmsg\": \"成功\",\n" +
                 "    \"data\": {\n" +
@@ -152,7 +161,8 @@ class GoodsControllerTest {
 //        JSONAssert.assertEquals(expectedResponse, responseString, true);
 //    }
 
-    /** 5
+    /**
+     * 5
      * 需登录
      * 管理员添加新的SKU到SPU里
      **/
@@ -220,8 +230,8 @@ class GoodsControllerTest {
 //    @Test
 //    void invalidFloatPrice() {
 //    }
-private String login(String userName, String password) throws Exception{
-    String token = new JwtHelper().createToken(1L, 0L, 3600);
-    return token;
-}
+    private String login(String userName, String password) throws Exception {
+        String token = new JwtHelper().createToken(1L, 0L, 3600);
+        return token;
+    }
 }
