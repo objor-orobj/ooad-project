@@ -11,8 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,9 +23,7 @@ public class PresaleControllerTest {
     private MockMvc mvc;
 
     public PresaleControllerTest() {
-        // clean all data
         SqlScript.run("/goods-schema.sql");
-        // load custom data from test/resources
         SqlScript.run("/cn/edu/xmu/goods/controller/PresaleControllerTest.sql");
     }
 
@@ -470,10 +467,114 @@ public class PresaleControllerTest {
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
+    public void createpresale() throws Exception{
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"name\": \"华为买买买\",\n" +
+                "  \"advancePayPrice\": 999,\n" +
+                "  \"restPayPrice\": 9999,\n" +
+                "  \"quantity\": 1000,\n" +
+                "  \"beginTime\": \"2021-12-19T08:55:14.199Z\",\n" +
+                "  \"payTime\": \"2023-12-19T08:55:14.199Z\",\n" +
+                "  \"endTime\": \"2022-12-19T08:55:14.199Z\"\n" +
+                "}";
+        String responseString=this.mvc.perform(post("/shops/4/skus/188/presales")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"id\": 3111,\n" +
+                "    \"name\": \"华为买买买\",\n" +
+                "    \"beginTime\": \"2021-12-19T08:55:14.199\",\n" +
+                "    \"payTime\": \"2023-12-19T08:55:14.199\",\n" +
+                "    \"endTime\": \"2022-12-19T08:55:14.199\",\n" +
+                "    \"state\": 0,\n" +
+                "    \"shopId\": 4,\n" +
+                "    \"goodsSkuId\": 188,\n" +
+                "    \"quantity\": 1000,\n" +
+                "    \"advancePayPrice\": 999,\n" +
+                "    \"restPayPrice\": 9999,\n" +
+//                "    \"gmtCreate\": \"2020-12-19T16:56:32.6662858\",\n" +
+                "    \"gmtModified\": null\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, false);
+    }
     @Test
-    public void createpresale() throws Exception {
-        String token = this.login("13088admin", "123456");
-        String responseString = this.mvc.perform(get("/shops/3/presales").header("authorization", token))
+    public void createpresale1() throws Exception{
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"name\": \"CHNB\",\n" +
+                "  \"advancePayPrice\": 999,\n" +
+                "  \"restPayPrice\": 9999,\n" +
+                "  \"quantity\": 1000,\n" +
+                "  \"beginTime\": \"2021-12-19T08:55:14.199Z\",\n" +
+                "  \"payTime\": \"2023-12-19T08:55:14.199Z\",\n" +
+                "  \"endTime\": \"2022-12-19T08:55:14.199Z\"\n" +
+                "}";
+        String responseString=this.mvc.perform(post("/shops/1/skus/273/presales")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 913,\n" +
+                "  \"errmsg\": \"店铺状态禁止\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void createpresale2() throws Exception{
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"name\": \"CHNB\",\n" +
+                "  \"advancePayPrice\": 999,\n" +
+                "  \"restPayPrice\": 9999,\n" +
+                "  \"quantity\": 1000,\n" +
+                "  \"beginTime\": \"2021-12-19T08:55:14.199Z\",\n" +
+                "  \"payTime\": \"2023-12-19T08:55:14.199Z\",\n" +
+                "  \"endTime\": \"2022-12-19T08:55:14.199Z\"\n" +
+                "}";
+        String responseString=this.mvc.perform(post("/shops/4/skus/273/presales")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 505,\n" +
+                "  \"errmsg\": \"操作的资源id不是自己的对象\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void createpresale3() throws Exception{
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"name\": \"CHNB\",\n" +
+                "  \"advancePayPrice\": 999,\n" +
+                "  \"restPayPrice\": 9999,\n" +
+                "  \"quantity\": 1000,\n" +
+                "  \"beginTime\": \"2021-12-19T08:55:14.199Z\",\n" +
+                "  \"payTime\": \"2023-12-19T08:55:14.199Z\",\n" +
+                "  \"endTime\": \"2022-12-19T08:55:14.199Z\"\n" +
+                "}";
+        String responseString=this.mvc.perform(post("/shops/4/skus/122/presales")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -481,6 +582,32 @@ public class PresaleControllerTest {
         String expectedResponse = "{\n" +
                 "  \"errno\": 504,\n" +
                 "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void createpresale4() throws Exception{
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"name\": \"CHNB\",\n" +
+                "  \"advancePayPrice\": -999,\n" +
+                "  \"restPayPrice\": 9999,\n" +
+                "  \"quantity\": 1000,\n" +
+                "  \"beginTime\": \"2021-12-19T08:55:14.199Z\",\n" +
+                "  \"payTime\": \"2023-12-19T08:55:14.199Z\",\n" +
+                "  \"endTime\": \"2022-12-19T08:55:14.199Z\"\n" +
+                "}";
+        String responseString=this.mvc.perform(post("/shops/4/skus/188/presales")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 503,\n" +
+                "  \"errmsg\": \"字段不合法\"\n" +
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
