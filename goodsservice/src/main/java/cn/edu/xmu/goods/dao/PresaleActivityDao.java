@@ -166,6 +166,11 @@ public class PresaleActivityDao {
     }
 
     public ResponseEntity<StatusWrap> getallPresaleAcitvity(PresaleActivityInVo vo) {
+        if(vo.getGoodsSkuId() != null) {
+            if (goodsSkuDao.getShopIdBySkuId(vo.getGoodsSkuId().longValue()) != vo.getShopid()) {
+                return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+            }
+        }
         List<PresaleActivityPo> presaleActivityList = null;
         PresaleActivityPoExample example = new PresaleActivityPoExample();
         PresaleActivityPoExample.Criteria criteria = example.createCriteria();
@@ -175,7 +180,7 @@ public class PresaleActivityDao {
                 criteria.andStateEqualTo(vo.getState().byteValue()).andGoodsSkuIdEqualTo(vo.getGoodsSkuId());
 
             } else {
-                criteria.andStateEqualTo(vo.getState().byteValue());
+                criteria.andStateEqualTo(vo.getState().byteValue()).andShopIdEqualTo(vo.getShopid());
             }
         } else {
             if (vo.getGoodsSkuId() != null) {
@@ -217,7 +222,7 @@ public class PresaleActivityDao {
         }
         if(vo.getBeginTime().isBefore(LocalDateTime.now())
                 || vo.getPayTime().isBefore(LocalDateTime.now())
-                || vo.getEndTime().isAfter(LocalDateTime.now())
+                || vo.getEndTime().isBefore(LocalDateTime.now())
                 || vo.getQuantity()<0
                 || vo.getAdvancePayPrice()<0
                 || vo.getRestPayPrice()<0

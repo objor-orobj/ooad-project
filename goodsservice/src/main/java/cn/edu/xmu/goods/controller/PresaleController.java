@@ -71,6 +71,7 @@ public class PresaleController {
 
     @ApiOperation(value="管理员查询SPU所有预售活动(包括下线的)")
     @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "Long", name = "shopId", value = "商铺id", required = true),
             @ApiImplicitParam(paramType = "query", dataType = "Long", name = "skuId", value = "商品Sku_id", required = false),
             @ApiImplicitParam(paramType = "query", dataType = "Integer", name = "state", value = "状态", required = false),
@@ -94,6 +95,7 @@ public class PresaleController {
 
     @ApiOperation(value="管理员修改SKU预售活动")
     @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "Long", name = "shopId", value = "商铺id", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "Long", name = "id", value = "预售活动id", required = true),
             @ApiImplicitParam(paramType="body",dataType = "PresaleActivityModifyVo",name="vo",value="预售活动修改信息",required=true)
@@ -110,6 +112,7 @@ public class PresaleController {
 
     @ApiOperation(value="管理员上线预售活动")
     @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "Long", name = "shopId", value = "商铺id", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "Long", name = "id", value = "预售活动id", required = true)
     })
@@ -124,6 +127,7 @@ public class PresaleController {
 
     @ApiOperation(value="管理员下线预售活动")
     @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "Long", name = "shopId", value = "商铺id", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "Long", name = "id", value = "预售活动id", required = true)
     })
@@ -138,6 +142,7 @@ public class PresaleController {
 
     @ApiOperation(value="管理员删除预售活动")
     @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "Long", name = "shopId", value = "商铺id", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "Long", name = "id", value = "预售活动id", required = true)
     })
