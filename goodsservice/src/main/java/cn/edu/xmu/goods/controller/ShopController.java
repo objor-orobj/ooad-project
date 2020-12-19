@@ -23,14 +23,14 @@ public class ShopController {
     @Autowired
     private ShopService shopService;
 
-    @GetMapping("/shops/states")
+    @GetMapping(path = "/shops/states", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> getShopStates() {
         return StatusWrap.of(Arrays.asList(Shop.State.values()));
     }
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PostMapping("/shops")
+    @PostMapping(path = "/shops", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> applyForNewShop(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -50,7 +50,7 @@ public class ShopController {
             @ApiImplicitParam(name = "authorization", value = "Token", required = true, dataType = "String", paramType = "header")
     })
     @Audit
-    @PutMapping("/shops/{shopId}")
+    @PutMapping(path = "/shops/{shopId}", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> modifyShopInfo(
             @PathVariable Long shopId,
             @Depart @ApiIgnore Long departId,
@@ -66,7 +66,7 @@ public class ShopController {
             @ApiImplicitParam(name = "authorization", value = "Token", required = true, dataType = "String", paramType = "header")
     })
     @Audit
-    @DeleteMapping("/shops/{shopId}")
+    @DeleteMapping(path = "/shops/{shopId}", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> forceCloseShop(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -85,7 +85,7 @@ public class ShopController {
             @ApiImplicitParam(name = "authorization", value = "Token", required = true, dataType = "String", paramType = "header")
     })
     @Audit
-    @PutMapping("/shops/{zero}/newshops/{shopId}/audit")
+    @PutMapping(path = "/shops/{zero}/newshops/{shopId}/audit", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> auditNewShop(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -106,7 +106,7 @@ public class ShopController {
             @ApiImplicitParam(name = "authorization", value = "Token", required = true, dataType = "String", paramType = "header")
     })
     @Audit
-    @PutMapping("/shops/{shopId}/onshelves")
+    @PutMapping(path = "/shops/{shopId}/onshelves", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> bringShopOnline(
             @Depart @ApiIgnore Long departId,
             @PathVariable Long shopId
@@ -121,7 +121,7 @@ public class ShopController {
             @ApiImplicitParam(name = "authorization", value = "Token", required = true, dataType = "String", paramType = "header")
     })
     @Audit
-    @PutMapping("/shops/{shopId}/offshelves")
+    @PutMapping(path = "/shops/{shopId}/offshelves", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> bringShopOffline(
             @Depart @ApiIgnore Long departId,
             @PathVariable Long shopId) {

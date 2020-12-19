@@ -70,4 +70,19 @@ public class Coupon {
         this.gmtCreate = po.getGmtCreate();
         this.gmtModified = po.getGmtModified();
     }
+
+    public CouponPo toCouponPo() {
+        CouponPo po = new CouponPo();
+        po.setId(id);
+        po.setCouponSn(couponSn);
+        po.setName(name);
+        po.setCustomerId(customerId);
+        po.setActivityId(activityId);
+        po.setBeginTime(beginTime);
+        po.setEndTime(endTime);
+        po.setState(state.getCode().byteValue());
+        po.setGmtCreate(gmtCreate);
+        po.setGmtModified(gmtModified);
+        return po;
+    }
 }

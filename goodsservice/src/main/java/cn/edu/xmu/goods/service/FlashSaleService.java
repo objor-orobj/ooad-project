@@ -13,7 +13,9 @@ import cn.edu.xmu.goods.model.ro.FlashSaleWithTimeSegmentView;
 import cn.edu.xmu.goods.model.vo.*;
 import cn.edu.xmu.other.service.TimeServiceInterface;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -25,13 +27,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@DubboService(version = "0.0.1")
 @Service
-public class FlashSaleService {
+public class FlashSaleService implements FlashSaleServiceInterface {
     @Autowired
     private FlashSaleDao flashSaleDao;
     @Autowired
     private GoodsSkuDao goodsSkuDao;
-    @DubboReference(version="0.0.1")
+    @DubboReference(version = "0.0.1")
     private TimeServiceInterface timeSegmentService;
 
 
@@ -46,7 +49,7 @@ public class FlashSaleService {
         FlashSale saved = flashSaleDao.createActivity(create);
         if (saved == null)
             return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
-        return StatusWrap.of(new FlashSaleWithTimeSegmentView(saved, timeSegment));
+        return StatusWrap.of(new FlashSaleWithTimeSegmentView(saved, timeSegment), HttpStatus.CREATED);
     }
 
     public ResponseEntity<StatusWrap> modifyInfo(Long activityId, FlashSaleModifierValidation vo) {
@@ -119,7 +122,7 @@ public class FlashSaleService {
         if (saved == null)
             return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
         ReturnGoodsSkuVo retSkuVo = goodsSkuDao.getSingleSimpleSku(vo.getSkuId().intValue());
-        return StatusWrap.of(new FlashSaleItemExtendedView(saved, retSkuVo));
+        return StatusWrap.of(new FlashSaleItemExtendedView(saved, retSkuVo), HttpStatus.CREATED);
     }
 
     public ResponseEntity<StatusWrap> removeItem(Long id) {
@@ -139,14 +142,28 @@ public class FlashSaleService {
 
     public Flux<FlashSaleItemExtendedView> getCurrentFlashSaleItems() {
         List<Long> ids = timeSegmentService.getCurrentFlashSaleTimeSegs();
-        if(ids==null||ids.size()<=0)return null;
-        System.out.println(ids.size());
-        // TODO change this !!!
+        if (ids == null || ids.size() <= 0)
+            return Flux.empty();
         return flashSaleDao.getAllFlashSaleItemsWithinTimeSegments(ids);
     }
 
     public Flux<FlashSaleItemExtendedView> getFlashSaleItemsWithinTimeSegment(Long id) {
         if (!timeSegmentService.timeSegIsFlashSale(id)) return null;
         return flashSaleDao.getAllFlashSaleItemsWithinTimeSegments(Collections.singletonList(id));
+    }
+
+    @Override
+    public Boolean setFlashSaleSegId(Long segId) {
+        List<FlashSale> sales = flashSaleDao.selectActivityOfTimeSegment(segId);
+        if (sales == null || sales.size() == 0)
+            return true;
+        for (FlashSale origin : sales) {
+            origin.setState(FlashSale.State.OFFLINE);
+            origin.setTimeSegId(0L);
+            FlashSale saved = flashSaleDao.updateActivity(origin);
+            if (saved == null)
+                return false;
+        }
+        return true;
     }
 }

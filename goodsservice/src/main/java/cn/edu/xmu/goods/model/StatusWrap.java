@@ -61,6 +61,10 @@ public class StatusWrap {
         return new StatusWrap(null, status).response();
     }
 
+    public static ResponseEntity<StatusWrap> ok(HttpStatus status) {
+        return new StatusWrap(null, Status.OK).response(status);
+    }
+
     public static ResponseEntity<StatusWrap> ok() {
         return new StatusWrap(null, Status.OK).response();
     }

@@ -26,14 +26,14 @@ public class CouponController {
     @Autowired
     private CouponService couponService;
 
-    @GetMapping("/coupons/states")
+    @GetMapping(path = "/coupons/states", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> getCouponStates() {
         return StatusWrap.of(Arrays.asList(Coupon.State.values()));
     }
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PostMapping("/shops/{shopId}/couponactivities")
+    @PostMapping(path = "/shops/{shopId}/couponactivities", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> createCouponActivity(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -50,7 +50,10 @@ public class CouponController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PutMapping("/shops/{shopId}/couponactivities/{couponActivityId}")
+    @PutMapping(
+            path = "/shops/{shopId}/couponactivities/{couponActivityId}",
+            produces = "application/json;charset=UTF-8"
+    )
     public ResponseEntity<StatusWrap> modifyCouponActivities(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -68,7 +71,10 @@ public class CouponController {
             @ApiImplicitParam(name = "img", required = true, dataType = "file", paramType = "formData")
     })
     @Audit
-    @PostMapping("/shops/{shopId}/couponactivities/{couponActivityId}/uploadImg")
+    @PostMapping(
+            path = "/shops/{shopId}/couponactivities/{couponActivityId}/uploadImg",
+            produces = "application/json;charset=UTF-8"
+    )
     public ResponseEntity<StatusWrap> uploadCouponActivityImage(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -81,7 +87,7 @@ public class CouponController {
         return couponService.setActivityImage(couponActivityId, file, userId, departId);
     }
 
-    @GetMapping("/couponactivities")
+    @GetMapping(path = "/couponactivities", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> userGetAvailableCouponActivitiesPaged(
             @RequestParam(required = false) Long shopId,
             @RequestParam(required = false) Integer timeline,
@@ -93,7 +99,7 @@ public class CouponController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @GetMapping("/shops/{shopId}/couponactivities/invalid")
+    @GetMapping(path = "/shops/{shopId}/couponactivities/invalid", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> getHiddenCouponActivitiesOfShopPaged(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -108,7 +114,7 @@ public class CouponController {
         return couponService.selectHiddenActivitiesOfShop(shopId, page, pageSize);
     }
 
-    @GetMapping("/couponactivities/{activityId}/skus")
+    @GetMapping(path = "/couponactivities/{activityId}/skus", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> getItemsOfCouponActivity(
             @PathVariable Long activityId,
             @RequestParam(defaultValue = "1") Integer page,
@@ -119,7 +125,7 @@ public class CouponController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @GetMapping("/shops/{shopId}/couponactivities/{activityId}")
+    @GetMapping(path = "/shops/{shopId}/couponactivities/{activityId}", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> getDetailedCouponActivity(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -134,7 +140,10 @@ public class CouponController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PutMapping("/shops/{shopId}/couponactivities/{activityId}/onshelves")
+    @PutMapping(
+            path = "/shops/{shopId}/couponactivities/{activityId}/onshelves",
+            produces = "application/json;charset=UTF-8"
+    )
     public ResponseEntity<StatusWrap> bringCouponActivityOnline(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -149,7 +158,10 @@ public class CouponController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PutMapping("/shops/{shopId}/couponactivities/{id}/offshelves")
+    @PutMapping(
+            path = "/shops/{shopId}/couponactivities/{id}/offshelves",
+            produces = "application/json;charset=UTF-8"
+    )
     public ResponseEntity<StatusWrap> bringCouponActivityOffline(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -162,7 +174,7 @@ public class CouponController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @DeleteMapping("/shops/{shopId}/couponactivities/{id}")
+    @DeleteMapping(path = "/shops/{shopId}/couponactivities/{id}", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> deleteCouponActivity(
             @PathVariable Long shopId,
             @PathVariable Long id,
@@ -177,7 +189,10 @@ public class CouponController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PostMapping("/shops/{shopId}/couponactivities/{activityId}/skus")
+    @PostMapping(
+            path = "/shops/{shopId}/couponactivities/{activityId}/skus",
+            produces = "application/json;charset=UTF-8"
+    )
     public ResponseEntity<StatusWrap> addItemsToCouponActivity(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -192,7 +207,7 @@ public class CouponController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @DeleteMapping("/shops/{shopId}/couponskus/{activityId}")
+    @DeleteMapping(path = "/shops/{shopId}/couponskus/{activityId}", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> removeItemFromCouponActivity(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -206,7 +221,7 @@ public class CouponController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @GetMapping("/coupons")
+    @GetMapping(path = "/coupons", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> buyerFetchItsCouponsPaged(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
@@ -221,7 +236,7 @@ public class CouponController {
 
     @ApiImplicitParam(name = "authorization", required = true, dataType = "String", paramType = "header")
     @Audit
-    @PostMapping("/couponactivities/{activityId}/usercoupons")
+    @PostMapping(path = "/couponactivities/{activityId}/usercoupons", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> userClaimCoupon(
             @LoginUser @ApiIgnore Long userId,
             @Depart @ApiIgnore Long departId,
