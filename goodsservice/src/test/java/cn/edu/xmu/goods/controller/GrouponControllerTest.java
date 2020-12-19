@@ -158,7 +158,8 @@ public class GrouponControllerTest {
     }
     @Test
     public void getallgroupon() throws Exception {
-        String responseString = this.mvc.perform(get("/shops/4/groupons?state=0"))
+        String token = this.login("13088admin", "123456");
+        String responseString = this.mvc.perform(get("/shops/4/groupons?state=0").header("authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -185,7 +186,8 @@ public class GrouponControllerTest {
     }
     @Test
     public void getallgroupon1() throws Exception {
-        String responseString = this.mvc.perform(get("/shops/4/groupons"))
+        String token = this.login("13088admin", "123456");
+        String responseString = this.mvc.perform(get("/shops/4/groupons").header("authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -224,7 +226,8 @@ public class GrouponControllerTest {
     }
     @Test
     public void getallgroupon2() throws Exception {
-        String responseString = this.mvc.perform(get("/shops/4/groupons?spu_id=188"))
+        String token = this.login("13088admin", "123456");
+        String responseString = this.mvc.perform(get("/shops/4/groupons?spu_id=188").header("authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -257,7 +260,8 @@ public class GrouponControllerTest {
     }
     @Test
     public void getallgroupon3() throws Exception {
-        String responseString = this.mvc.perform(get("/shops/4/groupons?spu_id=188&state=1"))
+        String token = this.login("13088admin", "123456");
+        String responseString = this.mvc.perform(get("/shops/4/groupons?spu_id=188&state=1").header("authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
@@ -284,7 +288,8 @@ public class GrouponControllerTest {
     }
     @Test
     public void getallgroupon4() throws Exception {
-        String responseString = this.mvc.perform(get("/shops/4/groupons?state=2"))
+        String token = this.login("13088admin", "123456");
+        String responseString = this.mvc.perform(get("/shops/4/groupons?state=2").header("authorization", token))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
