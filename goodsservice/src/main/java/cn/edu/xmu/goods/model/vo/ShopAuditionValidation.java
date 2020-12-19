@@ -6,6 +6,6 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 public class ShopAuditionValidation {
-    @NotNull
+    //@NotNull
     private Boolean conclusion;
 }

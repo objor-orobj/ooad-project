@@ -227,7 +227,7 @@ public class PresaleActivityDao {
         }
         if (vo.getBeginTime().isBefore(LocalDateTime.now())
                 || vo.getPayTime().isBefore(LocalDateTime.now())
-                || vo.getEndTime().isAfter(LocalDateTime.now())
+                || vo.getEndTime().isBefore(LocalDateTime.now())
                 || vo.getQuantity() < 0
                 || vo.getAdvancePayPrice() < 0
                 || vo.getRestPayPrice() < 0

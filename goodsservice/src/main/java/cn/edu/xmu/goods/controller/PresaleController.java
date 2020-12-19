@@ -1,5 +1,6 @@
 package cn.edu.xmu.goods.controller;
 
+import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.PresaleActivity;
 import cn.edu.xmu.goods.model.vo.*;
@@ -32,7 +33,9 @@ public class PresaleController {
     @PostMapping(path = "/shops/{shopId}/skus/{id}/presales")
     public Object createPresaleActivity(@PathVariable Long shopId,
                                         @PathVariable Long id,
-                                        @Validated @RequestBody PresaleActivityVo vo) {
+                                        @RequestBody PresaleActivityVo vo) {
+        if (vo.getName() == null || vo.getName().isEmpty() || vo.getName().isBlank())
+            return StatusWrap.just(Status.FIELD_NOTVALID);
         vo.setState(PresaleActivity.State.OFFLINE.getCode().byteValue());
         return presaleService.createPresaleActivity(shopId, id, vo);
     }
@@ -103,8 +106,10 @@ public class PresaleController {
             @ApiResponse(code = 0, message = "成功")
     })
     @PutMapping(path = "/shops/{shopId}/presales/{id}")
-    public Object modifyPresaleActivity(@PathVariable Long shopId, @PathVariable Long id, @Validated @RequestBody PresaleActivityModifyVo vo) {
+    public Object modifyPresaleActivity(@PathVariable Long shopId, @PathVariable Long id, @RequestBody PresaleActivityModifyVo vo) {
         vo.setShopId(shopId);
+        if (vo.getName() == null || vo.getName().isEmpty() || vo.getName().isBlank())
+            return StatusWrap.just(Status.FIELD_NOTVALID);
         return presaleService.modifyPresaleActivityById(id, vo);
     }
 
