@@ -10,6 +10,8 @@ import cn.edu.xmu.ooad.annotation.Audit;
 import cn.edu.xmu.ooad.annotation.Depart;
 import cn.edu.xmu.ooad.annotation.LoginUser;
 import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +22,8 @@ import java.util.Arrays;
 
 @RestController
 public class ShopController {
+    private static final Logger logger = LoggerFactory.getLogger(ShopController.class);
+
     @Autowired
     private ShopService shopService;
 
@@ -36,6 +40,7 @@ public class ShopController {
             @Depart @ApiIgnore Long departId,
             @Validated @RequestBody ShopCreatorValidation vo
     ) {
+        logger.debug("create shop: userId = " + userId + ", departId = " + departId);
         if (userId == null || departId == null || departId == -2) {
             return StatusWrap.just(Status.LOGIN_REQUIRED);
         }

@@ -11,6 +11,10 @@ import cn.edu.xmu.ooad.annotation.Audit;
 import cn.edu.xmu.ooad.annotation.Depart;
 import cn.edu.xmu.ooad.annotation.LoginUser;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +25,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 public class FlashSaleController {
+    private static final Logger logger = LoggerFactory.getLogger(FlashSaleController.class);
     @Autowired
     private FlashSaleService flashSaleService;
 
@@ -165,8 +170,9 @@ public class FlashSaleController {
         return flashSaleService.getFlashSaleItemsWithinTimeSegment(timeSegmentId);
     }
 
-    @GetMapping(path = "/flashsale/current", produces = "application/stream+json;charset=UTF-8")
+    @GetMapping(path = "/flashsales/current", produces = "application/stream+json;charset=UTF-8")
     public Flux<FlashSaleItemExtendedView> getCurrentFlashSaleItems() {
+        logger.debug("get current flash sale");
         return flashSaleService.getCurrentFlashSaleItems();
     }
 }
