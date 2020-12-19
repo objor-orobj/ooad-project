@@ -19,11 +19,12 @@ import java.util.Arrays;
  * @create:2020-12-08 11:05
  */
 @RestController
+@RequestMapping(value = "", produces = "application/json;charset=UTF-8")
 public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    @ApiOperation(value="获得评论的所有状态")
+    @ApiOperation(value="获得评论的所有状态",produces="application/json;charset=UTF-8")
     @ApiResponses({
             @ApiResponse(code=0,message="成功")
     })
@@ -32,7 +33,7 @@ public class CommentController {
         return StatusWrap.of(Arrays.asList(Comment.State.values()));
     }
 
-    @ApiOperation(value="查看sku的评价列表（已通过审核）",produces="application/json")
+    @ApiOperation(value="查看sku的评价列表（已通过审核）",produces="application/json;charset=UTF-8")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType="path",dataType="int",name="id",value="sku id",required=true),
             @ApiImplicitParam(paramType = "query", dataType = "int", name = "page", value = "页码", required = false),
@@ -49,7 +50,7 @@ public class CommentController {
         return commentService.getSkuComments(id,page,pageSize);
     }
 
-    @ApiOperation(value="买家查看自己的评价记录",produces="application/json")
+    @ApiOperation(value="买家查看自己的评价记录",produces="application/json;charset=UTF-8")
     @ApiImplicitParams({
             //@ApiImplicitParam(paramType = "header", dataType = "String",  name = "authorization", value ="用户token", required = true),
             @ApiImplicitParam(paramType = "query", dataType = "int", name = "page", value = "页码", required = false),
@@ -67,7 +68,7 @@ public class CommentController {
         return commentService.getSelfComments(userId,page,pageSize);
     }
 
-    @ApiOperation(value="管理员查看未审核/已审核评价列表",produces="application/json")
+    @ApiOperation(value="管理员查看未审核/已审核评价列表",produces="application/json;charset=UTF-8")
     @ApiImplicitParams({
             //@ApiImplicitParam(paramType = "header", dataType = "String",  name = "authorization", value ="用户token", required = true),
             @ApiImplicitParam(paramType="path",dataType="int",name="id",value="shop id",required=true),
@@ -87,7 +88,7 @@ public class CommentController {
         return commentService.getShopComments(state,page,pageSize);
     }
 
-    @ApiOperation(value="买家新增sku的评论",produces="application/json")
+    @ApiOperation(value="买家新增sku的评论",produces="application/json;charset=UTF-8")
     @ApiImplicitParams({
             //@ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
             @ApiImplicitParam(paramType="body",dataType = "CommentVo",name="vo",value="评价信息",required=true)
@@ -96,7 +97,7 @@ public class CommentController {
             @ApiResponse(code=0,message="成功"),
             @ApiResponse(code=903,message="用户没有购买此商品")
     })
-    @PostMapping("/orderItems/{id}/comments")
+    @PostMapping("/orderitems/{id}/comments")
     public Object createComment(@Validated @RequestBody CommentVo vo,
                                 //@LoginUser Long userId,
                                 @PathVariable Long id){
@@ -104,7 +105,7 @@ public class CommentController {
         return commentService.createComment(customerId,id,vo);
     }
 
-    @ApiOperation(value="管理员审核评论")
+    @ApiOperation(value="管理员审核评论",produces="application/json;charset=UTF-8")
     @ApiImplicitParams({
             //@ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
             //@ApiImplicitParam(paramType="path",dataType="int",name="did",value="shop id",required=true),
