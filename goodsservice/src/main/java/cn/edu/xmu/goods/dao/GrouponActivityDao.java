@@ -5,7 +5,9 @@ import cn.edu.xmu.goods.mapper.GrouponActivityPoMapper;
 import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
+import cn.edu.xmu.goods.model.bo.GoodsSpu;
 import cn.edu.xmu.goods.model.bo.GrouponActivity;
+import cn.edu.xmu.goods.model.bo.Shop;
 import cn.edu.xmu.goods.model.po.GoodsSpuPo;
 import cn.edu.xmu.goods.model.po.GrouponActivityPo;
 import cn.edu.xmu.goods.model.po.GrouponActivityPoExample;
@@ -33,12 +35,24 @@ public class GrouponActivityDao {
     private GrouponActivityPoMapper grouponActivityPoMapper;
     @Autowired(required = false)
     private GoodsSpuPoMapper goodsSpuPoMapper;
+    @Autowired
+    private ShopDao shopDao;
+    @Autowired
+    private GoodsSkuDao skuDao;
 
     public ResponseEntity<StatusWrap> createGrouponActivity(GrouponActivity grouponActivity) {
         GrouponActivityPo po = grouponActivity.getGrouponActivityPo();
+        GoodsSpuPo spuPo = skuDao.getSpuPoById(po.getGoodsSpuId());
+        if(spuPo == null) {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
+        Shop shop = shopDao.select(po.getShopId());
         GoodsSpuPo goodsSpu = goodsSpuPoMapper.selectByPrimaryKey(po.getGoodsSpuId());
         if (goodsSpu.getShopId() != po.getShopId() && po.getShopId() != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        }
+        if (shop.getState() != Shop.State.ONLINE) {
+            return StatusWrap.just(Status.SHOP_STATE_DENIED);
         }
         if(po.getBeginTime().isBefore(LocalDateTime.now())
                 || po.getEndTime().isBefore(LocalDateTime.now())
@@ -190,7 +204,9 @@ public class GrouponActivityDao {
     public GrouponActivityPo getGrouponActivityById(Long Id) {
 
         GrouponActivityPo grouponActivityPo = grouponActivityPoMapper.selectByPrimaryKey(Id);
-
+        if(grouponActivityPo == null){
+            return null;
+        }
         return grouponActivityPo;
     }
 
@@ -270,12 +286,6 @@ public class GrouponActivityDao {
         {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        if(po.getBeginTime().isBefore(LocalDateTime.now())
-                || po.getEndTime().isBefore(LocalDateTime.now())
-                || po.getStrategy() == null
-        ){
-            return StatusWrap.just(Status.FIELD_NOTVALID);
-        }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
@@ -298,12 +308,6 @@ public class GrouponActivityDao {
         if(po == null)
         {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        }
-        if(po.getBeginTime().isBefore(LocalDateTime.now())
-                || po.getEndTime().isBefore(LocalDateTime.now())
-                || po.getStrategy() == null
-        ){
-            return StatusWrap.just(Status.FIELD_NOTVALID);
         }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
@@ -328,12 +332,6 @@ public class GrouponActivityDao {
         if(po == null)
         {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        }
-        if(po.getBeginTime().isBefore(LocalDateTime.now())
-                || po.getEndTime().isBefore(LocalDateTime.now())
-                || po.getStrategy() == null
-        ){
-            return StatusWrap.just(Status.FIELD_NOTVALID);
         }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
