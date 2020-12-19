@@ -29,7 +29,7 @@ public interface GoodsServiceInterface {
     Boolean hasGoodsSku(Long skuId);
 
     //查询一个sku是否属于一个店铺
-    Boolean hasGoodsSku(Long skuId,Long shopId);
+    Long getShopIdBySkuId(Long skuId);
 
     //通过两个skuId判断是不是属于一个spu，相同也是true
     Boolean anbleChange(Long newGoodSkuId, Long goodSkuId);

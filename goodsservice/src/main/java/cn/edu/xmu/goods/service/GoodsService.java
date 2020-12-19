@@ -68,9 +68,9 @@ public class GoodsService implements GoodsServiceInterface {
     }
 
     @Override
-    public Boolean hasGoodsSku(Long skuId,Long shopId)
+    public Long getShopIdBySkuId(Long skuId)
     {
-        return goodsSkuDao.isBelongShop(skuId,shopId);
+        return goodsSkuDao.getShopIdBySkuId(skuId);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class GoodsService implements GoodsServiceInterface {
     @Override
     public GoodsSkuInfo getGoodsSkuInfoAlone(Long goodsSkuId)
     {
-        return null;
+        return goodsSkuDao.getGoodsSkuInfoAlone(goodsSkuId);
     }
 
     public ResponseEntity<StatusWrap> getGoodsSkus(GetGoodsSkuVo getSkuVo) {
