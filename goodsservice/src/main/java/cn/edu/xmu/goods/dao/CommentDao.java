@@ -43,99 +43,109 @@ public class CommentDao {
     @DubboReference(version = "0.0.1")
     private OrderServiceInterface orderService;
 
-    public ResponseEntity<StatusWrap> getSkuComments(Long skuId, Integer page, Integer pageSize){
+    public ResponseEntity<StatusWrap> getSkuComments(Long skuId, Integer page, Integer pageSize) {
         List<CommentPo> com = null;
-        CommentPoExample example=new CommentPoExample();
-        CommentPoExample.Criteria criteria=example.createCriteria();
-        Comment.State state= Comment.State.SUCCESS;
+        CommentPoExample example = new CommentPoExample();
+        CommentPoExample.Criteria criteria = example.createCriteria();
+        Comment.State state = Comment.State.SUCCESS;
         PageHelper.startPage(page, pageSize);
         criteria.andGoodsSkuIdEqualTo(skuId);
         criteria.andStateEqualTo(state.getCode().byteValue());
-        com=commentMapper.selectByExample(example);
-        if(com.size()==0){
+        com = commentMapper.selectByExample(example);
+        if (com.size() == 0) {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        List<CommentRetVo> commentRet=new ArrayList<>(com.size());
-        for(CommentPo po:com){
-            CustomerDTO customer=userService.getCustomerInfoById(po.getCustomerId());
-            CommentRetVo comment=new CommentRetVo(po,customer);
+        List<CommentRetVo> commentRet = new ArrayList<>(com.size());
+        for (CommentPo po : com) {
+            CustomerDTO customer = userService.getCustomerInfoById(po.getCustomerId());
+            CommentRetVo comment = new CommentRetVo(po, customer);
             commentRet.add(comment);
         }
         PageInfo<CommentPo> raw = PageInfo.of(com);
-        return StatusWrap.of(PageWrap.of(raw,commentRet));
+        return StatusWrap.of(PageWrap.of(raw, commentRet));
     }
 
-    public ResponseEntity<StatusWrap> getSelfComments(Long customerId,Integer page,Integer pageSize){
+    public ResponseEntity<StatusWrap> getSelfComments(Long customerId, Integer page, Integer pageSize) {
         List<CommentPo> com = null;
-        CommentPoExample example=new CommentPoExample();
-        CommentPoExample.Criteria criteria=example.createCriteria();
+        CommentPoExample example = new CommentPoExample();
+        CommentPoExample.Criteria criteria = example.createCriteria();
         PageHelper.startPage(page, pageSize);
         criteria.andCustomerIdEqualTo(customerId);
-        com=commentMapper.selectByExample(example);
-        if(com==null||com.isEmpty()){
+        com = commentMapper.selectByExample(example);
+        if (com == null || com.isEmpty()) {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        List<CommentRetVo> commentRet=new ArrayList<>(com.size());
-        for(CommentPo po:com){
-            CustomerDTO customer=userService.getCustomerInfoById(po.getCustomerId());
-            CommentRetVo comment=new CommentRetVo(po,customer);
+        List<CommentRetVo> commentRet = new ArrayList<>(com.size());
+        for (CommentPo po : com) {
+            CustomerDTO customer = userService.getCustomerInfoById(po.getCustomerId());
+            CommentRetVo comment = new CommentRetVo(po, customer);
             commentRet.add(comment);
         }
         PageInfo<CommentPo> raw = PageInfo.of(com);
-        return StatusWrap.of(PageWrap.of(raw,commentRet));
+        return StatusWrap.of(PageWrap.of(raw, commentRet));
     }
 
-    public ResponseEntity<StatusWrap> getShopComments(Integer state,Integer page,Integer pageSize){
+    public ResponseEntity<StatusWrap> getShopComments(Integer state, Integer page, Integer pageSize) {
         List<CommentPo> com = null;
-        CommentPoExample example=new CommentPoExample();
-        CommentPoExample.Criteria criteria=example.createCriteria();
+        CommentPoExample example = new CommentPoExample();
+        CommentPoExample.Criteria criteria = example.createCriteria();
         PageHelper.startPage(page, pageSize);
-        if(state==null)
+        if (state == null)
             criteria.andIdIsNotNull();
-        else{
+        else {
             Byte s;
-            switch(state){
-                case 0:s=0;break;
-                case 1:s=1;break;
-                case 2:s=2;break;
-                default:return StatusWrap.just(Status.FIELD_NOTVALID);
+            switch (state) {
+                case 0:
+                    s = 0;
+                    break;
+                case 1:
+                    s = 1;
+                    break;
+                case 2:
+                    s = 2;
+                    break;
+                default:
+                    return StatusWrap.just(Status.FIELD_NOTVALID);
             }
             criteria.andStateEqualTo(s);
         }
-        com=commentMapper.selectByExample(example);
-        if(com==null||com.isEmpty()){
+        com = commentMapper.selectByExample(example);
+        if (com == null || com.isEmpty()) {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        List<CommentRetVo> commentRet=new ArrayList<>(com.size());
-        for(CommentPo po:com){
-            CustomerDTO customer=userService.getCustomerInfoById(po.getCustomerId());
-            CommentRetVo comment=new CommentRetVo(po,customer);
+        List<CommentRetVo> commentRet = new ArrayList<>(com.size());
+        for (CommentPo po : com) {
+            CustomerDTO customer = userService.getCustomerInfoById(po.getCustomerId());
+            CommentRetVo comment = new CommentRetVo(po, customer);
             commentRet.add(comment);
         }
         PageInfo<CommentPo> raw = PageInfo.of(com);
-        return StatusWrap.of(PageWrap.of(raw,commentRet));
+        return StatusWrap.of(PageWrap.of(raw, commentRet));
     }
 
-    public ResponseEntity<StatusWrap> createComment(Long customerId,Long orderitemId,CommentVo vo){
+    public ResponseEntity<StatusWrap> createComment(Long customerId, Long orderitemId, CommentVo vo) {
         Long skuId = orderService.getSkuIdByOrderItemId(orderitemId);
-        CommentPoExample example=new CommentPoExample();
-        CommentPoExample.Criteria criteria=example.createCriteria();
+        if (vo.getContent() == null || vo.getType() == null) {
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
+        CommentPoExample example = new CommentPoExample();
+        CommentPoExample.Criteria criteria = example.createCriteria();
         criteria.andCustomerIdEqualTo(customerId);
         criteria.andOrderitemIdEqualTo(orderitemId);
         criteria.andGoodsSkuIdEqualTo(skuId);
-        List<CommentPo> com=commentMapper.selectByExample(example);
-        if(com.size()!=0){
+        List<CommentPo> com = commentMapper.selectByExample(example);
+        if (com.size() != 0) {
             return StatusWrap.just(Status.COMMENT_CREATED);
         }
-        CommentPo po=vo.createComment().getCommentPo();
+        CommentPo po = vo.createComment().getCommentPo();
         po.setOrderitemId(orderitemId);
         po.setCustomerId(customerId);
         po.setState(Comment.State.UNCHECK.getCode().byteValue());
         po.setGmtCreate(LocalDateTime.now());
-        int ret=commentMapper.insert(po);
+        int ret = commentMapper.insert(po);
 
-        CustomerDTO customer=userService.getCustomerInfoById(po.getCustomerId());
-        CommentRetVo retVo=new CommentRetVo(po,customer);
+        CustomerDTO customer = userService.getCustomerInfoById(po.getCustomerId());
+        CommentRetVo retVo = new CommentRetVo(po, customer);
         if (ret != 0) {
             return StatusWrap.of(retVo, HttpStatus.CREATED);
         } else {
@@ -143,18 +153,21 @@ public class CommentDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> confirmComment(Long commentId, CommentConfirmVo vo){
-        CommentPo po=commentMapper.selectByPrimaryKey(commentId);
-        if(po==null)
+    public ResponseEntity<StatusWrap> confirmComment(Long commentId, CommentConfirmVo vo) {
+        if (vo.getConclusion() == null) {
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
+        CommentPo po = commentMapper.selectByPrimaryKey(commentId);
+        if (po == null)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        if(po.getState()==0){
-            if(vo.getConclusion()){
+        if (po.getState() == 0) {
+            if (vo.getConclusion()) {
                 po.setState(Comment.State.SUCCESS.getCode().byteValue());
-            }else{
+            } else {
                 po.setState(Comment.State.FAIL.getCode().byteValue());
             }
             po.setGmtModified(LocalDateTime.now());
-            int ret=commentMapper.updateByPrimaryKeySelective(po);
+            int ret = commentMapper.updateByPrimaryKeySelective(po);
             if (ret != 0) {
                 return StatusWrap.just(Status.OK);
             } else {

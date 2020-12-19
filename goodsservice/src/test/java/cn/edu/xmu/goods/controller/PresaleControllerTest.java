@@ -374,7 +374,7 @@ public class PresaleControllerTest {
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
-
+    @Test
     public void createpresale() throws Exception{
         String token = this.login("13088admin","123456");
         String requiredJson = "{\n" +
@@ -398,7 +398,7 @@ public class PresaleControllerTest {
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": {\n" +
-                "    \"id\": 3111,\n" +
+//                "    \"id\": 3111,\n" +
                 "    \"name\": \"华为买买买\",\n" +
                 "    \"beginTime\": \"2021-12-19T08:55:14.199\",\n" +
                 "    \"payTime\": \"2023-12-19T08:55:14.199\",\n" +
@@ -545,7 +545,7 @@ public class PresaleControllerTest {
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
-    @Test
+    @Test   //非自己对象
     public void modifypresale1() throws Exception{
         String token = this.login("13088admin","123456");
         String requiredJson = "{\n" +
@@ -571,7 +571,7 @@ public class PresaleControllerTest {
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
-    @Test
+    @Test   //状态禁止
     public void modifypresale2() throws Exception{
         String token = this.login("13088admin","123456");
         String requiredJson = "{\n" +
@@ -597,7 +597,7 @@ public class PresaleControllerTest {
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
-    @Test
+    @Test   //字段不合法
     public void modifypresale3() throws Exception{
         String token = this.login("13088admin","123456");
         String requiredJson = "{\n" +
@@ -620,6 +620,212 @@ public class PresaleControllerTest {
         String expectedResponse = "{\n" +
                 "  \"errno\": 503,\n" +
                 "  \"errmsg\": \"字段不合法\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test   //资源不存在
+    public void modifypresale4() throws Exception{
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"name\": \"有毒\",\n" +
+                "  \"advancePayPrice\": 15,\n" +
+                "  \"restPayPrice\": 20,\n" +
+                "  \"quantity\": 10,\n" +
+                "  \"beginTime\": \"2021-12-19T10:14:23.201Z\",\n" +
+                "  \"payTime\": \"2023-12-19T10:14:23.201Z\",\n" +
+                "  \"endTime\": \"2022-12-19T10:14:23.201Z\"\n" +
+                "}";
+        String responseString=this.mvc.perform(put("/shops/1/presales/10")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 504,\n" +
+                "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void ONLINE() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(put("/shops/1/presales/1/onshelves")
+                .header("authorization",token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void ONLINE1() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(put("/shops/1/presales/4/onshelves")
+                .header("authorization",token))
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 505,\n" +
+                "  \"errmsg\": \"操作的资源id不是自己的对象\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void ONLINE2() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(put("/shops/2/presales/4/onshelves")
+                .header("authorization",token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 906,\n" +
+                "  \"errmsg\": \"预售活动状态禁止\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void ONLINE3() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(put("/shops/2/presales/10/onshelves")
+                .header("authorization",token))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 504,\n" +
+                "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void OFFLINE() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(put("/shops/2/presales/4/offshelves")
+                .header("authorization",token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void OFFLINE1() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(put("/shops/1/presales/4/offshelves")
+                .header("authorization",token))
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 505,\n" +
+                "  \"errmsg\": \"操作的资源id不是自己的对象\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void OFFLINE2() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(put("/shops/1/presales/1/offshelves")
+                .header("authorization",token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 906,\n" +
+                "  \"errmsg\": \"预售活动状态禁止\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void OFFLINE3() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(put("/shops/1/presales/10/offshelves")
+                .header("authorization",token))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 504,\n" +
+                "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void DeletePresale() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(delete("/shops/1/presales/1")
+                .header("authorization",token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void DeletePresale1() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(delete("/shops/2/presales/4")
+                .header("authorization",token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 906,\n" +
+                "  \"errmsg\": \"预售活动状态禁止\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void DeletePresale2() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(delete("/shops/1/presales/2")
+                .header("authorization",token))
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 505,\n" +
+                "  \"errmsg\": \"操作的资源id不是自己的对象\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void DeletePresale3() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(delete("/shops/1/presales/10")
+                .header("authorization",token))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 504,\n" +
+                "  \"errmsg\": \"操作的资源id不存在\"\n" +
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }

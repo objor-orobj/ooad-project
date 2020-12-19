@@ -12,6 +12,6 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class CommentConfirmVo {
-    @NotNull
+    //@NotNull
     private Boolean conclusion;
 }

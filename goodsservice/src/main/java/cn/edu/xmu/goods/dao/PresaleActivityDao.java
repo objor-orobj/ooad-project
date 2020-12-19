@@ -90,7 +90,7 @@ public class PresaleActivityDao {
                     case 3:
                         criteria.andGoodsSkuIdEqualTo(vo.getGoodsSkuId())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             } else if (vo.getShopid() != null) {
                 switch (vo.getTimeline()) {
@@ -111,7 +111,7 @@ public class PresaleActivityDao {
                     case 3:
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             } else {
                 switch (vo.getTimeline()) {
@@ -132,7 +132,7 @@ public class PresaleActivityDao {
                     case 3:
                         criteria
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             }
         } else {
@@ -215,6 +215,10 @@ public class PresaleActivityDao {
 
     public ResponseEntity<StatusWrap> modifyPresaleActivity(Long id, PresaleActivityModifyVo vo) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null)
+        {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
         if (po.getState() != PresaleActivity.State.OFFLINE.getCode().byteValue()) {
             return StatusWrap.just(Status.PRESALE_STATENOTALLOW);
         }
@@ -249,6 +253,9 @@ public class PresaleActivityDao {
 
     public boolean deductPresaleActivityquantity(Long id, Integer quantity) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return false;
+        }
         if (po.getQuantity() < quantity) {
             return false;
         }
@@ -268,6 +275,9 @@ public class PresaleActivityDao {
 
     public boolean plusPresaleActivityquantity(Long id, Integer quantity) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return false;
+        }
         if (po.getState() != PresaleActivity.State.ONLINE.getCode().byteValue()) {
             return false;
         }
@@ -284,11 +294,17 @@ public class PresaleActivityDao {
 
     public Long getearnestBySkuId(Long id) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return null;
+        }
         return po.getAdvancePayPrice();
     }
 
     public ResponseEntity<StatusWrap> PtoONLINE(Long shopId, Long id) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
@@ -308,6 +324,9 @@ public class PresaleActivityDao {
 
     public ResponseEntity<StatusWrap> PtoOFFLINE(Long shopId, Long id) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
@@ -328,6 +347,9 @@ public class PresaleActivityDao {
 
     public ResponseEntity<StatusWrap> deletePresaleActivityById(Long shopId, Long id) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
