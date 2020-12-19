@@ -90,7 +90,7 @@ public class PresaleActivityDao {
                     case 3:
                         criteria.andGoodsSkuIdEqualTo(vo.getGoodsSkuId())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             } else if (vo.getShopid() != null) {
                 switch (vo.getTimeline()) {
@@ -111,7 +111,7 @@ public class PresaleActivityDao {
                     case 3:
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             } else {
                 switch (vo.getTimeline()) {
@@ -132,7 +132,7 @@ public class PresaleActivityDao {
                     case 3:
                         criteria
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             }
         } else {
