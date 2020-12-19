@@ -49,7 +49,15 @@ public enum Status {
     GOODS_STATE_DENIED(922, "商品状态禁止"),
     COUPON_ACTIVITY_ITEM_DUPLICATED(923, "优惠活动商品重复添加"),
     COUPON_NO_NEED(924, "活动无需使用优惠券"),
-    COUPON_ALREADY_CLAIMED(925, "用户已领取过此优惠券");
+    COUPON_ALREADY_CLAIMED(925, "用户已领取过此优惠券"),
+    BRAND_EXISTED(926,"品牌名重复"),
+    GOODSCATEGORY_EXISTED(927,"分类名重复"),
+    PARENT_CATEGORY_NOT_EXIST(928,"父分类不存在"),
+    CATEGORY_EXISTED(929,"分类名重复"),
+    ADDED_BRAND(930,"已加入品牌"),
+    ADDED_CATEGORY(931,"已加入分类"),
+    NOT_ADDED_BRAND(932,"未加入品牌"),
+    NOT_ADDED_CATEGORY(933,"未加入分类");
 
     private final Integer errno;
     private final String errmsg;

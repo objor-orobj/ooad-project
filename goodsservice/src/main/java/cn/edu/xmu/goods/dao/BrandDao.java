@@ -2,6 +2,8 @@ package cn.edu.xmu.goods.dao;
 
 import cn.edu.xmu.goods.mapper.BrandPoMapper;
 import cn.edu.xmu.goods.mapper.GoodsSpuPoMapper;
+import cn.edu.xmu.goods.model.Status;
+import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.po.BrandPo;
 import cn.edu.xmu.goods.model.po.BrandPoExample;
 import cn.edu.xmu.goods.model.po.GoodsSpuPo;
@@ -13,6 +15,8 @@ import cn.edu.xmu.ooad.util.ReturnObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;
@@ -33,13 +37,23 @@ public class BrandDao {
     @Autowired
     private GoodsSpuPoMapper goodsSpuPoMapper;
 
-    public Object createBrand(BrandVo vo){
+    public ResponseEntity<StatusWrap> createBrand(BrandVo vo){
         BrandPo po=vo.createBrand().getBrandPo();
+        List<BrandPo> brandPo=null;
+        BrandPoExample example=new BrandPoExample();
+        BrandPoExample.Criteria criteria=example.createCriteria();
+        criteria.andIdIsNotNull();
+        brandPo=brandPoMapper.selectByExample(example);
+        for(BrandPo p:brandPo){
+            if(p.getName().equals(po.getName()))
+                return StatusWrap.just(Status.BRAND_EXISTED);
+        }
         int ret=brandPoMapper.insert(po);
+        BrandRetVo bVo=new BrandRetVo(po);
         if(ret!=0){
-            return new ReturnObject<>(po);
+            return StatusWrap.of(bVo, HttpStatus.CREATED);
         }else{
-            return new ReturnObject<>(ResponseCode.USER_HASSHOP, ResponseCode.USER_HASSHOP.getMessage());
+            return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
         }
     }
 
@@ -62,7 +76,7 @@ public class BrandDao {
         }
     }
 
-    public ReturnObject<PageInfo<BrandRetVo>> getAllBrands(Integer page,Integer pageSize){
+    public ResponseEntity<StatusWrap> getAllBrands(Integer page, Integer pageSize){
         List<BrandPo> po=null;
         BrandPoExample example=new BrandPoExample();
         BrandPoExample.Criteria criteria=example.createCriteria();
@@ -70,67 +84,87 @@ public class BrandDao {
         criteria.andIdIsNotNull();
         po=brandPoMapper.selectByExample(example);
         if(po==null||po.isEmpty()){
-            return new ReturnObject<>(ResponseCode.RESOURCE_ID_NOTEXIST, ResponseCode.RESOURCE_ID_NOTEXIST.getMessage());
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
         List<BrandRetVo> brandRet=new ArrayList<>(po.size());
         for(BrandPo p:po){
             BrandRetVo brand=new BrandRetVo(p);
             brandRet.add(brand);
         }
-        PageInfo<BrandRetVo> ret=PageInfo.of(brandRet);
-        return new ReturnObject<>(ret);
+        PageInfo<BrandPo> p1o=PageInfo.of(po);
+        PageInfo<BrandRetVo> ret=new PageInfo<>(brandRet);
+        ret.setPages(p1o.getPages());
+        ret.setPageNum(p1o.getPageNum());
+        ret.setPageSize(p1o.getPageSize());
+        ret.setTotal(p1o.getTotal());
+        return StatusWrap.of(ret);
     }
 
-    public Object modifyBrand(Long id,BrandVo vo){
+    public ResponseEntity<StatusWrap> modifyBrand(Long id,BrandVo vo){
         BrandPo po=brandPoMapper.selectByPrimaryKey(id);
+        if(po==null){
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
+        List<BrandPo> brandPo=null;
+        BrandPoExample example=new BrandPoExample();
+        BrandPoExample.Criteria criteria=example.createCriteria();
+        criteria.andIdIsNotNull();
+        brandPo=brandPoMapper.selectByExample(example);
+        for(BrandPo p:brandPo){
+            if(p.getName().equals(vo.getName()))
+                return StatusWrap.just(Status.BRAND_EXISTED);
+        }
         po.setName(vo.getName());
         po.setDetail(vo.getDetail());
         po.setGmtModified(LocalDateTime.now());
         int ret=brandPoMapper.updateByPrimaryKeySelective(po);
         if (ret != 0) {
-            return new ReturnObject<>(ResponseCode.OK, ResponseCode.OK.getMessage());
+            return StatusWrap.just(Status.OK);
         } else {
-            return new ReturnObject<>(ResponseCode.FIELD_NOTVALID, ResponseCode.FIELD_NOTVALID.getMessage());
+            return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
         }
     }
 
-    public ReturnObject<BrandPo> deleteBrand(Long id){
+    public ResponseEntity<StatusWrap> deleteBrand(Long id){
+        BrandPo po=brandPoMapper.selectByPrimaryKey(id);
+        if(po==null){
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
         BrandPoExample example=new BrandPoExample();
         BrandPoExample.Criteria criteria=example.createCriteria();
         criteria.andIdEqualTo(id);
         int ret=brandPoMapper.deleteByExample(example);
         if(ret==0)
-            return new ReturnObject<>(ResponseCode.RESOURCE_ID_NOTEXIST, ResponseCode.RESOURCE_ID_NOTEXIST.getMessage());
-        return new ReturnObject<>(ResponseCode.OK, ResponseCode.OK.getMessage());
+            return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        return StatusWrap.just(Status.OK);
     }
 
-    public Object addSpuToBrand(Long id,Long spuId,Long shopId){
+    public ResponseEntity<StatusWrap> addSpuToBrand(Long id,Long spuId){
         BrandPo brandPo=brandPoMapper.selectByPrimaryKey(id);
         GoodsSpuPo goodsSpuPo=goodsSpuPoMapper.selectByPrimaryKey(spuId);
         if(brandPo==null||goodsSpuPo==null){
-            return new ReturnObject<>(ResponseCode.RESOURCE_ID_NOTEXIST, ResponseCode.RESOURCE_ID_NOTEXIST.getMessage());
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
         GoodsSpuPoExample example=new GoodsSpuPoExample();
         GoodsSpuPoExample.Criteria criteria=example.createCriteria();
         criteria.andIdEqualTo(spuId);
         criteria.andBrandIdEqualTo(id);
-        criteria.andShopIdEqualTo(shopId);
         List<GoodsSpuPo> spuPos=goodsSpuPoMapper.selectByExample(example);
         if(spuPos.isEmpty()){
             goodsSpuPo.setBrandId(id);
             int ret=goodsSpuPoMapper.updateByPrimaryKeySelective(goodsSpuPo);
             if(ret==0)
-                return new ReturnObject<>(ResponseCode.RESOURCE_ID_NOTEXIST, ResponseCode.RESOURCE_ID_NOTEXIST.getMessage());
-            return new ReturnObject<>(ResponseCode.OK, ResponseCode.OK.getMessage());
+                return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+            return StatusWrap.just(Status.OK);
         }
-        return new ReturnObject<>(ResponseCode.FIELD_NOTVALID,ResponseCode.FIELD_NOTVALID.getMessage());
+        return StatusWrap.just(Status.ADDED_BRAND);
     }
 
-    public Object removeSpuFromBrand(Long id,Long spuId){
+    public ResponseEntity<StatusWrap> removeSpuFromBrand(Long id,Long spuId){
         BrandPo brandPo=brandPoMapper.selectByPrimaryKey(id);
         GoodsSpuPo goodsSpuPo=goodsSpuPoMapper.selectByPrimaryKey(spuId);
         if(brandPo==null||goodsSpuPo==null){
-            return new ReturnObject<>(ResponseCode.RESOURCE_ID_NOTEXIST, ResponseCode.RESOURCE_ID_NOTEXIST.getMessage());
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
         GoodsSpuPoExample example=new GoodsSpuPoExample();
         GoodsSpuPoExample.Criteria criteria=example.createCriteria();
@@ -138,13 +172,13 @@ public class BrandDao {
         criteria.andBrandIdEqualTo(id);
         List<GoodsSpuPo> spuPos=goodsSpuPoMapper.selectByExample(example);
         if(spuPos.isEmpty()){
-            return new ReturnObject<>(ResponseCode.RESOURCE_ID_NOTEXIST, ResponseCode.RESOURCE_ID_NOTEXIST.getMessage());
+            return StatusWrap.just(Status.NOT_ADDED_BRAND);
         }else{
             goodsSpuPo.setBrandId(Long.valueOf(0));
             int ret=goodsSpuPoMapper.updateByPrimaryKeySelective(goodsSpuPo);
             if(ret==0)
-                return new ReturnObject<>(ResponseCode.RESOURCE_ID_NOTEXIST, ResponseCode.RESOURCE_ID_NOTEXIST.getMessage());
-            return new ReturnObject<>(ResponseCode.OK, ResponseCode.OK.getMessage());
+                return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+            return StatusWrap.just(Status.OK);
         }
     }
 

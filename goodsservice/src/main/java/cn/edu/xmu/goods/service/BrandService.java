@@ -36,8 +36,8 @@ public class BrandService {
         return brandDao.deleteBrand(id);
     }
 
-    public Object addSpuToBrand(Long id,Long spuId,Long shopId){
-        return brandDao.addSpuToBrand(id,spuId,shopId);
+    public Object addSpuToBrand(Long id,Long spuId){
+        return brandDao.addSpuToBrand(id,spuId);
     }
 
     public Object removeSpuFromBrand(Long id,Long spuId){

@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
  */
 @Data
 public class BrandVo {
-    @NotBlank(message="name不得为空")
+    //@NotBlank(message="name不得为空")
     private String name;
 
-    @NotBlank(message="detail不得为空")
+    //@NotBlank(message="detail不得为空")
     private String detail;
 
     public Brand createBrand(){

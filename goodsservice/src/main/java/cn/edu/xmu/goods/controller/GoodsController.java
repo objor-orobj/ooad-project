@@ -3,18 +3,15 @@ package cn.edu.xmu.goods.controller;
 
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
-import cn.edu.xmu.goods.model.bo.*;
-import cn.edu.xmu.goods.model.po.GoodsSkuPo;
+import cn.edu.xmu.goods.model.bo.GoodsSpu;
 import cn.edu.xmu.goods.model.vo.*;
-import cn.edu.xmu.goods.service.*;
+import cn.edu.xmu.goods.service.BrandService;
+import cn.edu.xmu.goods.service.GoodsCategoryService;
+import cn.edu.xmu.goods.service.GoodsService;
 import cn.edu.xmu.ooad.annotation.Audit;
 import cn.edu.xmu.ooad.annotation.Depart;
 import cn.edu.xmu.ooad.annotation.LoginUser;
-import cn.edu.xmu.ooad.util.ResponseCode;
-import cn.edu.xmu.ooad.util.Common;
-import cn.edu.xmu.ooad.util.ReturnObject;
 import cn.edu.xmu.other.service.FootprintServiceInterface;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.*;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -25,9 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.constraints.NotNull;
 import java.util.Arrays;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "", produces = "application/json;charset=UTF-8")
@@ -44,17 +39,16 @@ public class GoodsController {
     @ApiOperation(value="管理员新增品牌")
     @ApiImplicitParams({
             //@ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
-            //@ApiImplicitParam(paramType="path",dataType="int",name="id",value="shop id",required=true),
+            @ApiImplicitParam(paramType="path",dataType="int",name="id",value="shop id",required=true),
             @ApiImplicitParam(paramType="body",dataType = "BrandVo",name="vo",value="可修改的品牌信息",required=true)
     })
     @ApiResponses({
             @ApiResponse(code=0,message="成功")
     })
     @PostMapping("/shops/{id}/brands")
-    public Object createBrand(@Validated @RequestBody BrandVo vo
+    public Object createBrand(@Validated @RequestBody BrandVo vo,
                               //@LoginUser Long userId,
-                              //@PathVariable Long id
-    ){
+                              @PathVariable("id") Long id){
         return brandService.createBrand(vo);
     }
 
@@ -62,7 +56,7 @@ public class GoodsController {
     @ApiImplicitParams({
             //@ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
             @ApiImplicitParam(paramType="path",dataType="int",name="id",value="goodsCategory id",required=true),
-            //@ApiImplicitParam(paramType="path",dataType="int",name="shopId",value="shop id",required=true),
+            @ApiImplicitParam(paramType="path",dataType="int",name="shopId",value="shop id",required=true),
             @ApiImplicitParam(paramType="body",dataType = "GoodsCategoryVo",name="vo",value="类目详细信息",required=true)
     })
     @ApiResponses({
@@ -71,16 +65,15 @@ public class GoodsController {
     @PostMapping("/shops/{shopId}/categories/{id}/subcategories")
     public  Object createGoodsCategory(@Validated @RequestBody GoodsCategoryVo vo,
                                        //@LoginUser Long userId,
-                                       @PathVariable Long id
-                                       //PathVariable Long shopId
-    ){
+                                       @PathVariable("id") Long id,
+                                       @PathVariable("shopId") Long shopId){
         return goodsCategoryService.createGoodsCategory(id,vo);
     }
 
     @ApiOperation(value="上传品牌图片")
     @ApiImplicitParams({
             //@ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
-            //@ApiImplicitParam(paramType="path",dataType="int",name="shopId",value="shop id",required=true),
+            @ApiImplicitParam(paramType="path",dataType="int",name="shopId",value="shop id",required=true),
             @ApiImplicitParam(paramType="path",dataType="int",name="id",value="id",required=true),
             @ApiImplicitParam(paramType="body",dataType = "String",name="img",value="imageUrl",required=true)
     })
@@ -89,8 +82,8 @@ public class GoodsController {
     })
     @PostMapping("/shops/{shopId}/brands/{id}/uploadImg")
     public Object uploadBrandImage( //@LoginUser Long userId,
-                                    @PathVariable Long id,
-                                    //@PathVariable Long shopId,
+                                    @PathVariable("id") Long id,
+                                    @PathVariable("shopId") Long shopId,
                                     @RequestParam String imageUrl){
         return brandService.uploadBrandImage(id,imageUrl);
     }
@@ -124,7 +117,7 @@ public class GoodsController {
     @ApiOperation(value="管理员修改品牌")
     @ApiImplicitParams({
             //@ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
-            //@ApiImplicitParam(paramType="path",dataType="int",name="shopId",value="shop id",required=true),
+            @ApiImplicitParam(paramType="path",dataType="int",name="shopId",value="shop id",required=true),
             @ApiImplicitParam(paramType="path",dataType="int",name="id",value="id",required=true),
             @ApiImplicitParam(paramType="body",dataType = "BrandVo",name="vo",value="可修改的品牌信息",required = true)
     })
@@ -132,8 +125,8 @@ public class GoodsController {
             @ApiResponse(code=0,message="成功")
     })
     @PutMapping("/shops/{shopId}/brands/{id}")
-    public Object modifyBrand(@PathVariable Long id,
-                              //@PathVariable Long shopId,
+    public Object modifyBrand(@PathVariable("id") Long id,
+                              @PathVariable("shopId") Long shopId,
                               @RequestBody BrandVo vo){
         return brandService.modifyBrand(id,vo);
     }
@@ -165,8 +158,8 @@ public class GoodsController {
             @ApiResponse(code=0,message="成功")
     })
     @DeleteMapping("/shops/{shopId}/brands/{id}")
-    public Object deleteBrand(@PathVariable Long id,
-                              @PathVariable Long shopId){
+    public Object deleteBrand(@PathVariable("id") Long id,
+                              @PathVariable("shopId") Long shopId){
         return brandService.deleteBrand(id);
     }
 
@@ -180,8 +173,8 @@ public class GoodsController {
             @ApiResponse(code=0,message="成功")
     })
     @DeleteMapping("/shops/{shopId}/categories/{id}")
-    public Object deleteGoodsCategory(@PathVariable Long id,
-                                      @PathVariable Long shopId){
+    public Object deleteGoodsCategory(@PathVariable("id") Long id,
+                                      @PathVariable("shopId") Long shopId){
         return goodsCategoryService.deleteGoodsCategory(id);
     }
 
@@ -196,10 +189,10 @@ public class GoodsController {
             @ApiResponse(code=0,message="成功")
     })
     @PostMapping("/shops/{shopId}/spus/{spuId}/brands/{id}")
-    public Object addSpuToBrand(@PathVariable Long id,
-                                @PathVariable Long spuId,
-                                @PathVariable Long shopId){
-        return brandService.addSpuToBrand(id,spuId,shopId);
+    public Object addSpuToBrand(@PathVariable("id") Long id,
+                                @PathVariable("spuId") Long spuId,
+                                @PathVariable("shopId") Long shopId){
+        return brandService.addSpuToBrand(id,spuId);
     }
 
     @ApiOperation(value="将SPU加入分类")
@@ -213,10 +206,10 @@ public class GoodsController {
             @ApiResponse(code=0,message="成功")
     })
     @PostMapping("/shops/{shopId}/spus/{spuId}/categories/{id}")
-    public Object addSpuToCategory(@PathVariable Long id,
-                                   @PathVariable Long spuId,
-                                   @PathVariable Long shopId){
-        return goodsCategoryService.addSpuToCategory(id,spuId,shopId);
+    public Object addSpuToCategory(@PathVariable("id") Long id,
+                                   @PathVariable("spuId") Long spuId,
+                                   @PathVariable("shopId") Long shopId){
+        return goodsCategoryService.addSpuToCategory(id,spuId);
     }
 
     @ApiOperation(value="将SPU移除品牌")

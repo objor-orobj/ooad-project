@@ -3,6 +3,7 @@ package cn.edu.xmu.goods.dao;
 import cn.edu.xmu.goods.mapper.GoodsSkuPoMapper;
 import cn.edu.xmu.goods.mapper.GoodsSpuPoMapper;
 import cn.edu.xmu.goods.mapper.PresaleActivityPoMapper;
+import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.PresaleActivity;
@@ -160,13 +161,13 @@ public class PresaleActivityDao {
                         return new PresaleActivityCreateVo(shop, goodsSku, x);
                     }
             ).collect(Collectors.toList());
-            PageInfo<PresaleActivityCreateVo> presaleActivityPageInfo = PageInfo.of(presaleActivities);
-            return StatusWrap.of(presaleActivityPageInfo);
+            PageInfo<PresaleActivityPo> presaleActivityPageInfo = PageInfo.of(presaleActivityList);
+            return StatusWrap.of(PageWrap.of(presaleActivityPageInfo, presaleActivities));
         }
     }
 
     public ResponseEntity<StatusWrap> getallPresaleAcitvity(PresaleActivityInVo vo) {
-        if(vo.getGoodsSkuId() != null) {
+        if (vo.getGoodsSkuId() != null) {
             if (goodsSkuDao.getShopIdBySkuId(vo.getGoodsSkuId().longValue()) != vo.getShopid()) {
                 return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
             }
@@ -214,20 +215,23 @@ public class PresaleActivityDao {
 
     public ResponseEntity<StatusWrap> modifyPresaleActivity(Long id, PresaleActivityModifyVo vo) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null)
+        {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
         if (po.getState() != PresaleActivity.State.OFFLINE.getCode().byteValue()) {
             return StatusWrap.just(Status.PRESALE_STATENOTALLOW);
         }
         if (po.getShopId() != vo.getShopId() && vo.getShopId() != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        if(vo.getBeginTime().isBefore(LocalDateTime.now())
+        if (vo.getBeginTime().isBefore(LocalDateTime.now())
                 || vo.getPayTime().isBefore(LocalDateTime.now())
                 || vo.getEndTime().isAfter(LocalDateTime.now())
-                || vo.getQuantity()<0
-                || vo.getAdvancePayPrice()<0
-                || vo.getRestPayPrice()<0
-        )
-        {
+                || vo.getQuantity() < 0
+                || vo.getAdvancePayPrice() < 0
+                || vo.getRestPayPrice() < 0
+        ) {
             return StatusWrap.just(Status.FIELD_NOTVALID);
         }
         po.setQuantity(vo.getQuantity());
@@ -249,6 +253,9 @@ public class PresaleActivityDao {
 
     public boolean deductPresaleActivityquantity(Long id, Integer quantity) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return false;
+        }
         if (po.getQuantity() < quantity) {
             return false;
         }
@@ -268,6 +275,9 @@ public class PresaleActivityDao {
 
     public boolean plusPresaleActivityquantity(Long id, Integer quantity) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return false;
+        }
         if (po.getState() != PresaleActivity.State.ONLINE.getCode().byteValue()) {
             return false;
         }
@@ -284,11 +294,17 @@ public class PresaleActivityDao {
 
     public Long getearnestBySkuId(Long id) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return null;
+        }
         return po.getAdvancePayPrice();
     }
 
     public ResponseEntity<StatusWrap> PtoONLINE(Long shopId, Long id) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
@@ -308,6 +324,9 @@ public class PresaleActivityDao {
 
     public ResponseEntity<StatusWrap> PtoOFFLINE(Long shopId, Long id) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
@@ -328,6 +347,9 @@ public class PresaleActivityDao {
 
     public ResponseEntity<StatusWrap> deletePresaleActivityById(Long shopId, Long id) {
         PresaleActivityPo po = presaleActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null) {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
