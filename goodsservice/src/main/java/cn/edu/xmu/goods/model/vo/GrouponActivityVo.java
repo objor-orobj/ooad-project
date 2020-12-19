@@ -23,10 +23,8 @@ public class GrouponActivityVo {
     @Range(min=0, max=2)
     @ApiModelProperty(value = "活动状态")
     private Byte state;
-    @NotNull
     @ApiModelProperty(value = "店铺id")
     private Long shopId;
-    @NotNull
     @ApiModelProperty(value = "活动商品spuid")
     private Long goodsSpuId;
     @NotBlank
