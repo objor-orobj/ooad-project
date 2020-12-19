@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.xml.transform.Result;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @SpringBootTest(classes = GoodsServiceApplication.class)   //标识本类是一个SpringBootTest
@@ -156,11 +156,134 @@ class GoodsControllerTest {
      * 需登录
      * 管理员添加新的SKU到SPU里
      **/
+    @Test
+    public void createSku() throws Exception {
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"configuration\": \"创建测试\",\n" +
+                "  \"detail\": \"创建测试\",\n" +
+                "  \"imageUrl\": \"创建测试\",\n" +
+                "  \"inventory\": 0,\n" +
+                "  \"name\": \"创建测试\",\n" +
+                "  \"originalPrice\": 10,\n" +
+                "  \"sn\": \"boxiang-0001\",\n" +
+                "  \"weight\": 10\n" +
+                "}";
+        String responseString=this.mvc.perform(post("/shops/1/spus/800/skus")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"id\": 20682,\n" +
+                "    \"name\": \"创建测试\",\n" +
+                "    \"skuSn\": \"boxiang-0001\",\n" +
+                "    \"imageUrl\": \"创建测试\",\n" +
+                "    \"inventory\": 0,\n" +
+                "    \"originalPrice\": 10,\n" +
+                "    \"price\": 10,\n" +
+                "    \"disabled\": false\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+
+    /** 5
+     * 需登录
+     * 异常路径
+     * 管理员添加新的SKU到SPU里,商品规格重复
+     **/
+    @Test
+    public void createSpu2() throws Exception {
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"configuration\": \"创建测试\",\n" +
+                "  \"detail\": \"创建测试\",\n" +
+                "  \"imageUrl\": \"创建测试\",\n" +
+                "  \"inventory\": 0,\n" +
+                "  \"name\": \"创建测试\",\n" +
+                "  \"originalPrice\": 10,\n" +
+                "  \"sn\": \"boxiang-0001\",\n" +
+                "  \"weight\": 10\n" +
+                "}";
+        String responseString=this.mvc.perform(post("/shops/1/spus/800/skus")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 901,\n" +
+                "  \"errmsg\": \"商品规格重复\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+//
 //    @Test
-//    public void createSku() throws Exception {
-//        ResultActions resultActions=null;
-//        resultActions=
-//        String responseString=this.mvc.perform(post("/shops/1/spus/800/skus"))
+//    void uploadSkuImg() {
+//    }
+
+    /** 5
+     * 需登录
+     * 管理员或店家逻辑删除SKU
+     **/
+    @Test
+    public void deleteSku() throws Exception {
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(delete("/shops/1/skus/20682"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+
+    /** 5
+     * 需登录
+     * 管理员或店家修改SKU信息
+     **/
+    @Test
+    void updateSku() throws Exception {
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"configuration\": \"修改测试\",\n" +
+                "  \"detail\": \"修改测试\",\n" +
+                "  \"inventory\": 20,\n" +
+                "  \"name\": \"修改测试\",\n" +
+                "  \"originalPrice\": 20,\n" +
+                "  \"weight\": 20\n" +
+                "}";
+
+        String responseString=this.mvc.perform(put("/shops/1/skus/801")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    //TODO 需要运费模板
+//    @Test
+//    public void getSpuById() throws Exception {
+//        String responseString=this.mvc.perform(get("/spus/800"))
 //                .andExpect(status().isOk())
 //                .andExpect(content().contentType("application/json;charset=UTF-8"))
 //                .andReturn().getResponse().getContentAsString();
@@ -169,59 +292,266 @@ class GoodsControllerTest {
 //        JSONAssert.assertEquals(expectedResponse, responseString, true);
 //    }
 //
+    //TODO 需要分享活动模块以及运费模板
 //    @Test
-//    void uploadSkuImg() {
+//    public void getSkuBySid() throws Exception {
+//        String responseString=this.mvc.perform(get("/share/1/skus/801"))
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentType("application/json;charset=UTF-8"))
+//                .andReturn().getResponse().getContentAsString();
+//        System.out.println(responseString);
+//        String expectedResponse ="";
+//        JSONAssert.assertEquals(expectedResponse, responseString, true);
 //    }
 //
-//    @Test
-//    void deleteSku() {
-//    }
-//
-//    @Test
-//    void updateSku() {
-//    }
-//
-//    @Test
-//    void getSpuById() {
-//    }
-//
-//    @Test
-//    void getSkuBySid() {
-//    }
-//
-//    @Test
-//    void createSpu() {
-//    }
+    /** 5
+     * 需登录
+     * 店家新建商品SPU
+     **/
+    @Test
+    public void createSpu() throws Exception {
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"decription\": \"创建测试\",\n" +
+                "  \"name\": \"创建测试\",\n" +
+                "  \"specs\": \"创建测试\"\n" +
+                "}";
+        String responseString=this.mvc.perform(post("/shops/1/spus")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"id\": 20684,\n" +
+                "    \"name\": \"创建测试\",\n" +
+                "    \"brand\": {\n" +
+                "      \"id\": null,\n" +
+                "      \"name\": null,\n" +
+                "      \"imageUrl\": null\n" +
+                "    },\n" +
+                "    \"category\": {\n" +
+                "      \"id\": null,\n" +
+                "      \"name\": null\n" +
+                "    },\n" +
+                "    \"freightModelDTO\": {\n" +
+                "      \"id\": null,\n" +
+                "      \"name\": null,\n" +
+                "      \"type\": null,\n" +
+                "      \"unit\": null,\n" +
+                "      \"defaultModel\": null,\n" +
+                "      \"gmtCreate\": null,\n" +
+                "      \"gmtModified\": null\n" +
+                "    },\n" +
+                "    \"shop\": {\n" +
+                "      \"id\": null,\n" +
+                "      \"name\": null\n" +
+                "    },\n" +
+                "    \"goodsSn\": null,\n" +
+                "    \"detail\": \"创建测试\",\n" +
+                "    \"imageUrl\": null,\n" +
+                "    \"spec\": \"创建测试\",\n" +
+                "    \"skuList\": null,\n" +
+                "    \"gmtCreate\": \"2020-12-19T20:27:21.9417386\",\n" +
+                "    \"gmtModified\": null,\n" +
+                "    \"disabled\": false\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+
 //
 //    @Test
 //    void uploadSpuImg() {
 //    }
 //
-//    @Test
-//    void updateSpu() {
-//    }
+    /** 5
+     * 需登录
+     * 店家修改商品SPU
+     **/
+    @Test
+    public void updateSpu() throws Exception {
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"decription\": \"修改测试\",\n" +
+                "  \"name\": \"修改测试\",\n" +
+                "  \"specs\": \"修改测试\"\n" +
+                "}";
+
+        String responseString=this.mvc.perform(put("/shops/1/spus/800")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
 //
-//    @Test
-//    void deleteSpu() {
-//    }
+    /** 5
+     * 需登录
+     * 店家逻辑删除商品SPU
+     **/
+    @Test
+    public void deleteSpu() throws Exception {
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(delete("/shops/1/spus/281"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
 //
-//    @Test
-//    void putGoodsOnSale() {
-//    }
+    /** 5
+     * 需登录
+     * 店家商品下架
+     **/
+    @Test
+    public void putOffGoodsOnSale() throws Exception {
+        String token = this.login("13088admin","123456");
+
+        String responseString=this.mvc.perform(put("/shops/1/skus/282/offshelves")
+                .header("authorization",token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+
+    /** 5
+     * 需登录
+     * 店家商品上架
+     **/
+    @Test
+    public void putGoodsOnSale() throws Exception {
+        String token = this.login("13088admin","123456");
+
+        String responseString=this.mvc.perform(put("/shops/1/skus/282/onshelves")
+                .header("authorization",token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
 //
-//    @Test
-//    void putOffGoodsOnSale() {
-//    }
+    /** 5
+     * 需登录
+     * 管理员新增商品价格浮动
+     * 异常路径：浮动价格库存大于商品SKU库存
+     **/
+    @Test
+    public void addFloatingPrice() throws Exception {
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"activityPrice\":5,\n" +
+                "  \"beginTime\": \"2020-12-19T13:23:01.260Z\",\n" +
+                "  \"endTime\": \"2020-12-29T13:23:01.260Z\",\n" +
+                "  \"quantity\": 5\n" +
+                "}";
+        String responseString=this.mvc.perform(post("/shops/1/skus/282/floatPrices")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 921,\n" +
+                "  \"errmsg\": \"浮动价格库存大于商品SKU库存\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+
+    /** 5
+     * 需登录
+     * 管理员新增商品价格浮动
+     **/
+    @Test
+    public void addFloatingPrice2() throws Exception {
+        String token = this.login("13088admin","123456");
+        String requiredJson = "{\n" +
+                "  \"activityPrice\":5,\n" +
+                "  \"beginTime\": \"2020-12-19T13:23:01.260Z\",\n" +
+                "  \"endTime\": \"2020-12-29T13:23:01.260Z\",\n" +
+                "  \"quantity\": 5\n" +
+                "}";
+        String responseString=this.mvc.perform(post("/shops/1/skus/801/floatPrices")
+                .header("authorization",token)
+                .contentType("application/json;charset=UTF-8")
+                .content(requiredJson))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"id\": 9002,\n" +
+                "    \"activityPrice\": 5,\n" +
+                "    \"quantity\": 5,\n" +
+                "    \"createdBy\": {\n" +
+                "      \"id\": 1,\n" +
+                "      \"userName\": \"13088admin\"\n" +
+                "    },\n" +
+                "    \"invalidBy\": {\n" +
+                "      \"id\": null,\n" +
+                "      \"userName\": null\n" +
+                "    },\n" +
+                "    \"valid\": true\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, false);
+    }
 //
-//    @Test
-//    void addFloatingPrice() {
-//    }
-//
-//    @Test
-//    void invalidFloatPrice() {
-//    }
-private String login(String userName, String password) throws Exception{
-    String token = new JwtHelper().createToken(1L, 0L, 3600);
-    return token;
-}
+    /** 5
+     * 需登录
+     * 管理员失效商品价格浮动
+     **/
+    @Test
+    public void invalidFloatPrice() throws Exception {
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(delete("/shops/1/floatPrices/9002"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse ="{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+
+    private String login(String userName, String password) throws Exception{
+        String token="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0aGlzIGlzIGEgdG9rZW4iLCJhdWQiOiJNSU5JQVBQIiwidG9rZW5JZCI6IjIwMjAxMjE5MTgxNDE0OEw0IiwiaXNzIjoiT09BRCIsImRlcGFydElkIjowLCJleHAiOjE2MDgzNzY0NTQsInVzZXJJZCI6MSwiaWF0IjoxNjA4MzcyODU0fQ.NxK5qj_i_LpwiFYC6fiXi_BLkoyDzCOvjUNuWOm4ymE";
+//        String token = new JwtHelper().createToken(1L, 0L, 3600);
+        return token;
+    }
 }

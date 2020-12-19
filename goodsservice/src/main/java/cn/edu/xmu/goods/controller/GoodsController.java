@@ -18,6 +18,8 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.*;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +38,8 @@ public class GoodsController {
     private BrandService brandService;
     @Autowired
     private GoodsCategoryService goodsCategoryService;
+
+    private static final Logger logger = LoggerFactory.getLogger(GoodsController.class);
 
     @ApiOperation(value="管理员新增品牌")
     @ApiImplicitParams({
@@ -392,7 +396,7 @@ public class GoodsController {
     }
 
     //缺少运费模板
-    @ApiOperation(value="查看一条商品SPU的详细信息（无需登录）")
+    @ApiOperation(value="无需登录查看一条商品SPU的详细信息")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "path", dataType = "long", name = "id", value = "商品SPU ID", required = true)
     })
@@ -405,11 +409,9 @@ public class GoodsController {
         return goodsService.getSpuById(id);
     }
 
-    //TODO 查看分享商品信息,调用分享活动api
-    @Audit
-    @ApiOperation(value="查看一条分享商品SPU的详细信息（需登录）")
+    //TODO 查看分享商品信息,调用分享活动api，以及token登录问题
+    @ApiOperation(value="需登录查看一条分享商品SPU的详细信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "long", name = "sid", value = "分享ID", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "long", name = "id", value = "商品SkU ID", required = true)
     })
@@ -418,12 +420,9 @@ public class GoodsController {
             @ApiResponse(code=504,message="操作的资源id不存在")
     })
     @GetMapping(path = "/share/{sid}/skus/{id}")
-    public Object getSkuBySid(@LoginUser @ApiIgnore Long userId,
-                              @Depart @ApiIgnore Long departId,
-                              @PathVariable Long sid,
+    public Object getSkuBySid(@PathVariable Long sid,
                               @PathVariable Long id) {
-        if (userId == null || departId == null)
-            return StatusWrap.just(Status.LOGIN_REQUIRED);
+        logger.debug("sid:"+sid+"id:"+id);
         return goodsService.getSkuBySid(sid,id);
     }
 
