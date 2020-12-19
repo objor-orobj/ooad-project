@@ -5,10 +5,14 @@ import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.PresaleActivity;
 import cn.edu.xmu.goods.model.vo.*;
 import cn.edu.xmu.goods.service.PresaleService;
+import cn.edu.xmu.ooad.annotation.Audit;
+import cn.edu.xmu.ooad.annotation.Depart;
+import cn.edu.xmu.ooad.annotation.LoginUser;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +23,7 @@ public class PresaleController {
     @Autowired
     private PresaleService presaleService;
 
+    @Audit
     @ApiOperation(value = "管理员新增SKU预售活动")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
@@ -31,12 +36,20 @@ public class PresaleController {
             @ApiResponse(code = 0, message = "成功")
     })
     @PostMapping(path = "/shops/{shopId}/skus/{id}/presales")
-    public Object createPresaleActivity(@PathVariable Long shopId,
-                                        @PathVariable Long id,
-                                        @RequestBody PresaleActivityVo vo) {
+    public Object createPresaleActivity(
+            @Depart @ApiIgnore Long departId,
+            @LoginUser @ApiIgnore Long userId,
+            @PathVariable Long shopId,
+            @PathVariable Long id,
+            @RequestBody PresaleActivityVo vo) {
+        if (departId == null || userId == null)
+            return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         if (vo.getName() == null || vo.getName().isEmpty() || vo.getName().isBlank())
             return StatusWrap.just(Status.FIELD_NOTVALID);
         vo.setState(PresaleActivity.State.OFFLINE.getCode().byteValue());
+//      若departId=0时无视shopid则改为departid，此时会出现shopid为0的活动
         return presaleService.createPresaleActivity(shopId, id, vo);
     }
 
@@ -71,6 +84,7 @@ public class PresaleController {
         return presaleService.getPresaleActivity(presaleActivityInVo);
     }
 
+    @Audit
     @ApiOperation(value = "管理员查询SPU所有预售活动(包括下线的)")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
@@ -84,17 +98,25 @@ public class PresaleController {
             @ApiResponse(code = 0, message = "成功")
     })
     @GetMapping(path = "/shops/{shopId}/presales")
-    public Object getallPresaleActivity(@PathVariable Long shopId,
-                                        @RequestParam(required = false) Long skuId,
-                                        @RequestParam(required = false) Integer state,
-                                        @RequestParam(required = false) Integer page,
-                                        @RequestParam(required = false) Integer pageSize) {
-        page = (page == null) ? 1 : page;
-        pageSize = (pageSize == null) ? 10 : pageSize;
+    public Object getallPresaleActivity(
+            @Depart @ApiIgnore Long departId,
+            @LoginUser @ApiIgnore Long userId,
+            @PathVariable Long shopId,
+            @RequestParam(required = false) Long skuId,
+            @RequestParam(required = false) Integer state,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+//        page = (page == null) ? 1 : page;
+//        pageSize = (pageSize == null) ? 10 : pageSize;
+        if (departId == null || userId == null)
+            return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         PresaleActivityInVo presaleActivityInVo = new PresaleActivityInVo(shopId, skuId, state, null, page, pageSize);
         return presaleService.getallPresaleActivity(presaleActivityInVo);
     }
 
+    @Audit
     @ApiOperation(value = "管理员修改SKU预售活动")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
@@ -106,13 +128,21 @@ public class PresaleController {
             @ApiResponse(code = 0, message = "成功")
     })
     @PutMapping(path = "/shops/{shopId}/presales/{id}")
-    public Object modifyPresaleActivity(@PathVariable Long shopId, @PathVariable Long id, @RequestBody PresaleActivityModifyVo vo) {
-        vo.setShopId(shopId);
+    public Object modifyPresaleActivity(
+            @Depart @ApiIgnore Long departId,
+            @LoginUser @ApiIgnore Long userId,
+            @PathVariable Long shopId, @PathVariable Long id, @RequestBody PresaleActivityModifyVo vo) {
+        if (departId == null || userId == null)
+            return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         if (vo.getName() == null || vo.getName().isEmpty() || vo.getName().isBlank())
             return StatusWrap.just(Status.FIELD_NOTVALID);
+        vo.setShopId(shopId);
         return presaleService.modifyPresaleActivityById(id, vo);
     }
 
+    @Audit
     @ApiOperation(value = "管理员上线预售活动")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
@@ -123,10 +153,17 @@ public class PresaleController {
             @ApiResponse(code = 0, message = "成功")
     })
     @PutMapping(path = "/shops/{shopId}/presales/{id}/onshelves")
-    public Object ONLINEPresaleActivity(@PathVariable Long shopId, @PathVariable Long id) {
+    public Object ONLINEPresaleActivity(
+            @Depart @ApiIgnore Long departId,
+            @LoginUser @ApiIgnore Long userId,@PathVariable Long shopId, @PathVariable Long id) {
+        if (departId == null || userId == null)
+            return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return presaleService.PtoONLINE(shopId, id);
     }
 
+    @Audit
     @ApiOperation(value = "管理员下线预售活动")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
@@ -137,10 +174,17 @@ public class PresaleController {
             @ApiResponse(code = 0, message = "成功")
     })
     @PutMapping(path = "/shops/{shopId}/presales/{id}/offshelves")
-    public Object OFFLINEPresaleActivity(@PathVariable Long shopId, @PathVariable Long id) {
+    public Object OFFLINEPresaleActivity(
+            @Depart @ApiIgnore Long departId,
+            @LoginUser @ApiIgnore Long userId,@PathVariable Long shopId, @PathVariable Long id) {
+        if (departId == null || userId == null)
+            return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return presaleService.PtoOFFLINE(shopId, id);
     }
 
+    @Audit
     @ApiOperation(value = "管理员删除预售活动")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
@@ -151,7 +195,13 @@ public class PresaleController {
             @ApiResponse(code = 0, message = "成功")
     })
     @DeleteMapping(path = "/shops/{shopId}/presales/{id}")
-    public Object deletePresaleActivity(@PathVariable Long shopId, @PathVariable Long id) {
+    public Object deletePresaleActivity(
+            @Depart @ApiIgnore Long departId,
+            @LoginUser @ApiIgnore Long userId,@PathVariable Long shopId, @PathVariable Long id) {
+        if (departId == null || userId == null)
+            return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return presaleService.deletePresaleActivity(shopId, id);
     }
 

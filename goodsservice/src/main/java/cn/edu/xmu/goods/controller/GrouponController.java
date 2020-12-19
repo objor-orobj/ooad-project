@@ -36,8 +36,10 @@ public class GrouponController {
             return StatusWrap.just(Status.LOGIN_REQUIRED);
         if (!departId.equals(shopId) && !departId.equals(0L))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
-        if (vo.getName() == null || vo.getName().isBlank() || vo.getName().isEmpty())
-            return StatusWrap.just(Status.FIELD_NOTVALID);
+//      目前api中无法为团购活动设置name
+//        if (vo.getName() == null || vo.getName().isBlank() || vo.getName().isEmpty())
+//            return StatusWrap.just(Status.FIELD_NOTVALID);
+//      若departId=0时无视shopid则改为departid，，此时会出现shopid为0的活动
         vo.setShopId(shopId);
         vo.setGoodsSpuId(id);
         vo.setState(GrouponActivity.State.OFFLINE.getCode().byteValue());
@@ -80,10 +82,6 @@ public class GrouponController {
         return grouponService.getallGrouponActivity(grouponActivityInVo);
     }
 
-    @GetMapping(path = "/shops/{shopId}/spus/{id}/groupons")
-    public Object getGrouponActivityByspuid(@PathVariable Long id) {
-        return grouponService.getGrouponActivitybyspuid(id);
-    }
 
 
     @Audit
@@ -99,6 +97,8 @@ public class GrouponController {
             return StatusWrap.just(Status.LOGIN_REQUIRED);
         if (!departId.equals(shopId) && !departId.equals(0L))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        //若departId=0时无视shopid则改为departid
+        vo.setShopId(shopId);
         return grouponService.modifyGrouponActivityById(id, vo);
     }
 
@@ -114,6 +114,7 @@ public class GrouponController {
             return StatusWrap.just(Status.LOGIN_REQUIRED);
         if (!departId.equals(shopId) && !departId.equals(0L))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        //若departId=0时无视shopid则改为departid
         return grouponService.GtoONLINE(shopId, id);
     }
 
@@ -130,6 +131,7 @@ public class GrouponController {
             return StatusWrap.just(Status.LOGIN_REQUIRED);
         if (!departId.equals(shopId) && !departId.equals(0L))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        //若departId=0时无视shopid则改为departid
         return grouponService.GtoOFFLINE(shopId, id);
     }
 
@@ -145,6 +147,7 @@ public class GrouponController {
             return StatusWrap.just(Status.LOGIN_REQUIRED);
         if (!departId.equals(shopId) && !departId.equals(0L))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        //若departId=0时无视shopid则改为departid
         return grouponService.deleteGrouponActivity(shopId, id);
     }
 }

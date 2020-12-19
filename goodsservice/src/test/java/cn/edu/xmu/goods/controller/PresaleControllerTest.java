@@ -30,7 +30,7 @@ public class PresaleControllerTest {
 
 
     private String login(String userName, String password) throws Exception {
-        String token = new JwtHelper().createToken(0L, 1L, 3600);
+        String token = new JwtHelper().createToken(0L, 0L, 3600);
         return token;
     }
 
@@ -57,7 +57,7 @@ public class PresaleControllerTest {
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": {\n" +
                 "    \"page\": 1,\n" +
-                "    \"pageSize\": 1,\n" +
+                "    \"pageSize\": 10,\n" +
                 "    \"total\": 1,\n" +
                 "    \"pages\": 1,\n" +
                 "    \"list\": [\n" +
@@ -106,7 +106,7 @@ public class PresaleControllerTest {
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": {\n" +
                 "    \"page\": 1,\n" +
-                "    \"pageSize\": 3,\n" +
+                "    \"pageSize\": 10,\n" +
                 "    \"total\": 3,\n" +
                 "    \"pages\": 1,\n" +
                 "    \"list\": [\n" +
@@ -209,7 +209,7 @@ public class PresaleControllerTest {
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": {\n" +
                 "    \"page\": 1,\n" +
-                "    \"pageSize\": 1,\n" +
+                "    \"pageSize\": 10,\n" +
                 "    \"total\": 1,\n" +
                 "    \"pages\": 1,\n" +
                 "    \"list\": [\n" +
@@ -273,7 +273,7 @@ public class PresaleControllerTest {
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": {\n" +
                 "    \"page\": 1,\n" +
-                "    \"pageSize\": 1,\n" +
+                "    \"pageSize\": 10,\n" +
                 "    \"total\": 1,\n" +
                 "    \"pages\": 1,\n" +
                 "    \"list\": [\n" +
@@ -323,7 +323,7 @@ public class PresaleControllerTest {
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": {\n" +
                 "    \"page\": 1,\n" +
-                "    \"pageSize\": 1,\n" +
+                "    \"pageSize\": 10,\n" +
                 "    \"total\": 1,\n" +
                 "    \"pages\": 1,\n" +
                 "    \"list\": [\n" +

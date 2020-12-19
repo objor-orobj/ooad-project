@@ -208,8 +208,8 @@ public class PresaleActivityDao {
                         return new PresaleActivityCreateVo(shop, goodsSku, x);
                     }
             ).collect(Collectors.toList());
-            PageInfo<PresaleActivityCreateVo> presaleActivityPageInfo = PageInfo.of(presaleActivities);
-            return StatusWrap.of(presaleActivityPageInfo);
+            PageInfo<PresaleActivityPo> presaleActivityPageInfo = PageInfo.of(presaleActivityList);
+            return StatusWrap.of(PageWrap.of(presaleActivityPageInfo, presaleActivities));
         }
     }
 

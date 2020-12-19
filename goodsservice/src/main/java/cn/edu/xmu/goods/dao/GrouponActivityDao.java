@@ -42,6 +42,7 @@ public class GrouponActivityDao {
         }
         if(po.getBeginTime().isBefore(LocalDateTime.now())
                 || po.getEndTime().isBefore(LocalDateTime.now())
+                || po.getEndTime().isBefore(po.getBeginTime())
                 || po.getStrategy() == null
         ){
             return StatusWrap.just(Status.FIELD_NOTVALID);
@@ -237,9 +238,10 @@ public class GrouponActivityDao {
         {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        if(po.getBeginTime().isBefore(LocalDateTime.now())
-                || po.getEndTime().isBefore(LocalDateTime.now())
-                || po.getStrategy() == null
+        if(vo.getBeginTime().isBefore(LocalDateTime.now())
+                || vo.getEndTime().isBefore(LocalDateTime.now())
+                || vo.getEndTime().isBefore(vo.getBeginTime())
+                || vo.getStrategy() == null
         ){
             return StatusWrap.just(Status.FIELD_NOTVALID);
         }
