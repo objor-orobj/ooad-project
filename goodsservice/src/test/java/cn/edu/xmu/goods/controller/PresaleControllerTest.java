@@ -2,6 +2,10 @@ package cn.edu.xmu.goods.controller;
 
 import cn.edu.xmu.goods.GoodsServiceApplication;
 import cn.edu.xmu.goods.service.PresaleService;
+import cn.edu.xmu.ooad.util.JacksonUtil;
+import cn.edu.xmu.ooad.util.JwtHelper;
+import cn.edu.xmu.ooad.util.ResponseCode;
+import org.assertj.core.internal.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -119,6 +123,11 @@ public class PresaleControllerTest
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
  */
+    private String login(String userName, String password) throws Exception
+    {
+        String token = new JwtHelper().createToken(0L, 1L, 3600);
+        return token;
+    }
 
     @Test
     public void getpresaleStates() throws Exception{
@@ -341,5 +350,130 @@ public class PresaleControllerTest
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
-
+    @Test
+    public void getallpresales() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(get("/shops/1/presales?skuId=273&state=1").header("authorization",token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 1,\n" +
+                "    \"total\": 1,\n" +
+                "    \"pages\": 1,\n" +
+                "    \"list\": [\n" +
+                "      {\n" +
+                "        \"id\": 4,\n" +
+                "        \"name\": \"七夕节\",\n" +
+                "        \"beginTime\": \"2020-06-01T11:57:39\",\n" +
+                "        \"payTime\": null,\n" +
+                "        \"endTime\": \"2020-06-02T11:57:39\",\n" +
+                "        \"state\": \"1\",\n" +
+                "        \"shop\": {\n" +
+                "          \"id\": 2,\n" +
+                "          \"name\": \"Adidas\"\n" +
+                "        },\n" +
+                "        \"goodsSku\": {\n" +
+                "          \"id\": 273,\n" +
+                "          \"name\": \"+\",\n" +
+                "          \"skuSn\": null,\n" +
+                "          \"imageUrl\": \"http://47.52.88.176/file/images/201612/file_586206d4c7d2f.jpg\",\n" +
+                "          \"inventory\": 1,\n" +
+                "          \"originalPrice\": 980000,\n" +
+                "          \"price\": 980000,\n" +
+                "          \"disabled\": false\n" +
+                "        },\n" +
+                "        \"quantity\": 0,\n" +
+                "        \"advancePayPrice\": 0,\n" +
+                "        \"restPayPrice\": 0,\n" +
+                "        \"gmtCreate\": \"2020-06-01T11:57:39\",\n" +
+                "        \"gmtModified\": \"2020-06-01T11:57:39\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void getallpresales1() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(get("/shops/2/presales?state=0").header("authorization",token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 1,\n" +
+                "    \"total\": 1,\n" +
+                "    \"pages\": 1,\n" +
+                "    \"list\": [\n" +
+                "      {\n" +
+                "        \"id\": 2,\n" +
+                "        \"name\": \"双十二\",\n" +
+                "        \"beginTime\": \"2020-12-29T11:57:39\",\n" +
+                "        \"payTime\": null,\n" +
+                "        \"endTime\": \"2020-12-30T11:57:39\",\n" +
+                "        \"state\": \"0\",\n" +
+                "        \"shop\": {\n" +
+                "          \"id\": 2,\n" +
+                "          \"name\": \"Adidas\"\n" +
+                "        },\n" +
+                "        \"goodsSku\": {\n" +
+                "          \"id\": 273,\n" +
+                "          \"name\": \"+\",\n" +
+                "          \"skuSn\": null,\n" +
+                "          \"imageUrl\": \"http://47.52.88.176/file/images/201612/file_586206d4c7d2f.jpg\",\n" +
+                "          \"inventory\": 1,\n" +
+                "          \"originalPrice\": 980000,\n" +
+                "          \"price\": 980000,\n" +
+                "          \"disabled\": false\n" +
+                "        },\n" +
+                "        \"quantity\": 0,\n" +
+                "        \"advancePayPrice\": 0,\n" +
+                "        \"restPayPrice\": 0,\n" +
+                "        \"gmtCreate\": \"2020-12-09T11:57:39\",\n" +
+                "        \"gmtModified\": \"2020-12-09T11:57:39\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void getallpresales2() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(get("/shops/3/presales").header("authorization",token))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 504,\n" +
+                "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void createpresale() throws Exception{
+        String token = this.login("13088admin","123456");
+        String responseString=this.mvc.perform(get("/shops/3/presales").header("authorization",token))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 504,\n" +
+                "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
 }
