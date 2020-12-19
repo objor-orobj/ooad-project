@@ -2,4 +2,4 @@
 *target
 *.iml
 *application-dev.yaml
-logs
+*logs
