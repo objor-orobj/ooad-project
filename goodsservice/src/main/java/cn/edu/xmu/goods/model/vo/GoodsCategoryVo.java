@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class GoodsCategoryVo {
-    @NotBlank(message="name不得为空")
+    //@NotBlank(message="name不得为空")
     private String name;
 
     public GoodsCategory createGoodsCategory(){

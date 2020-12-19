@@ -170,19 +170,10 @@ public class GoodsSpuDao
                 return StatusWrap.just(Status.DATABASE_OPERATION_ERROR);
             }
         }
-        if(spuPo.getDisabled()==(byte)6)
-        {
-            return StatusWrap.ok();
-        }
-        spuPo.setDisabled((byte)6);
-        spuPo.setGmtModified(LocalDateTime.now());
-        int ret=goodsSpuPoMapper.updateByPrimaryKeySelective(spuPo);
-        if (ret == 0){
-            return StatusWrap.just(Status.DATABASE_OPERATION_ERROR);
-        }
+        //TODO 状态改变
         for (GoodsSkuPo goodsSkuPo : skus) {
-            if (goodsSkuPo.getDisabled() == (byte) 6) continue;
-            goodsSkuPo.setDisabled((byte) 6);
+            if (goodsSkuPo.getState() == (byte) 6) continue;
+            goodsSkuPo.setState((byte) 6);
             int ret2 = goodsSkuPoMapper.updateByPrimaryKeySelective(goodsSkuPo);
             if (ret2 == 0) {
                 return StatusWrap.just(Status.DATABASE_OPERATION_ERROR);

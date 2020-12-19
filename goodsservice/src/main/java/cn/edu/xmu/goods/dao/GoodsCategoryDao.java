@@ -33,6 +33,9 @@ public class GoodsCategoryDao {
     private GoodsSpuPoMapper goodsSpuPoMapper;
 
     public ResponseEntity<StatusWrap> createGoodsCategory(Long pId, GoodsCategoryVo vo){
+        if(vo.getName()==null){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         if(pId!=0) {
             GoodsCategoryPo goodsCategoryPo=goodsCategoryPoMapper.selectByPrimaryKey(pId);
             if(goodsCategoryPo==null)

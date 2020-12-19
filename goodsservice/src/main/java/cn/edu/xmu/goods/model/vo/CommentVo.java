@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
  */
 @Data
 public class CommentVo {
-    @NotNull(message="type不得为空")
+    //@NotNull(message="type不得为空")
     private Comment.Type type;
 
-    @NotBlank(message="content不得为空")
+    //@NotBlank(message="content不得为空")
     private String content;
 
     public Comment createComment(){
