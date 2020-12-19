@@ -45,9 +45,9 @@ public class GrouponService {
 
     public ResponseEntity<StatusWrap> deleteGrouponActivity(Long shopId, Long id) {
         GrouponActivity grouponActivity = new GrouponActivity(grouponActivitydao.getGrouponActivityById(id));
-        if (grouponActivity.getState() == GrouponActivity.State.DELETE) {
-            return StatusWrap.just(Status.OK);
-        }
+//        if (grouponActivity.getState() == GrouponActivity.State.DELETE) {
+//            return StatusWrap.just(Status.OK);
+//        }
         if (grouponActivity.getState() == GrouponActivity.State.ONLINE) {
             return StatusWrap.just(Status.GROUPON_STATENOTALLOW);
         }

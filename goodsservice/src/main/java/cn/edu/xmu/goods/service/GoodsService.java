@@ -22,7 +22,7 @@ import java.util.List;
 
 @DubboService(version = "0.0.1")
 public class GoodsService implements GoodsServiceInterface {
-    @Autowired
+        @Autowired
     private GoodsSkuDao goodsSkuDao;
 
     @Autowired

@@ -2,6 +2,7 @@ package cn.edu.xmu.goods.dao;
 
 import cn.edu.xmu.goods.mapper.GoodsSpuPoMapper;
 import cn.edu.xmu.goods.mapper.GrouponActivityPoMapper;
+import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.GrouponActivity;
@@ -76,8 +77,8 @@ public class GrouponActivityDao {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         } else {
             List<GrouponActivityOutVo> grouponActivityOutVos = grouponActivityList.stream().map(GrouponActivityOutVo::new).collect(Collectors.toList());
-            PageInfo<GrouponActivityOutVo> grouponActivityOutVoPageInfo = PageInfo.of(grouponActivityOutVos);
-            return StatusWrap.of(grouponActivityOutVoPageInfo);
+            PageInfo<GrouponActivityPo> raw = PageInfo.of(grouponActivityList);
+            return StatusWrap.of(PageWrap.of(raw, grouponActivityOutVos));
         }
     }
 
@@ -170,8 +171,8 @@ public class GrouponActivityDao {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         } else {
             List<GrouponActivityOutVo> grouponActivityOutVos = grouponActivityList.stream().map(GrouponActivityOutVo::new).collect(Collectors.toList());
-            PageInfo<GrouponActivityOutVo> grouponActivityOutVoPageInfo = PageInfo.of(grouponActivityOutVos);
-            return StatusWrap.of(grouponActivityOutVoPageInfo);
+            PageInfo<GrouponActivityPo> raw = PageInfo.of(grouponActivityList);
+            return StatusWrap.of(PageWrap.of(raw, grouponActivityOutVos));
         }
     }
 

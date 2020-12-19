@@ -3,12 +3,14 @@ package cn.edu.xmu.goods.model.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 
 @Data
 public class PresaleActivityVo {
 
     @ApiModelProperty(value = "活动名称")
+//    @NotEmpty
     private String name;
     @ApiModelProperty(value = "活动库存量")
     private Integer quantity;

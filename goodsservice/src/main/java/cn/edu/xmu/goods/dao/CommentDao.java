@@ -1,6 +1,7 @@
 package cn.edu.xmu.goods.dao;
 
 import cn.edu.xmu.goods.mapper.CommentPoMapper;
+import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.Comment;
@@ -9,8 +10,13 @@ import cn.edu.xmu.goods.model.po.CommentPoExample;
 import cn.edu.xmu.goods.model.vo.CommentConfirmVo;
 import cn.edu.xmu.goods.model.vo.CommentRetVo;
 import cn.edu.xmu.goods.model.vo.CommentVo;
+import cn.edu.xmu.order.service.OrderServiceInterface;
+import cn.edu.xmu.other.model.dto.CustomerDTO;
+import cn.edu.xmu.other.service.UserServiceInterface;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +37,11 @@ public class CommentDao {
     @Autowired
     private CommentPoMapper commentMapper;
 
+    @DubboReference(version = "0.0.1")
+    private UserServiceInterface userService;
+
+    @DubboReference(version = "0.0.1")
+    private OrderServiceInterface orderService;
 
     public ResponseEntity<StatusWrap> getSkuComments(Long skuId, Integer page, Integer pageSize){
         List<CommentPo> com = null;
@@ -46,11 +57,12 @@ public class CommentDao {
         }
         List<CommentRetVo> commentRet=new ArrayList<>(com.size());
         for(CommentPo po:com){
-            CommentRetVo comment=new CommentRetVo(po);
+            CustomerDTO customer=userService.getCustomerInfoById(po.getCustomerId());
+            CommentRetVo comment=new CommentRetVo(po,customer);
             commentRet.add(comment);
         }
-        PageInfo<CommentRetVo> commentInfo = PageInfo.of(commentRet);
-        return StatusWrap.of(commentInfo);
+        PageInfo<CommentPo> raw = PageInfo.of(com);
+        return StatusWrap.of(PageWrap.of(raw,commentRet));
     }
 
     public ResponseEntity<StatusWrap> getSelfComments(Long customerId,Integer page,Integer pageSize){
@@ -65,11 +77,12 @@ public class CommentDao {
         }
         List<CommentRetVo> commentRet=new ArrayList<>(com.size());
         for(CommentPo po:com){
-            CommentRetVo comment=new CommentRetVo(po);
+            CustomerDTO customer=userService.getCustomerInfoById(po.getCustomerId());
+            CommentRetVo comment=new CommentRetVo(po,customer);
             commentRet.add(comment);
         }
-        PageInfo<CommentRetVo> commentInfo = PageInfo.of(commentRet);
-        return StatusWrap.of(commentInfo);
+        PageInfo<CommentPo> raw = PageInfo.of(com);
+        return StatusWrap.of(PageWrap.of(raw,commentRet));
     }
 
     public ResponseEntity<StatusWrap> getShopComments(Integer state,Integer page,Integer pageSize){
@@ -95,20 +108,21 @@ public class CommentDao {
         }
         List<CommentRetVo> commentRet=new ArrayList<>(com.size());
         for(CommentPo po:com){
-            CommentRetVo comment=new CommentRetVo(po);
+            CustomerDTO customer=userService.getCustomerInfoById(po.getCustomerId());
+            CommentRetVo comment=new CommentRetVo(po,customer);
             commentRet.add(comment);
         }
-        PageInfo<CommentRetVo> commentInfo = PageInfo.of(commentRet);
-        return StatusWrap.of(commentInfo);
+        PageInfo<CommentPo> raw = PageInfo.of(com);
+        return StatusWrap.of(PageWrap.of(raw,commentRet));
     }
 
     public ResponseEntity<StatusWrap> createComment(Long customerId,Long orderitemId,CommentVo vo){
-        //skuId
+        Long skuId = orderService.getSkuIdByOrderItemId(orderitemId);
         CommentPoExample example=new CommentPoExample();
         CommentPoExample.Criteria criteria=example.createCriteria();
         criteria.andCustomerIdEqualTo(customerId);
         criteria.andOrderitemIdEqualTo(orderitemId);
-        //criteria.andGoodsSkuIdEqualTo(skuId);
+        criteria.andGoodsSkuIdEqualTo(skuId);
         List<CommentPo> com=commentMapper.selectByExample(example);
         if(com.size()!=0){
             return StatusWrap.just(Status.COMMENT_CREATED);
@@ -119,7 +133,9 @@ public class CommentDao {
         po.setState(Comment.State.UNCHECK.getCode().byteValue());
         po.setGmtCreate(LocalDateTime.now());
         int ret=commentMapper.insert(po);
-        CommentRetVo retVo=new CommentRetVo(po);
+
+        CustomerDTO customer=userService.getCustomerInfoById(po.getCustomerId());
+        CommentRetVo retVo=new CommentRetVo(po,customer);
         if (ret != 0) {
             return StatusWrap.of(retVo, HttpStatus.CREATED);
         } else {
