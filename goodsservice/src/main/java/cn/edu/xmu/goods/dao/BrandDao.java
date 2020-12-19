@@ -38,6 +38,9 @@ public class BrandDao {
     private GoodsSpuPoMapper goodsSpuPoMapper;
 
     public ResponseEntity<StatusWrap> createBrand(BrandVo vo){
+        if(vo.getDetail()==null||vo.getName()==null){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         BrandPo po=vo.createBrand().getBrandPo();
         List<BrandPo> brandPo=null;
         BrandPoExample example=new BrandPoExample();
