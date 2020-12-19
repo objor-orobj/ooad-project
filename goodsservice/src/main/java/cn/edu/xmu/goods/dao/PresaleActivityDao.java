@@ -90,7 +90,7 @@ public class PresaleActivityDao {
                     case 3:
                         criteria.andGoodsSkuIdEqualTo(vo.getGoodsSkuId())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             } else if (vo.getShopid() != null) {
                 switch (vo.getTimeline()) {
@@ -111,7 +111,7 @@ public class PresaleActivityDao {
                     case 3:
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             } else {
                 switch (vo.getTimeline()) {
@@ -132,7 +132,7 @@ public class PresaleActivityDao {
                     case 3:
                         criteria
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             }
         } else {
@@ -168,7 +168,7 @@ public class PresaleActivityDao {
 
     public ResponseEntity<StatusWrap> getallPresaleAcitvity(PresaleActivityInVo vo) {
         if (vo.getGoodsSkuId() != null) {
-            if (goodsSkuDao.getShopIdBySkuId(vo.getGoodsSkuId().longValue()) != vo.getShopid()) {
+            if (!goodsSkuDao.getShopIdBySkuId(vo.getGoodsSkuId()).equals(vo.getShopid())) {
                 return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
             }
         }
@@ -227,7 +227,7 @@ public class PresaleActivityDao {
         }
         if (vo.getBeginTime().isBefore(LocalDateTime.now())
                 || vo.getPayTime().isBefore(LocalDateTime.now())
-                || vo.getEndTime().isAfter(LocalDateTime.now())
+                || vo.getEndTime().isBefore(LocalDateTime.now())
                 || vo.getQuantity() < 0
                 || vo.getAdvancePayPrice() < 0
                 || vo.getRestPayPrice() < 0

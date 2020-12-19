@@ -221,7 +221,7 @@ public class GoodsSkuDao {
 
             //TODO 查询运费模板
             FreightModelDTO freightModelDTO;
-            freightModelDTO= freightServiceInterface.getFreightModelById(spuPo.getFreightId());
+            freightModelDTO = freightServiceInterface.getFreightModelById(spuPo.getFreightId());
 
             ShopPo shopPo = shopPoMapper.selectByPrimaryKey(spuPo.getShopId());
             //TODO 商品状态判断
@@ -233,7 +233,7 @@ public class GoodsSkuDao {
 
             if (goodsCategoryPo != null) vo.setCategory(goodsCategoryPo);
 
-            if(freightModelDTO!=null) vo.setFreightModelDTO(freightModelDTO);
+            if (freightModelDTO != null) vo.setFreightModelDTO(freightModelDTO);
 
             if (shopPo != null) vo.setShop(shopPo);
 
@@ -374,7 +374,7 @@ public class GoodsSkuDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> addFloatingPrice(Long userId,String userName,Long skuId, FloatPricesGetVo vo) {
+    public ResponseEntity<StatusWrap> addFloatingPrice(Long userId, String userName, Long skuId, FloatPricesGetVo vo) {
         FloatPricePoExample example = new FloatPricePoExample();
         FloatPricePoExample.Criteria criteria = example.createCriteria();
 
@@ -396,8 +396,8 @@ public class GoodsSkuDao {
             int ret = floatPricePoMapper.insertSelective(po);
             if (ret != 0) {
                 FloatPricesReturnVo floatPricesReturnVo = new FloatPricesReturnVo(po);
-                floatPricesReturnVo.setCreatedBy(userId,userName);
-                return StatusWrap.of(floatPricesReturnVo,HttpStatus.CREATED);
+                floatPricesReturnVo.setCreatedBy(userId, userName);
+                return StatusWrap.of(floatPricesReturnVo, HttpStatus.CREATED);
             } else {
                 return StatusWrap.just(Status.DATABASE_OPERATION_ERROR);
             }
@@ -418,7 +418,7 @@ public class GoodsSkuDao {
     }
 
     //TODO 未将用户id与name存入
-    public ResponseEntity<StatusWrap> invalidFloatPrice(Long userId,Long floatId) {
+    public ResponseEntity<StatusWrap> invalidFloatPrice(Long userId, Long floatId) {
         FloatPricePoExample example = new FloatPricePoExample();
         FloatPricePoExample.Criteria criteria = example.createCriteria();
         FloatPricePo po = floatPricePoMapper.selectByPrimaryKey(floatId);
@@ -555,8 +555,8 @@ public class GoodsSkuDao {
         if (skuPo == null) {
             return null;
         }
-        GoodsSpuPo goodsSpuPo=goodsSpuPoMapper.selectByPrimaryKey(skuPo.getGoodsSpuId());
-        if(goodsSpuPo==null) return null;
+        GoodsSpuPo goodsSpuPo = goodsSpuPoMapper.selectByPrimaryKey(skuPo.getGoodsSpuId());
+        if (goodsSpuPo == null) return null;
         return goodsSpuPo.getShopId();
     }
 
@@ -584,13 +584,12 @@ public class GoodsSkuDao {
         return goodsInfoDTO;
     }
 
-    public GoodsSkuInfo getGoodsSkuInfoAlone(Long goodsSkuId)
-    {
+    public GoodsSkuInfo getGoodsSkuInfoAlone(Long goodsSkuId) {
         GoodsSkuPo skuPo = selectGoodsForCustomer(goodsSkuId);
         if (skuPo == null) {
             return null;
         }
-        GoodsSkuInfo goodsSkuInfo=new GoodsSkuInfo();
+        GoodsSkuInfo goodsSkuInfo = new GoodsSkuInfo();
         goodsSkuInfo.setSkuName(skuPo.getName());
         Long price = selectFloatPrice(goodsSkuId);
         if (price.equals((long) -1)) goodsSkuInfo.setPrice(skuPo.getOriginalPrice());

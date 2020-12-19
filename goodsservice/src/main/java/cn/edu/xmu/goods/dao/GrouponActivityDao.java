@@ -2,6 +2,7 @@ package cn.edu.xmu.goods.dao;
 
 import cn.edu.xmu.goods.mapper.GoodsSpuPoMapper;
 import cn.edu.xmu.goods.mapper.GrouponActivityPoMapper;
+import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.GrouponActivity;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
+import java.awt.desktop.SystemSleepEvent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -38,6 +40,12 @@ public class GrouponActivityDao {
         if (goodsSpu.getShopId() != po.getShopId() && po.getShopId() != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
+        if(po.getBeginTime().isBefore(LocalDateTime.now())
+                || po.getEndTime().isBefore(LocalDateTime.now())
+                || po.getStrategy() == null
+        ){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         int ret = grouponActivityPoMapper.insert(po);
         if (ret != 0) {
             return StatusWrap.of(po, HttpStatus.CREATED);
@@ -53,14 +61,13 @@ public class GrouponActivityDao {
         PageHelper.startPage(vo.getPage(), vo.getPageSize());
         if (vo.getState() != null) {
             if (vo.getGoodsSpuId() != null) {
-                criteria.andStateEqualTo(vo.getState().byteValue()).andGoodsSpuIdEqualTo(vo.getGoodsSpuId());
-
+                criteria.andStateEqualTo(vo.getState().byteValue()).andGoodsSpuIdEqualTo(vo.getGoodsSpuId()).andShopIdEqualTo(vo.getShopid());
             } else {
-                criteria.andStateEqualTo(vo.getState().byteValue());
+                criteria.andStateEqualTo(vo.getState().byteValue()).andShopIdEqualTo(vo.getShopid());
             }
         } else {
             if (vo.getGoodsSpuId() != null) {
-                criteria.andGoodsSpuIdEqualTo(vo.getGoodsSpuId());
+                criteria.andGoodsSpuIdEqualTo(vo.getGoodsSpuId()).andShopIdEqualTo(vo.getShopid());
 
             } else {
                 criteria.andShopIdEqualTo(vo.getShopid());
@@ -76,8 +83,8 @@ public class GrouponActivityDao {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         } else {
             List<GrouponActivityOutVo> grouponActivityOutVos = grouponActivityList.stream().map(GrouponActivityOutVo::new).collect(Collectors.toList());
-            PageInfo<GrouponActivityOutVo> grouponActivityOutVoPageInfo = PageInfo.of(grouponActivityOutVos);
-            return StatusWrap.of(grouponActivityOutVoPageInfo);
+            PageInfo<GrouponActivityPo> raw = PageInfo.of(grouponActivityList);
+            return StatusWrap.of(PageWrap.of(raw, grouponActivityOutVos));
         }
     }
 
@@ -87,6 +94,10 @@ public class GrouponActivityDao {
         GrouponActivityPoExample.Criteria criteria = example.createCriteria();
         PageHelper.startPage(vo.getPage(), vo.getPageSize());
         if (vo.getTimeline() != null) {
+            if(vo.getTimeline()<0||vo.getTimeline()>3)
+            {
+                return StatusWrap.just(Status.FIELD_NOTVALID);
+            }
             if (vo.getGoodsSpuId() != null) {
                 switch (vo.getTimeline()) {
                     case 0:
@@ -106,7 +117,7 @@ public class GrouponActivityDao {
                     case 3:
                         criteria.andGoodsSpuIdEqualTo(vo.getGoodsSpuId())
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             } else if (vo.getShopid() != null) {
                 switch (vo.getTimeline()) {
@@ -127,7 +138,7 @@ public class GrouponActivityDao {
                     case 3:
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             } else {
                 switch (vo.getTimeline()) {
@@ -148,7 +159,7 @@ public class GrouponActivityDao {
                     case 3:
                         criteria
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
-                                .andBeginTimeLessThan(LocalDateTime.now());
+                                .andEndTimeLessThan(LocalDateTime.now());
                 }
             }
         } else {
@@ -170,8 +181,8 @@ public class GrouponActivityDao {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         } else {
             List<GrouponActivityOutVo> grouponActivityOutVos = grouponActivityList.stream().map(GrouponActivityOutVo::new).collect(Collectors.toList());
-            PageInfo<GrouponActivityOutVo> grouponActivityOutVoPageInfo = PageInfo.of(grouponActivityOutVos);
-            return StatusWrap.of(grouponActivityOutVoPageInfo);
+            PageInfo<GrouponActivityPo> raw = PageInfo.of(grouponActivityList);
+            return StatusWrap.of(PageWrap.of(raw, grouponActivityOutVos));
         }
     }
 
@@ -222,7 +233,16 @@ public class GrouponActivityDao {
 
     public ResponseEntity<StatusWrap> modifyGrouponActivity(Long id, GrouponActivityVo vo) {
         GrouponActivityPo po = grouponActivityPoMapper.selectByPrimaryKey(id);
-
+        if(po == null)
+        {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
+        if(po.getBeginTime().isBefore(LocalDateTime.now())
+                || po.getEndTime().isBefore(LocalDateTime.now())
+                || po.getStrategy() == null
+        ){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         if (po.getShopId() != vo.getShopId() && vo.getShopId() != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
@@ -244,6 +264,16 @@ public class GrouponActivityDao {
 
     public ResponseEntity<StatusWrap> GtoONLINE(Long shopId, Long id) {
         GrouponActivityPo po = grouponActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null)
+        {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
+        if(po.getBeginTime().isBefore(LocalDateTime.now())
+                || po.getEndTime().isBefore(LocalDateTime.now())
+                || po.getStrategy() == null
+        ){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
@@ -263,6 +293,16 @@ public class GrouponActivityDao {
 
     public ResponseEntity<StatusWrap> GtoOFFLINE(Long shopId, Long id) {
         GrouponActivityPo po = grouponActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null)
+        {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
+        if(po.getBeginTime().isBefore(LocalDateTime.now())
+                || po.getEndTime().isBefore(LocalDateTime.now())
+                || po.getStrategy() == null
+        ){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
@@ -283,6 +323,16 @@ public class GrouponActivityDao {
 
     public ResponseEntity<StatusWrap> deleteGrouponActivityById(Long shopId, Long id) {
         GrouponActivityPo po = grouponActivityPoMapper.selectByPrimaryKey(id);
+        if(po == null)
+        {
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
+        if(po.getBeginTime().isBefore(LocalDateTime.now())
+                || po.getEndTime().isBefore(LocalDateTime.now())
+                || po.getStrategy() == null
+        ){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         if (po.getShopId() != shopId && shopId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }

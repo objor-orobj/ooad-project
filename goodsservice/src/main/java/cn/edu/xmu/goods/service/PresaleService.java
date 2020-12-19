@@ -24,15 +24,17 @@ public class PresaleService implements PresaleServiceInterface {
 
     //PRESALE
     public ResponseEntity<StatusWrap> createPresaleActivity(Long shopid, Long id, PresaleActivityVo vo) {
+        if (vo.getName() == null || vo.getName().isEmpty() || vo.getName().isBlank())
+            return StatusWrap.just(Status.FIELD_NOTVALID);
         Shop shop = shopDao.select(shopid);
         ReturnGoodsSkuVo goodsSku = goodsSkuDao.getSingleSimpleSku(id.intValue());
-        if(vo.getBeginTime().isBefore(LocalDateTime.now())
+        if (vo.getBeginTime().isBefore(LocalDateTime.now())
                 || vo.getPayTime().isBefore(LocalDateTime.now())
                 || vo.getEndTime().isBefore(LocalDateTime.now())
-                || vo.getQuantity()<0
-                || vo.getAdvancePayPrice()<0
-                || vo.getRestPayPrice()<0
-        ){
+                || vo.getQuantity() < 0
+                || vo.getAdvancePayPrice() < 0
+                || vo.getRestPayPrice() < 0
+        ) {
             return StatusWrap.just(Status.FIELD_NOTVALID);
         }
         if (shop.getState() != Shop.State.ONLINE) {

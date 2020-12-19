@@ -40,6 +40,8 @@ public class ShopService implements ShopServiceInterface {
 
     public ResponseEntity<StatusWrap> createByUser(ShopCreatorValidation vo, Long userId) {
         Shop create = new Shop(vo);
+        if (create.getName() == null || create.getName().isBlank() || create.getName().isEmpty())
+            return StatusWrap.just(Status.FIELD_NOTVALID);
         create.setState(Shop.State.PENDING_APPROVAL);
         create.setGmtCreate(LocalDateTime.now());
         Shop saved = shopDao.create(create);
@@ -54,6 +56,8 @@ public class ShopService implements ShopServiceInterface {
     }
 
     public ResponseEntity<StatusWrap> modifyInfo(Long shopId, ShopCreatorValidation vo) {
+        if (vo.getName() == null || vo.getName().isEmpty() || vo.getName().isBlank())
+            return StatusWrap.just(Status.FIELD_NOTVALID);
         Shop origin = shopDao.select(shopId);
         if (origin == null)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);

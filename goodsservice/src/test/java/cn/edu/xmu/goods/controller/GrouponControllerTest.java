@@ -43,4 +43,256 @@ public class GrouponControllerTest {
         String expectedResponse = "{\"errno\": 0, \"data\": [{ \"name\": \"已下线\", \"code\": 0 },{ \"name\": \"已上线\", \"code\": 1 },{ \"name\": \"已删除\", \"code\": 2 }],\"errmsg\": \"成功\"}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
+    @Test
+    public void getgroupon() throws Exception {
+        String responseString = this.mvc.perform(get("/groupons?shopId=2&spu_id=273"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 1,\n" +
+                "    \"total\": 1,\n" +
+                "    \"pages\": 1,\n" +
+                "    \"list\": [\n" +
+                "      {\n" +
+                "        \"id\": 4,\n" +
+                "        \"name\": \"儿童节\",\n" +
+                "        \"beginTime\": \"2020-06-01T11:57:39\",\n" +
+                "        \"endTime\": \"2020-06-02T11:57:39\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void getgroupon1() throws Exception {
+        String responseString = this.mvc.perform(get("/groupons?shopId=4"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 2,\n" +
+                "    \"total\": 2,\n" +
+                "    \"pages\": 1,\n" +
+                "    \"list\": [\n" +
+                "      {\n" +
+                "        \"id\": 11,\n" +
+                "        \"name\": \"华岁筛筛\",\n" +
+                "        \"beginTime\": \"2020-12-21T11:57:39\",\n" +
+                "        \"endTime\": \"2020-12-25T11:57:39\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"id\": 13,\n" +
+                "        \"name\": \"华阿啊岁\",\n" +
+                "        \"beginTime\": \"2020-06-01T11:57:39\",\n" +
+                "        \"endTime\": \"2020-12-25T11:57:39\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void getgroupon2() throws Exception {
+        String responseString = this.mvc.perform(get("/groupons?timeline=3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 1,\n" +
+                "    \"total\": 1,\n" +
+                "    \"pages\": 1,\n" +
+                "    \"list\": [\n" +
+                "      {\n" +
+                "        \"id\": 4,\n" +
+                "        \"name\": \"儿童节\",\n" +
+                "        \"beginTime\": \"2020-06-01T11:57:39\",\n" +
+                "        \"endTime\": \"2020-06-02T11:57:39\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void getgroupon3() throws Exception {
+        String responseString = this.mvc.perform(get("/groupons?timeline=4"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 503,\n" +
+                "  \"errmsg\": \"字段不合法\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void getgroupon4() throws Exception {
+        String responseString = this.mvc.perform(get("/groupons?shopId=4&timeline=3"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 504,\n" +
+                "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void getallgroupon() throws Exception {
+        String responseString = this.mvc.perform(get("/shops/4/groupons?state=0"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 1,\n" +
+                "    \"total\": 1,\n" +
+                "    \"pages\": 1,\n" +
+                "    \"list\": [\n" +
+                "      {\n" +
+                "        \"id\": 12,\n" +
+                "        \"name\": \"华岁\",\n" +
+                "        \"beginTime\": \"2020-12-21T11:57:39\",\n" +
+                "        \"endTime\": \"2020-12-25T11:57:39\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void getallgroupon1() throws Exception {
+        String responseString = this.mvc.perform(get("/shops/4/groupons"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 3,\n" +
+                "    \"total\": 3,\n" +
+                "    \"pages\": 1,\n" +
+                "    \"list\": [\n" +
+                "      {\n" +
+                "        \"id\": 11,\n" +
+                "        \"name\": \"华岁筛筛\",\n" +
+                "        \"beginTime\": \"2020-12-21T11:57:39\",\n" +
+                "        \"endTime\": \"2020-12-25T11:57:39\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"id\": 12,\n" +
+                "        \"name\": \"华岁\",\n" +
+                "        \"beginTime\": \"2020-12-21T11:57:39\",\n" +
+                "        \"endTime\": \"2020-12-25T11:57:39\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"id\": 13,\n" +
+                "        \"name\": \"华阿啊岁\",\n" +
+                "        \"beginTime\": \"2020-06-01T11:57:39\",\n" +
+                "        \"endTime\": \"2020-12-25T11:57:39\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void getallgroupon2() throws Exception {
+        String responseString = this.mvc.perform(get("/shops/4/groupons?spu_id=188"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 2,\n" +
+                "    \"total\": 2,\n" +
+                "    \"pages\": 1,\n" +
+                "    \"list\": [\n" +
+                "      {\n" +
+                "        \"id\": 11,\n" +
+                "        \"name\": \"华岁筛筛\",\n" +
+                "        \"beginTime\": \"2020-12-21T11:57:39\",\n" +
+                "        \"endTime\": \"2020-12-25T11:57:39\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"id\": 12,\n" +
+                "        \"name\": \"华岁\",\n" +
+                "        \"beginTime\": \"2020-12-21T11:57:39\",\n" +
+                "        \"endTime\": \"2020-12-25T11:57:39\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void getallgroupon3() throws Exception {
+        String responseString = this.mvc.perform(get("/shops/4/groupons?spu_id=188&state=1"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 1,\n" +
+                "    \"total\": 1,\n" +
+                "    \"pages\": 1,\n" +
+                "    \"list\": [\n" +
+                "      {\n" +
+                "        \"id\": 11,\n" +
+                "        \"name\": \"华岁筛筛\",\n" +
+                "        \"beginTime\": \"2020-12-21T11:57:39\",\n" +
+                "        \"endTime\": \"2020-12-25T11:57:39\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
+    @Test
+    public void getallgroupon4() throws Exception {
+        String responseString = this.mvc.perform(get("/shops/4/groupons?state=2"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(responseString);
+        String expectedResponse = "{\n" +
+                "  \"errno\": 504,\n" +
+                "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "}";
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
+    }
 }
