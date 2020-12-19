@@ -2,7 +2,7 @@
 
 Hosting goods-service by OOOO.
 
-## Test
+## Testing
 
 Create a profile for testing `goodsservice/src/main/resources/application-dev.yaml`.
 
@@ -39,4 +39,12 @@ goods-service:
     dav-username: davuser
     dav-password: 123456
     max-file-size: 2
+```
+
+## Routing
+
+Run `python gen-route.py` to get the route, it should look like this:
+
+```yaml
+/comments,/comments/states,/orderItems/*/comments/shops/*/comments/**,/skus/*/comments,/coupons/**,/couponactivities/**,/shops/*/couponactivities/**,/shops/*/couponskus/**,/flashsales/current,/shops/*/timesegments/*/flashsales,/timesegments/*/flashsales,/shops/*/flashsales/**,/groupons/**,/shops/*/groupons/**,/shops/*/spus/*/groupons,/presales/**,/shops/*/presales/**,/shops/*/skus/*/presales,/shops/*,/shops/*/newshops/**,/shops/*/onshelves,/shops/*/offshelves,/brands/shops/*/brands,/shops/*/brands/**,/shops/*/spus/*/brands/**,/categories/**,/shops/*/categories/**,/shops/*/spus/*/categories/**,/share/*/skus/*,/shops/*/skus/*/floatPrices,/shops/*/floatPrices/*,/skus/states,/shops/*/skus/*/,/shops/*/skus/*/uploadImg,/shops/*/skus/*/onshelves,/shops/*/skus/*/offshelves,/spus/*/,/shops/*/spus/**
 ```

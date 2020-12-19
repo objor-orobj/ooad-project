@@ -285,7 +285,6 @@ public class GoodsController {
 
     @DubboReference(version = "0.0.1")
     private FootprintServiceInterface footprint;
-    //TODO 缺少运费模板
     @ApiOperation(value="获得sku的详细信息")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "path", dataType = "long", name = "id", value = "sku id")

@@ -83,7 +83,6 @@ public class GoodsService implements GoodsServiceInterface {
         return goodsSkuDao.getGoodsInfoDTOBySkuId(skuId);
     }
 
-    //TODO 需求api
     @Override
     public GoodsSkuInfo getGoodsSkuInfoAlone(Long goodsSkuId)
     {
