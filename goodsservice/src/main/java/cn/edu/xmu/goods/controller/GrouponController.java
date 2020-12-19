@@ -52,11 +52,13 @@ public class GrouponController {
     }
 
     @GetMapping(path = "/groupons")
-    public Object getGrouponActivity(@RequestParam(required = false) Long shopId,
-                                     @RequestParam(required = false) Long spu_id,
-                                     @RequestParam(required = false) Integer timeline,
-                                     @RequestParam(defaultValue = "1") Integer page,
-                                     @RequestParam(defaultValue = "10") Integer pageSize) {
+    public Object getGrouponActivity(
+            @RequestParam(required = false) Long shopId,
+            @RequestParam(required = false) Long spu_id,
+            @RequestParam(required = false) Integer timeline,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer pageSize
+    ) {
         GrouponActivityInVo grouponActivityInVo = new GrouponActivityInVo(shopId, spu_id, null, null, null, timeline, page, pageSize);
         return grouponService.getGrouponActivity(grouponActivityInVo);
     }

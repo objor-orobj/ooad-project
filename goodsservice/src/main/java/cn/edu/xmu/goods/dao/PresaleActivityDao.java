@@ -168,7 +168,7 @@ public class PresaleActivityDao {
 
     public ResponseEntity<StatusWrap> getallPresaleAcitvity(PresaleActivityInVo vo) {
         if (vo.getGoodsSkuId() != null) {
-            if (goodsSkuDao.getShopIdBySkuId(vo.getGoodsSkuId().longValue()) != vo.getShopid()) {
+            if (!goodsSkuDao.getShopIdBySkuId(vo.getGoodsSkuId()).equals(vo.getShopid())) {
                 return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
             }
         }
