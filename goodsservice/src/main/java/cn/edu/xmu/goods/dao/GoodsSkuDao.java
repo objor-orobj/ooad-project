@@ -5,6 +5,7 @@ import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.GoodsSku;
 import cn.edu.xmu.goods.model.bo.GoodsSpu;
+import cn.edu.xmu.goods.model.dto.GoodsSkuInfo;
 import cn.edu.xmu.order.model.dto.FreightModelDTO;
 import cn.edu.xmu.goods.model.dto.GoodsInfoDTO;
 import cn.edu.xmu.goods.model.dto.GoodsSkuDTO;
@@ -68,12 +69,6 @@ public class GoodsSkuDao {
             }
         }
         return (long) -1;
-    }
-
-    public Long getShopIdBySkuId(Long skuId) {
-        GoodsSkuPo goodsSku = goodsSkuPoMapper.selectByPrimaryKey(skuId);
-        GoodsSpuPo goodsSpu = goodsSpuPoMapper.selectByPrimaryKey(goodsSku.getGoodsSpuId());
-        return goodsSpu.getShopId();
     }
 
     //TODO 商店关闭商品不可见
@@ -540,11 +535,8 @@ public class GoodsSkuDao {
             return null;
         }
 
-        GoodsSpuPo spuPo = goodsSpuPoMapper.selectByPrimaryKey(skuPo.getGoodsSpuId());
-        if (spuPo == null) return null;
         GoodsSkuDTO goodsSkuDTO = new GoodsSkuDTO();
         goodsSkuDTO.setId(skuPo.getId());
-        goodsSkuDTO.setShopId(spuPo.getShopId());
         goodsSkuDTO.setName(skuPo.getName());
         goodsSkuDTO.setSkuSn(skuPo.getSkuSn());
         goodsSkuDTO.setImgUrl(skuPo.getImageUrl());
@@ -558,14 +550,14 @@ public class GoodsSkuDao {
         return goodsSkuDTO;
     }
 
-    public Boolean isBelongShop(Long skuId,Long shopId) {
+    public Long getShopIdBySkuId(Long skuId) {
         GoodsSkuPo skuPo = selectGoodsForCustomer(skuId);
         if (skuPo == null) {
-            return false;
+            return null;
         }
         GoodsSpuPo goodsSpuPo=goodsSpuPoMapper.selectByPrimaryKey(skuPo.getGoodsSpuId());
-        if(goodsSpuPo==null) return false;
-        return goodsSpuPo.getShopId().equals(shopId);
+        if(goodsSpuPo==null) return null;
+        return goodsSpuPo.getShopId();
     }
 
     public Boolean anbleChange(Long newGoodSkuId, Long goodSkuId) {
@@ -590,5 +582,19 @@ public class GoodsSkuDao {
         goodsInfoDTO.setShopId(spuPo.getShopId());
         goodsInfoDTO.setFreightId(spuPo.getFreightId());
         return goodsInfoDTO;
+    }
+
+    public GoodsSkuInfo getGoodsSkuInfoAlone(Long goodsSkuId)
+    {
+        GoodsSkuPo skuPo = selectGoodsForCustomer(goodsSkuId);
+        if (skuPo == null) {
+            return null;
+        }
+        GoodsSkuInfo goodsSkuInfo=new GoodsSkuInfo();
+        goodsSkuInfo.setSkuName(skuPo.getName());
+        Long price = selectFloatPrice(goodsSkuId);
+        if (price.equals((long) -1)) goodsSkuInfo.setPrice(skuPo.getOriginalPrice());
+        else goodsSkuInfo.setPrice(price);
+        return goodsSkuInfo;
     }
 }
