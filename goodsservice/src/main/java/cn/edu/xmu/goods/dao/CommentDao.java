@@ -58,7 +58,7 @@ public class CommentDao {
         criteria.andStateEqualTo(state.getCode().byteValue());
         com = commentMapper.selectByExample(example);
         if (com.size() == 0) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            return StatusWrap.of(new ArrayList<>());
         }
         List<CommentRetVo> commentRet = new ArrayList<>(com.size());
         for (CommentPo po : com) {
@@ -92,7 +92,7 @@ public class CommentDao {
         criteria.andCustomerIdEqualTo(customerId);
         com = commentMapper.selectByExample(example);
         if (com == null || com.isEmpty()) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            return StatusWrap.of(new ArrayList<>());
         }
         List<CommentRetVo> commentRet = new ArrayList<>(com.size());
         for (CommentPo po : com) {
@@ -130,7 +130,7 @@ public class CommentDao {
         }
         com = commentMapper.selectByExample(example);
         if (com == null || com.isEmpty()) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            return StatusWrap.of(new ArrayList<>());
         }
         List<CommentRetVo> commentRet = new ArrayList<>(com.size());
         for (CommentPo po : com) {
