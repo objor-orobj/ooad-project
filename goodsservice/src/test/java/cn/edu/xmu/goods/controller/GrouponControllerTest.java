@@ -146,13 +146,20 @@ public class GrouponControllerTest {
     @Test
     public void getgroupon4() throws Exception {
         String responseString = this.mvc.perform(get("/groupons?shopId=4&timeline=3"))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         System.out.println(responseString);
         String expectedResponse = "{\n" +
-                "  \"errno\": 504,\n" +
-                "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 10,\n" +
+                "    \"total\": 0,\n" +
+                "    \"pages\": 0,\n" +
+                "    \"list\": []\n" +
+                "  }\n" +
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
@@ -290,13 +297,20 @@ public class GrouponControllerTest {
     public void getallgroupon4() throws Exception {
         String token = this.login("13088admin", "123456");
         String responseString = this.mvc.perform(get("/shops/4/groupons?state=2").header("authorization", token))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         System.out.println(responseString);
         String expectedResponse = "{\n" +
-                "  \"errno\": 504,\n" +
-                "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 10,\n" +
+                "    \"total\": 0,\n" +
+                "    \"pages\": 0,\n" +
+                "    \"list\": []\n" +
+                "  }\n" +
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
@@ -334,6 +348,7 @@ public class GrouponControllerTest {
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, false);
     }
+    @Test
     public void creategroupon1() throws Exception{
         String token = this.login("13088admin","123456");
         String requiredJson = "{\n" +
@@ -351,28 +366,6 @@ public class GrouponControllerTest {
         String expectedResponse = "{\n" +
                 "  \"errno\": 503,\n" +
                 "  \"errmsg\": \"字段不合法\"\n" +
-                "}";
-        JSONAssert.assertEquals(expectedResponse, responseString, false);
-    }
-    @Test
-    public void creategroupon2() throws Exception{
-        String token = this.login("13088admin","123456");
-        String requiredJson = "{\n" +
-                "  \"strategy\": \"满减\",\n" +
-                "  \"beginTime\": \"2021-12-19T17:25:09.444Z\",\n" +
-                "  \"endTime\": \"2022-12-19T17:25:09.444Z\"\n" +
-                "}";
-        String responseString=this.mvc.perform(post("/shops/1/spus/273/groupons")
-                .header("authorization",token)
-                .contentType("application/json;charset=UTF-8")
-                .content(requiredJson))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andReturn().getResponse().getContentAsString();
-        System.out.println(responseString);
-        String expectedResponse = "{\n" +
-                "  \"errno\": 913,\n" +
-                "  \"errmsg\": \"店铺状态禁止\"\n" +
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, false);
     }

@@ -35,7 +35,7 @@ public class FloatPricesReturnVo
 
     private CreatedBy createdBy=new CreatedBy();
 
-    private ModifiedBy invalidBy=new ModifiedBy();
+    private ModifiedBy modifiedBy =new ModifiedBy();
 
     private boolean valid;
 
@@ -51,8 +51,8 @@ public class FloatPricesReturnVo
 
     public void setModifiedBy(Long userId,String userName)
     {
-        invalidBy.id=userId;
-        invalidBy.userName=userName;
+        modifiedBy.id=userId;
+        modifiedBy.userName=userName;
     }
 
     public FloatPricesReturnVo(FloatPricePo po)

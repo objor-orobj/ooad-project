@@ -71,6 +71,13 @@ public class GoodsSkuDao {
         return (long) -1;
     }
 
+    public boolean judgeResource(GoodsSkuPo skuPo, Long shopId) {
+        GoodsSpuPo spuPo = goodsSpuPoMapper.selectByPrimaryKey(skuPo.getGoodsSpuId());
+        if (spuPo == null) return false;
+        if (!spuPo.getShopId().equals(shopId)) return false;
+        return true;
+    }
+
     //TODO 商店关闭商品不可见
     public boolean DisableGoods(Long shopId) {
         GoodsSkuPoExample example = new GoodsSkuPoExample();
@@ -122,13 +129,13 @@ public class GoodsSkuDao {
     }
 
     public ResponseEntity<StatusWrap> getGoodsSkus(GetGoodsSkuVo getSkuVo) {
-        List<GoodsSkuPo> skus = null;
+        List<GoodsSkuPo> skus = new ArrayList<>();
         GoodsSkuPoExample example = new GoodsSkuPoExample();
         GoodsSkuPoExample.Criteria criteria = example.createCriteria();
         if (getSkuVo.getShopId() != null || (getSkuVo.getSpuSn() != null && getSkuVo.getSpuSn().length() > 0)) {
             GoodsSpuPoExample example1 = new GoodsSpuPoExample();
             GoodsSpuPoExample.Criteria criteria1 = example1.createCriteria();
-            boolean ifNull = true;
+            boolean ifNull = true;//判断要查询的sku是否数量为0
             if (getSkuVo.getShopId() != null && getSkuVo.getSpuSn() != null && getSkuVo.getSpuSn().length() > 0) {
                 example1.or().andShopIdEqualTo(getSkuVo.getShopId()).andGoodsSnEqualTo(getSkuVo.getSpuSn());
             } else {
@@ -153,8 +160,11 @@ public class GoodsSkuDao {
                 }
 
             }
-            if (ifNull)
-                return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            if (ifNull) {
+                PageInfo<?> VO = PageInfo.of(skus);
+                return StatusWrap.of(VO);
+            }
+
             PageHelper.startPage(getSkuVo.getPage(), getSkuVo.getPageSize());
             skus = goodsSkuPoMapper.selectByExample(example);
         } else {
@@ -173,7 +183,8 @@ public class GoodsSkuDao {
             skus = goodsSkuPoMapper.selectByExample(example);
         }
         if (skus == null || skus.size() == 0) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            PageInfo<?> VO = PageInfo.of(skus);
+            return StatusWrap.of(VO);
         }
         List<ReturnGoodsSkuVo> vos = skus.stream().map(sku -> new ReturnGoodsSkuVo(sku, selectFloatPrice(sku.getId()))).collect(Collectors.toList());
         PageInfo<?> VO = PageInfo.of(vos);
@@ -246,16 +257,19 @@ public class GoodsSkuDao {
     }
 
     public ResponseEntity<StatusWrap> createSku(Long shopId, Long goodsSpuId, CreateSkuVo vo) {
-        GoodsSpuPoExample example = new GoodsSpuPoExample();
-        GoodsSpuPoExample.Criteria criteria = example.createCriteria();
+//        GoodsSpuPoExample example = new GoodsSpuPoExample();
+//        GoodsSpuPoExample.Criteria criteria = example.createCriteria();
         GoodsSkuPoExample example1 = new GoodsSkuPoExample();
         GoodsSkuPoExample.Criteria criteria1 = example1.createCriteria();
         //判断是否有spu
-        example.or().andShopIdEqualTo(shopId).andIdEqualTo(goodsSpuId);
-        List<GoodsSpuPo> spuPo = goodsSpuPoMapper.selectByExample(example);
-        if (spuPo == null || spuPo.size() <= 0) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        }
+        GoodsSpuPo spuPo = goodsSpuPoMapper.selectByPrimaryKey(goodsSpuId);
+        if (spuPo == null) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        if (!spuPo.getShopId().equals(shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+//        example.or().andShopIdEqualTo(shopId).andIdEqualTo(goodsSpuId);
+//        List<GoodsSpuPo> spuPo = goodsSpuPoMapper.selectByExample(example);
+//        if (spuPo == null || spuPo.size() <= 0) {
+//            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+//        }
         //判断规格重复
         example1.or().andSkuSnEqualTo(vo.getSn()).andGoodsSpuIdEqualTo(goodsSpuId);
         List<GoodsSkuPo> skuPo = goodsSkuPoMapper.selectByExample(example1);
@@ -306,15 +320,15 @@ public class GoodsSkuDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> deleteSku(Long skuId) {
-
+    public ResponseEntity<StatusWrap> deleteSku(Long shopId, Long skuId) {
         GoodsSkuPo skuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
         if (skuPo == null) {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        //TODO 商品状态修改
+        if (!judgeResource(skuPo, shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        //TODO 商品状态修改,删除商品商品已删除时的错误码
         if (skuPo.getState().intValue() == 6)
-            return StatusWrap.ok();
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);/*StatusWrap.ok();*/
         skuPo.setState((byte) 6);
         skuPo.setGmtModified(LocalDateTime.now());
         int ret = (goodsSkuPoMapper.updateByPrimaryKeySelective(skuPo));
@@ -325,11 +339,12 @@ public class GoodsSkuDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> updateSku(Long skuId, ModifySkuVo modifySkuVo) {
+    public ResponseEntity<StatusWrap> updateSku(Long shopId, Long skuId, ModifySkuVo modifySkuVo) {
         GoodsSkuPo skuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
         if (skuPo == null) {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
+        if (!judgeResource(skuPo, shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         GoodsSkuPo po = modifySkuVo.asNewSku().toGoodsSkuPo();
         po.setId(skuId);
         po.setGmtModified(LocalDateTime.now());
@@ -341,13 +356,14 @@ public class GoodsSkuDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> putGoodsOnSale(Long skuId) {
+    public ResponseEntity<StatusWrap> putGoodsOnSale(Long shopId, Long skuId) {
         GoodsSkuPo skuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
         if (skuPo == null)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        if (!judgeResource(skuPo, shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         //TODO 商品状态修改
         if (skuPo.getState().intValue() == 4)
-            return StatusWrap.ok();
+            return StatusWrap.just(Status.STATE_NOCHANGE);
         skuPo.setState((byte) 4);
         skuPo.setGmtModified(LocalDateTime.now());
         int ret = (goodsSkuPoMapper.updateByPrimaryKeySelective(skuPo));
@@ -358,13 +374,16 @@ public class GoodsSkuDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> putOffGoodsOnSale(Long skuId) {
+    public ResponseEntity<StatusWrap> putOffGoodsOnSale(Long shopId, Long skuId) {
         GoodsSkuPo skuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
         if (skuPo == null)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        if (!judgeResource(skuPo, shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         //TODO 商品状态修改
-        if (skuPo.getState().intValue() == 0)
-            return StatusWrap.ok();
+        if (skuPo.getState().intValue() == 0) {
+            return StatusWrap.just(Status.STATE_NOCHANGE);
+        }
+
         skuPo.setState((byte) 0);
         skuPo.setGmtModified(LocalDateTime.now());
         int ret = (goodsSkuPoMapper.updateByPrimaryKeySelective(skuPo));
@@ -375,14 +394,21 @@ public class GoodsSkuDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> addFloatingPrice(Long userId, String userName, Long skuId, FloatPricesGetVo vo) {
+    public ResponseEntity<StatusWrap> addFloatingPrice(Long shopId, Long userId, String userName, Long skuId, FloatPricesGetVo vo) {
         FloatPricePoExample example = new FloatPricePoExample();
         FloatPricePoExample.Criteria criteria = example.createCriteria();
 
         GoodsSkuPo goodsSkuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
-        if (goodsSkuPo == null) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+
+        if (goodsSkuPo == null) return StatusWrap.just(Status.SPU_NOTOPERABLE);
+        GoodsSpuPo goodsSpuPo = goodsSpuPoMapper.selectByPrimaryKey(goodsSkuPo.getGoodsSpuId());
+        if (goodsSpuPo == null) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        if (!goodsSpuPo.getShopId().equals(shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         if (goodsSkuPo.getInventory() < vo.getQuantity())
-            return StatusWrap.just(Status.FloatPriceQuantity_Greater_Than_SKUInventory);
+            return StatusWrap.just(Status.SKU_NOTENOUGH);
+        if (vo.getQuantity() < 0 || vo.getBeginTime().isBefore(LocalDateTime.now()) || vo.getEndTime().isBefore(LocalDateTime.now()))
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+
 
         FloatPricePo po = vo.toFloatPricePo(skuId, vo);
 
@@ -390,6 +416,7 @@ public class GoodsSkuDao {
         po.setGmtModified(LocalDateTime.now());
         po.setValid((byte) 1);
         po.setCreatedBy(userId);
+        po.setInvalidBy(userId);
         example.or().andGoodsSkuIdEqualTo(skuId).andValidEqualTo((byte) 1);
 
         List<FloatPricePo> floatPo = floatPricePoMapper.selectByExample(example);
@@ -398,6 +425,7 @@ public class GoodsSkuDao {
             if (ret != 0) {
                 FloatPricesReturnVo floatPricesReturnVo = new FloatPricesReturnVo(po);
                 floatPricesReturnVo.setCreatedBy(userId, userName);
+                floatPricesReturnVo.setModifiedBy(userId, userName);
                 return StatusWrap.of(floatPricesReturnVo, HttpStatus.CREATED);
             } else {
                 return StatusWrap.just(Status.DATABASE_OPERATION_ERROR);
