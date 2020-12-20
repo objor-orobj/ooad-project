@@ -71,6 +71,7 @@ public class CouponActivity implements Serializable {
         this.name = po.getName();
         this.beginTime = po.getBeginTime();
         this.endTime = po.getEndTime();
+        this.shopId = po.getShopId();
         this.couponTime = po.getCouponTime();
         this.state = State.values()[po.getState().intValue()];
         this.quantity = po.getQuantity();

@@ -71,6 +71,7 @@ public class CouponDao implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+
         BloomFilterHelper<CharSequence> helper = new BloomFilterHelper<>(
                 Funnels.stringFunnel(Charsets.UTF_8), bloomSize, bloomErrorRate
         );
@@ -115,7 +116,7 @@ public class CouponDao implements InitializingBean {
         cache = (CouponActivity) redis.opsForValue().get("CA" + id);
         if (cache != null) {
             // getId() == null if activity non-existent
-            value = cache.getId() == null ? null : cache;
+            value = cache.getId().equals(-1L) ? null : cache;
         } else {
             // try fetch from database
             CouponActivityPo po;
@@ -128,7 +129,7 @@ public class CouponDao implements InitializingBean {
             if (po == null) {
                 value = null;
                 cache = new CouponActivity();
-                cache.setId(0L);
+                cache.setId(-1L);
             } else {
                 // save CouponActivity into redis
                 cache = value = new CouponActivity(po);

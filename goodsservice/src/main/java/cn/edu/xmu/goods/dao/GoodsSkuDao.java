@@ -1,6 +1,5 @@
 package cn.edu.xmu.goods.dao;
 
-import cn.edu.xmu.goods.controller.ShopController;
 import cn.edu.xmu.goods.mapper.*;
 import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.Status;
@@ -573,7 +572,7 @@ public class GoodsSkuDao {
         goodsSkuDTO.setId(skuPo.getId());
         goodsSkuDTO.setName(skuPo.getName());
         goodsSkuDTO.setSkuSn(skuPo.getSkuSn());
-        goodsSkuDTO.setImgUrl(skuPo.getImageUrl());
+        goodsSkuDTO.setImageUrl(skuPo.getImageUrl());
         goodsSkuDTO.setInventory(skuPo.getInventory());
         goodsSkuDTO.setOriginalPrice(skuPo.getOriginalPrice().intValue());
         Long price = selectFloatPrice(skuId);
