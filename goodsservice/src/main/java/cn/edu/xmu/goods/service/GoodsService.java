@@ -123,21 +123,21 @@ public class GoodsService implements GoodsServiceInterface {
         return goodsSpuDao.getSpuById(spuId);
     }
 
-    public ResponseEntity<StatusWrap> getSkuBySid(Long sid, Long skuId) {
+    public ResponseEntity<StatusWrap> getSkuBySid(Long sid, Long loginId, Long skuId) {
         logger.debug("shareId: " + sid + ", skuId" + skuId);
-        Long shareSkuId = null;
+        Boolean ok = false;
         try {
-            shareSkuId = shareServiceInterface.getSkuIdByShareId(sid);
+            ok = shareServiceInterface.getSkuIdByShareId(sid, loginId, skuId);
         } catch (Exception exception) {
-            logger.error("error fetching share serivce");
+            logger.error("error fetching share service");
             exception.printStackTrace();
         }
-        if (shareSkuId == null) {
-            logger.debug("share sku id null");
+        if (ok == null) {
+            logger.debug("share answer id null");
             return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
         }
-        if (shareSkuId.equals((long) 0)) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        if (!shareSkuId.equals(skuId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+//        if (shareSkuId.equals((long) 0)) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+//        if (!shareSkuId.equals(skuId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         GoodsSkuPo po = goodsSkuDao.getSkuPoById(skuId.intValue());
         if (po == null || po.getDisabled() == 1 || po.getState() != 4)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);

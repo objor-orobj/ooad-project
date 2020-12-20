@@ -389,10 +389,15 @@ public class GoodsController {
             @ApiResponse(code = 504, message = "操作的资源id不存在")
     })
     @GetMapping(path = "/share/{sid}/skus/{id}")
-    public Object getSkuBySid(@PathVariable Long sid,
-                              @PathVariable Long id) {
-        logger.debug("sid:" + sid + "id:" + id);
-        return goodsService.getSkuBySid(sid, id);
+    @Audit
+    public Object getSkuBySid(
+            @LoginUser Long loginId,
+            @PathVariable Long sid,
+            @PathVariable Long id) {
+        if (loginId == null)
+            return StatusWrap.just(Status.LOGIN_REQUIRED);
+        logger.debug("sid: " + sid + " id:" + id + " login user: " + loginId);
+        return goodsService.getSkuBySid(sid, loginId, id);
     }
 
     //是否要判断Spu重复

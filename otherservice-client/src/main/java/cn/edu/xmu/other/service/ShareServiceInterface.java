@@ -1,5 +1,5 @@
 package cn.edu.xmu.other.service;
 
 public interface ShareServiceInterface {
-    Long getSkuIdByShareId(Long sid);
+    Boolean getSkuIdByShareId(Long sharerId, Long customerId, Long skuId);
 }
