@@ -11,6 +11,7 @@ import cn.edu.xmu.goods.model.dto.GoodsSkuInfo;
 import cn.edu.xmu.goods.model.po.GoodsSkuPo;
 import cn.edu.xmu.goods.model.vo.*;
 import cn.edu.xmu.ooad.util.ReturnObject;
+import cn.edu.xmu.other.service.ShareServiceInterface;
 import cn.edu.xmu.privilegeservice.client.IUserService;
 import com.github.pagehelper.PageInfo;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -30,6 +31,9 @@ public class GoodsService implements GoodsServiceInterface {
 
     @DubboReference(version = "0.0.1-SNAPSHOT")
     private IUserService userService;
+
+    @DubboReference(version = "0.0.1-SNAPSHOT")
+    private ShareServiceInterface shareServiceInterface;
 
     @Override
     public boolean compareInventoryBySkuId(Long skuId, Integer amount) {
@@ -118,9 +122,12 @@ public class GoodsService implements GoodsServiceInterface {
     }
 
     public ResponseEntity<StatusWrap> getSkuBySid(Long sid,Long skuId) {
+        Long shareSkuId=shareServiceInterface.getSkuIdByShareId(sid);
+        if(shareSkuId.equals((long)0)) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        if(!shareSkuId.equals(skuId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         GoodsSkuPo po= goodsSkuDao.getSkuPoById(skuId.intValue());
         if(po==null||po.getDisabled()==1||po.getState()!=4) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        return goodsSpuDao.getSpuById(po.getGoodsSpuId());
+        return goodsSkuDao.getSkuDetailedById(skuId);
     }
 
     public ResponseEntity<StatusWrap> createSpu(Long id, GoodsSpuVo vo) {
