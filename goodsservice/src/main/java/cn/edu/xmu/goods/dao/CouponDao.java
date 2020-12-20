@@ -128,6 +128,7 @@ public class CouponDao implements InitializingBean {
             if (po == null) {
                 value = null;
                 cache = new CouponActivity();
+                cache.setId(0L);
             } else {
                 // save CouponActivity into redis
                 cache = value = new CouponActivity(po);

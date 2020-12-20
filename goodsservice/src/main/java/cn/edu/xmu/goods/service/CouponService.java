@@ -158,7 +158,7 @@ public class CouponService implements CouponServiceInterface {
             return StatusWrap.ok();
         if (activity.getState() != CouponActivity.State.ONLINE)
             return StatusWrap.just(Status.COUPON_ACTIVITY_STATE_DENIED);
-        if (activity.getState() != CouponActivity.State.OFFLINE)
+        if (activity.getState() != CouponActivity.State.DELETED)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         activity.setState(CouponActivity.State.OFFLINE);
         activity.setGmtCreated(LocalDateTime.now());
