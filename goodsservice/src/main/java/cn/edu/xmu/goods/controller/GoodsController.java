@@ -230,7 +230,7 @@ public class GoodsController {
         return StatusWrap.of(Arrays.asList(GoodsSpu.State.values()));
     }
 
-    @ApiOperation(value = "查询sku")
+    @ApiOperation(value="查询sku",produces="application/json;charset=UTF-8")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", dataType = "long", name = "shopId", value = "商铺id"),
             @ApiImplicitParam(paramType = "query", dataType = "String", name = "skuSn", value = "商品SKUsn"),

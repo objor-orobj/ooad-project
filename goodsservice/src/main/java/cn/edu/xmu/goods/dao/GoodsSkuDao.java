@@ -2,25 +2,19 @@ package cn.edu.xmu.goods.dao;
 
 import cn.edu.xmu.goods.controller.ShopController;
 import cn.edu.xmu.goods.mapper.*;
+import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
-import cn.edu.xmu.goods.model.bo.GoodsSku;
-import cn.edu.xmu.goods.model.bo.GoodsSpu;
-import cn.edu.xmu.goods.model.dto.GoodsSkuInfo;
-import cn.edu.xmu.order.model.dto.FreightModelDTO;
 import cn.edu.xmu.goods.model.dto.GoodsInfoDTO;
 import cn.edu.xmu.goods.model.dto.GoodsSkuDTO;
+import cn.edu.xmu.goods.model.dto.GoodsSkuInfo;
 import cn.edu.xmu.goods.model.po.*;
 import cn.edu.xmu.goods.model.vo.*;
-import cn.edu.xmu.order.service.FreightServiceInterface;
-import cn.edu.xmu.goods.service.GoodsService;
-import cn.edu.xmu.ooad.util.ResponseCode;
-import cn.edu.xmu.ooad.util.ReturnObject;
 import cn.edu.xmu.order.model.dto.FreightModelDTO;
+import cn.edu.xmu.order.service.FreightServiceInterface;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.bouncycastle.LICENSE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,7 +146,7 @@ public class GoodsSkuDao {
             }
             List<GoodsSpuPo> spuPo = goodsSpuPoMapper.selectByExample(example1);
             if (spuPo == null || spuPo.size() == 0) {
-                return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+                return StatusWrap.of(new ArrayList<>());
             }
             for (GoodsSpuPo goodsSpuPo : spuPo) {
                 if (getSkuVo.getGoodsSpuId() != null && !getSkuVo.getGoodsSpuId().equals(goodsSpuPo.getId()))
@@ -168,7 +162,7 @@ public class GoodsSkuDao {
             }
             if (ifNull) {
                 PageInfo<?> VO = PageInfo.of(skus);
-                return StatusWrap.of(VO);
+                return StatusWrap.of(PageWrap.of(VO,new ArrayList<>()));
             }
 
             PageHelper.startPage(getSkuVo.getPage(), getSkuVo.getPageSize());
@@ -190,7 +184,7 @@ public class GoodsSkuDao {
         }
         if (skus == null || skus.size() == 0) {
             PageInfo<?> VO = PageInfo.of(skus);
-            return StatusWrap.of(VO);
+            return StatusWrap.of(PageWrap.of(VO,new ArrayList<>()));
         }
         List<ReturnGoodsSkuVo> vos = skus.stream().map(sku -> new ReturnGoodsSkuVo(sku, selectFloatPrice(sku.getId()))).collect(Collectors.toList());
         PageInfo<?> VO = PageInfo.of(vos);

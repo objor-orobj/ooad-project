@@ -3,7 +3,6 @@ package cn.edu.xmu.goods.model.vo;
 import cn.edu.xmu.goods.model.bo.GoodsCategory;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 /**

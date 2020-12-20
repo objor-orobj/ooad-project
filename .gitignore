@@ -3,3 +3,6 @@
 *.iml
 *application-dev.yaml
 *logs
+.gradle
+*.html
+jacoco*
