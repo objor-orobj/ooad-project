@@ -1,5 +1,6 @@
 package cn.edu.xmu.goods.dao;
 
+import cn.edu.xmu.goods.controller.ShopController;
 import cn.edu.xmu.goods.mapper.*;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
@@ -20,6 +21,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.bouncycastle.LICENSE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -54,6 +57,9 @@ public class GoodsSkuDao {
 
     @DubboReference(version = "0.0.1")
     private FreightServiceInterface freightServiceInterface;
+
+    private static final Logger logger = LoggerFactory.getLogger(GoodsSkuDao.class);
+
 
     public Long selectFloatPrice(Long id) {
         FloatPricePoExample example = new FloatPricePoExample();
@@ -321,11 +327,16 @@ public class GoodsSkuDao {
     }
 
     public ResponseEntity<StatusWrap> deleteSku(Long shopId, Long skuId) {
+        logger.debug("delete: shopId " + shopId + ", skuId " + skuId);
         GoodsSkuPo skuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
         if (skuPo == null) {
+            logger.debug("skuId not found");
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        if (!judgeResource(skuPo, shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        if (!judgeResource(skuPo, shopId)) {
+            logger.debug("sku don't belong to shop");
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        }
         //TODO 商品状态修改,删除商品商品已删除时的错误码
         if (skuPo.getState().intValue() == 6)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);/*StatusWrap.ok();*/
