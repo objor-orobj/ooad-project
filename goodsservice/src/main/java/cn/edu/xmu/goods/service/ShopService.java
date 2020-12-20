@@ -70,6 +70,10 @@ public class ShopService implements ShopServiceInterface {
             logger.debug("no such shop");
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
+        if(origin.getState() == Shop.State.REJECTED)
+        {
+            return StatusWrap.just(Status.SHOP_STATE_DENIED);
+        }
         logger.debug("shop[" + origin.getId() + "] state: " + origin.getState().getName());
 //        if (origin.getState() != Shop.State.OFFLINE)
 //            return StatusWrap.just(Status.SHOP_STATE_DENIED);
