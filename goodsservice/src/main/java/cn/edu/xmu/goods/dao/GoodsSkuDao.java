@@ -71,11 +71,11 @@ public class GoodsSkuDao {
         return (long) -1;
     }
 
-    public boolean judgeResource(GoodsSkuPo skuPo, Long shopId) {
-        GoodsSpuPo spuPo = goodsSpuPoMapper.selectByPrimaryKey(skuPo.getGoodsSpuId());
-        if (spuPo == null) return false;
-        if (!spuPo.getShopId().equals(shopId)) return false;
-        return true;
+    public boolean judgeResource(GoodsSkuPo skuPo,Long shopId)
+    {
+        GoodsSpuPo spuPo=goodsSpuPoMapper.selectByPrimaryKey(skuPo.getGoodsSpuId());
+        if(spuPo==null) return false;
+        return spuPo.getShopId().equals(shopId);
     }
 
     //TODO 商店关闭商品不可见
@@ -405,14 +405,14 @@ public class GoodsSkuDao {
 
         GoodsSkuPo goodsSkuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
 
-        if (goodsSkuPo == null) return StatusWrap.just(Status.SPU_NOTOPERABLE);
-        GoodsSpuPo goodsSpuPo = goodsSpuPoMapper.selectByPrimaryKey(goodsSkuPo.getGoodsSpuId());
-        if (goodsSpuPo == null) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        if (!goodsSpuPo.getShopId().equals(shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        if (goodsSkuPo == null) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        GoodsSpuPo goodsSpuPo=goodsSpuPoMapper.selectByPrimaryKey(goodsSkuPo.getGoodsSpuId());
+        if(goodsSpuPo==null) return StatusWrap.just(Status.SPU_NOTOPERABLE);
+        if(!goodsSpuPo.getShopId().equals(shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         if (goodsSkuPo.getInventory() < vo.getQuantity())
             return StatusWrap.just(Status.SKU_NOTENOUGH);
-        if (vo.getQuantity() < 0 || vo.getBeginTime().isBefore(LocalDateTime.now()) || vo.getEndTime().isBefore(LocalDateTime.now()))
-            return StatusWrap.just(Status.FIELD_NOTVALID);
+        if(vo.getBeginTime().isAfter(vo.getEndTime())) return StatusWrap.just(Status.Log_Bigger);
+        if(vo.getQuantity()<0||vo.getBeginTime().isBefore(LocalDateTime.now())||vo.getEndTime().isBefore(LocalDateTime.now())) return StatusWrap.just(Status.FIELD_NOTVALID);
 
 
         FloatPricePo po = vo.toFloatPricePo(skuId, vo);
@@ -438,7 +438,7 @@ public class GoodsSkuDao {
         }
         for (FloatPricePo floatPricePo : floatPo) {
             //TODO 无法判断两个浮动价格时间完全一样或开始与结束时间与已有活动有一个相同的情况
-            if ((po.getBeginTime().isAfter(floatPricePo.getBeginTime()) && po.getEndTime().isBefore(floatPricePo.getEndTime())) || (po.getBeginTime().isAfter(floatPricePo.getBeginTime()) && po.getBeginTime().isBefore(floatPricePo.getEndTime()) && po.getEndTime().isAfter(floatPricePo.getEndTime())) || (po.getBeginTime().isBefore(floatPricePo.getBeginTime()) && po.getEndTime().isAfter(floatPricePo.getEndTime())) || (po.getBeginTime().isBefore(floatPricePo.getBeginTime()) && po.getEndTime().isBefore(floatPricePo.getEndTime()) && po.getEndTime().isAfter(floatPricePo.getBeginTime())))
+            if ((po.getBeginTime().isEqual(floatPricePo.getBeginTime())&&po.getEndTime().isEqual(floatPricePo.getEndTime()))||(po.getBeginTime().isAfter(floatPricePo.getBeginTime()) && po.getEndTime().isBefore(floatPricePo.getEndTime())) || (po.getBeginTime().isAfter(floatPricePo.getBeginTime()) && po.getBeginTime().isBefore(floatPricePo.getEndTime()) && po.getEndTime().isAfter(floatPricePo.getEndTime())) || (po.getBeginTime().isBefore(floatPricePo.getBeginTime()) && po.getEndTime().isAfter(floatPricePo.getEndTime())) || (po.getBeginTime().isBefore(floatPricePo.getBeginTime()) && po.getEndTime().isBefore(floatPricePo.getEndTime()) && po.getEndTime().isAfter(floatPricePo.getBeginTime())))
                 return StatusWrap.just(Status.SKUPRICE_CONFLICT);
         }
 

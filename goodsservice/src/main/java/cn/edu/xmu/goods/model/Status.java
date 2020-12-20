@@ -13,6 +13,7 @@ public enum Status {
     RESOURCE_FALSIFY(507, "信息签名不正确"),
     IMG_FORMAT_ERROR(508, "图片格式不正确"),
     IMG_SIZE_EXCEED(509, "图片大小超限"),
+    Log_Bigger(610,"开始时间大于结束时间"),
     SKU_NOTENOUGH(900, "商品规格库存不够"),
     SKUSN_SAME(901, "商品规格重复"),
     SKUPRICE_CONFLICT(902, "商品浮动价格时间冲突"),

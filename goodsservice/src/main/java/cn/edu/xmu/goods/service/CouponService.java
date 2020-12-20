@@ -158,6 +158,8 @@ public class CouponService implements CouponServiceInterface {
             return StatusWrap.ok();
         if (activity.getState() != CouponActivity.State.ONLINE)
             return StatusWrap.just(Status.COUPON_ACTIVITY_STATE_DENIED);
+        if (activity.getState() != CouponActivity.State.DELETED)
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         activity.setState(CouponActivity.State.OFFLINE);
         activity.setGmtCreated(LocalDateTime.now());
         CouponActivity saved = couponDao.updateActivity(activity);
@@ -286,6 +288,9 @@ public class CouponService implements CouponServiceInterface {
 
     public ResponseEntity<StatusWrap> addItemsToActivity(Long activityId, List<Long> skuIds, Long departId) {
         CouponActivity activity = couponDao.selectActivity(activityId);
+        //activity state denied
+        if (activity.getState() != CouponActivity.State.OFFLINE)
+            return StatusWrap.just(COUPON_ACTIVITY_STATE_DENIED);
         // activity not exist
         if (activity == null)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
