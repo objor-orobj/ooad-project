@@ -129,13 +129,15 @@ public class GoodsSkuDao {
     }
 
     public ResponseEntity<StatusWrap> getGoodsSkus(GetGoodsSkuVo getSkuVo) {
-        List<GoodsSkuPo> skus = new ArrayList<>();
+        List<ReturnGoodsSkuVo> view = new ArrayList<>();
+        List<GoodsSkuPo> raw = new ArrayList<>();
+        boolean ifNull = false;
         GoodsSkuPoExample example = new GoodsSkuPoExample();
         GoodsSkuPoExample.Criteria criteria = example.createCriteria();
         if (getSkuVo.getShopId() != null || (getSkuVo.getSpuSn() != null && getSkuVo.getSpuSn().length() > 0)) {
             GoodsSpuPoExample example1 = new GoodsSpuPoExample();
             GoodsSpuPoExample.Criteria criteria1 = example1.createCriteria();
-            boolean ifNull = true;//判断要查询的sku是否数量为0
+            ifNull = true;//判断要查询的sku是否数量为0
             if (getSkuVo.getShopId() != null && getSkuVo.getSpuSn() != null && getSkuVo.getSpuSn().length() > 0) {
                 example1.or().andShopIdEqualTo(getSkuVo.getShopId()).andGoodsSnEqualTo(getSkuVo.getSpuSn());
             } else {
@@ -145,28 +147,26 @@ public class GoodsSkuDao {
                     example1.or().andGoodsSnEqualTo(getSkuVo.getSpuSn());
             }
             List<GoodsSpuPo> spuPo = goodsSpuPoMapper.selectByExample(example1);
-            if (spuPo == null || spuPo.size() == 0) {
-                return StatusWrap.of(new ArrayList<>());
-            }
-            for (GoodsSpuPo goodsSpuPo : spuPo) {
-                if (getSkuVo.getGoodsSpuId() != null && !getSkuVo.getGoodsSpuId().equals(goodsSpuPo.getId()))
-                    continue;
-                ifNull = false;
-                if (getSkuVo.getSkuSn() != null && getSkuVo.getSkuSn().length() > 0) {
-                    //TODO 商品状态与其余条件筛选
-                    example.or().andGoodsSpuIdEqualTo(goodsSpuPo.getId()).andSkuSnEqualTo(getSkuVo.getSkuSn()).andDisabledEqualTo((byte) 0).andStateEqualTo((byte) 4);
-                } else {
-                    example.or().andGoodsSpuIdEqualTo(goodsSpuPo.getId()).andDisabledEqualTo((byte) 0).andStateEqualTo((byte) 4);
+            if (!(spuPo == null || spuPo.size() == 0)) {
+                view = new ArrayList<>();
+                ifNull = true;
+            } else {
+                for (GoodsSpuPo goodsSpuPo : spuPo) {
+                    if (getSkuVo.getGoodsSpuId() != null && !getSkuVo.getGoodsSpuId().equals(goodsSpuPo.getId()))
+                        continue;
+                    ifNull = false;
+                    if (getSkuVo.getSkuSn() != null && getSkuVo.getSkuSn().length() > 0) {
+                        //TODO 商品状态与其余条件筛选
+                        example.or().andGoodsSpuIdEqualTo(goodsSpuPo.getId()).andSkuSnEqualTo(getSkuVo.getSkuSn()).andDisabledEqualTo((byte) 0).andStateEqualTo((byte) 4);
+                    } else {
+                        example.or().andGoodsSpuIdEqualTo(goodsSpuPo.getId()).andDisabledEqualTo((byte) 0).andStateEqualTo((byte) 4);
+                    }
+
                 }
-
+                if (ifNull) {
+                    view = new ArrayList<>();
+                }
             }
-            if (ifNull) {
-                PageInfo<?> VO = PageInfo.of(skus);
-                return StatusWrap.of(PageWrap.of(VO,new ArrayList<>()));
-            }
-
-            PageHelper.startPage(getSkuVo.getPage(), getSkuVo.getPageSize());
-            skus = goodsSkuPoMapper.selectByExample(example);
         } else {
             //TODO 商品状态与其余条件筛选
             if (getSkuVo.getGoodsSpuId() != null && getSkuVo.getSkuSn() != null && getSkuVo.getSkuSn().length() > 0)
@@ -179,16 +179,16 @@ public class GoodsSkuDao {
                 else
                     example.or().andDisabledEqualTo((byte) 0).andStateEqualTo((byte) 4);
             }
+        }
+        if (!ifNull) {
+
             PageHelper.startPage(getSkuVo.getPage(), getSkuVo.getPageSize());
-            skus = goodsSkuPoMapper.selectByExample(example);
+            raw = goodsSkuPoMapper.selectByExample(example);
+
         }
-        if (skus == null || skus.size() == 0) {
-            PageInfo<?> VO = PageInfo.of(skus);
-            return StatusWrap.of(PageWrap.of(VO,new ArrayList<>()));
-        }
-        List<ReturnGoodsSkuVo> vos = skus.stream().map(sku -> new ReturnGoodsSkuVo(sku, selectFloatPrice(sku.getId()))).collect(Collectors.toList());
-        PageInfo<?> VO = PageInfo.of(vos);
-        return StatusWrap.of(VO);
+        view = raw.stream().map(sku -> new ReturnGoodsSkuVo(sku, selectFloatPrice(sku.getId()))).collect(Collectors.toList());
+
+        return StatusWrap.of(PageWrap.of(PageInfo.of(raw), view));
     }
 
     public ReturnGoodsSkuVo getSingleSimpleSku(Integer id) {

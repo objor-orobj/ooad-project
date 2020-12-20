@@ -26,7 +26,7 @@ public enum Status {
     COUPON_FINISH(910, "优惠卷领罄"),
     COUPON_END(911, "优惠卷活动终止"),
 
-    LOGIN_REQUIRED(599, "未登录"), // !!! actually for gateway
+    LOGIN_REQUIRED(704, "未登录"), // !!! actually for gateway
 
     // ShopService
     SHOP_ALREADY_AUDITED(912, "店铺已完成审核"),
@@ -43,7 +43,7 @@ public enum Status {
     //CommentService
     COMMENT_CONFIRMED(919, "评论已审核"),
     STATE_NOCHANGE(920,"状态未改变"),
-    COMMENT_CREATED(934, "已评论"),
+    COMMENT_CREATED(941, "已评论"),
 
 
     GOODS_STATE_DENIED(922, "商品状态禁止"),
