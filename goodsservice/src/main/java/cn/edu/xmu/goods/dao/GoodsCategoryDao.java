@@ -107,6 +107,17 @@ public class GoodsCategoryDao {
     }
 
     public ResponseEntity<StatusWrap> deleteGoodsCategory(Long cateId) {
+        // 删除子类
+        // recurse
+        GoodsCategoryPoExample example1 = new GoodsCategoryPoExample();
+        GoodsCategoryPoExample.Criteria criteria1 = example1.createCriteria();
+        criteria1.andPidEqualTo(cateId);
+        List<GoodsCategoryPo> po = goodsCategoryPoMapper.selectByExample(example1);
+        if (po != null && po.size() > 0) {
+            for (GoodsCategoryPo sub : po) {
+                deleteGoodsCategory(sub.getId());
+            }
+        }
         GoodsCategoryPo catePo = goodsCategoryPoMapper.selectByPrimaryKey(cateId);
         if (catePo == null)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
@@ -136,18 +147,6 @@ public class GoodsCategoryDao {
                 return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
             }
         }
-        //删除子类
-        // recurse
-        GoodsCategoryPoExample example1 = new GoodsCategoryPoExample();
-        GoodsCategoryPoExample.Criteria criteria1 = example1.createCriteria();
-        criteria1.andPidEqualTo(cateId);
-        List<GoodsCategoryPo> po = goodsCategoryPoMapper.selectByExample(example1);
-        if (po != null && po.size() > 0) {
-            for (GoodsCategoryPo sub : po) {
-                deleteGoodsCategory(sub.getId());
-            }
-        }
-
         return StatusWrap.just(Status.OK);
     }
 

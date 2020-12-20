@@ -1,5 +1,6 @@
 package cn.edu.xmu.goods.dao;
 
+import cn.edu.xmu.goods.controller.ShopController;
 import cn.edu.xmu.goods.mapper.*;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
@@ -14,6 +15,8 @@ import cn.edu.xmu.ooad.util.ResponseCode;
 import cn.edu.xmu.ooad.util.ReturnObject;
 import cn.edu.xmu.order.model.dto.FreightModelDTO;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -31,6 +34,8 @@ import java.util.stream.Collectors;
 
 @Repository
 public class GoodsSpuDao {
+    private static final Logger logger = LoggerFactory.getLogger(GoodsSpuDao.class);
+
     @Autowired(required = false)
     private GoodsSkuPoMapper goodsSkuPoMapper;
 
@@ -62,20 +67,37 @@ public class GoodsSpuDao {
         }
         BrandPo brandPo = brandPoMapper.selectByPrimaryKey(spuPo.getBrandId());
         GoodsCategoryPo goodsCategoryPo = goodsCategoryPoMapper.selectByPrimaryKey(spuPo.getCategoryId());
-
-        //TODO 此处查询运费模板,skuDao层相同
+        logger.debug("spuId: " + spuPo.getId());
+        logger.debug("freightId: " + spuPo.getFreightId());
         FreightModelDTO freightModelDTO;
-        freightModelDTO = freightServiceInterface.getFreightModelById(spuPo.getFreightId());
-
+        if (spuPo.getFreightId() == null) {
+            freightModelDTO = new FreightModelDTO();
+        } else {
+            freightModelDTO
+                    = freightServiceInterface.getFreightModelById(spuPo.getFreightId());
+            if (freightModelDTO == null) {
+                freightModelDTO = new FreightModelDTO();
+            }
+        }
         ShopPo shopPo = shopPoMapper.selectByPrimaryKey(spuPo.getShopId());
         example.or().andGoodsSpuIdEqualTo(spuId);
         List<GoodsSkuPo> skus = goodsSkuPoMapper.selectByExample(example);
         List<ReturnGoodsSkuVo> vos = skus.stream().map(sku -> new ReturnGoodsSkuVo(sku, goodsSkuDao.selectFloatPrice(sku.getId()))).collect(Collectors.toList());
         ReturnGoodsSpuVo vo = new ReturnGoodsSpuVo(spuPo);
-        if (brandPo != null) vo.setBrand(brandPo);
-
-        if (goodsCategoryPo != null) vo.setCategory(goodsCategoryPo);
-
+        if (brandPo != null) {
+            vo.setBrand(brandPo);
+        } else {
+            BrandPo empty = new BrandPo();
+            empty.setId(0L);
+            vo.setBrand(empty);
+        }
+        if (goodsCategoryPo != null) {
+            vo.setCategory(goodsCategoryPo);
+        } else {
+            GoodsCategoryPo empty = new GoodsCategoryPo();
+            empty.setId(0L);
+            vo.setCategory(empty);
+        }
         if (freightModelDTO != null) vo.setFreightModelDTO(freightModelDTO);
 
         if (shopPo != null) vo.setShop(shopPo);
