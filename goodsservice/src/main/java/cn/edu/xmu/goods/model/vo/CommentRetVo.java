@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Data
 public class CommentRetVo {
     private Long id;
-    private CustomerDTO customerId;
+    private CustomerDTO customer;
     private Long goodsSkuId;
     private Integer type;
     private String content;
@@ -26,7 +26,7 @@ public class CommentRetVo {
 
     public CommentRetVo(CommentPo obj,CustomerDTO customer){
         this.id=obj.getId();
-        this.customerId=customer;
+        this.customer =customer;
         this.goodsSkuId=obj.getGoodsSkuId();
         switch(obj.getType()){
             case 0:this.type= Comment.Type.GOOD.getCode();break;

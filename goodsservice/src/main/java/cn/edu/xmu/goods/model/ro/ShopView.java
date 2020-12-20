@@ -1,11 +1,12 @@
 package cn.edu.xmu.goods.model.ro;
 
 import cn.edu.xmu.goods.model.bo.Shop;
+import lombok.Data;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 public class ShopView {
     private final Long id;
     private final String name;
