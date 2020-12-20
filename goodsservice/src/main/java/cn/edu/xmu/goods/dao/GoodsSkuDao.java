@@ -130,7 +130,6 @@ public class GoodsSkuDao {
 
     public ResponseEntity<StatusWrap> getGoodsSkus(GetGoodsSkuVo getSkuVo) {
         List<ReturnGoodsSkuVo> view = new ArrayList<>();
-        System.out.println("TEST");
         List<GoodsSkuPo> raw = new ArrayList<>();
         boolean ifNull = false;
         GoodsSkuPoExample example = new GoodsSkuPoExample();
@@ -185,7 +184,6 @@ public class GoodsSkuDao {
 
             PageHelper.startPage(getSkuVo.getPage(), getSkuVo.getPageSize());
             raw = goodsSkuPoMapper.selectByExample(example);
-
         }
         view = raw.stream().map(sku -> new ReturnGoodsSkuVo(sku, selectFloatPrice(sku.getId()))).collect(Collectors.toList());
 
@@ -404,7 +402,6 @@ public class GoodsSkuDao {
     public ResponseEntity<StatusWrap> addFloatingPrice(Long shopId, Long userId, String userName, Long skuId, FloatPricesGetVo vo) {
         FloatPricePoExample example = new FloatPricePoExample();
         FloatPricePoExample.Criteria criteria = example.createCriteria();
-
         GoodsSkuPo goodsSkuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
 
         if (goodsSkuPo == null) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
@@ -413,7 +410,10 @@ public class GoodsSkuDao {
         if(!goodsSpuPo.getShopId().equals(shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         if (goodsSkuPo.getInventory() < vo.getQuantity())
             return StatusWrap.just(Status.SKU_NOTENOUGH);
+        if(vo.getEndTime()==null) return StatusWrap.just(Status.Log_END_NULL);
+        if(vo.getEndTime().isBefore(vo.getBeginTime())) return StatusWrap.just(Status.FIELD_NOTVALID);
         if(vo.getBeginTime().isAfter(vo.getEndTime())) return StatusWrap.just(Status.Log_Bigger);
+
         if(vo.getQuantity()<0||vo.getBeginTime().isBefore(LocalDateTime.now())||vo.getEndTime().isBefore(LocalDateTime.now())) return StatusWrap.just(Status.FIELD_NOTVALID);
 
 
@@ -447,7 +447,7 @@ public class GoodsSkuDao {
         int ret = floatPricePoMapper.insertSelective(po);
         if (ret != 0) {
             FloatPricesReturnVo floatPricesReturnVo = new FloatPricesReturnVo(po);
-            return StatusWrap.of(floatPricesReturnVo);
+            return StatusWrap.of(floatPricesReturnVo, HttpStatus.CREATED);
         } else {
             return StatusWrap.just(Status.DATABASE_OPERATION_ERROR);
         }

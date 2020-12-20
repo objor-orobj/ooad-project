@@ -32,7 +32,7 @@ public class GoodsService implements GoodsServiceInterface {
     @DubboReference(version = "0.0.1-SNAPSHOT")
     private IUserService userService;
 
-    @DubboReference(version = "0.0.1-SNAPSHOT")
+    @DubboReference(version = "0.0.1")
     private ShareServiceInterface shareServiceInterface;
 
     @Override
