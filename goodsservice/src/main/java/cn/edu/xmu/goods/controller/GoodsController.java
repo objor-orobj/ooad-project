@@ -225,7 +225,7 @@ public class GoodsController {
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功")
     })
-    @GetMapping(path = "/skus/states")
+    @GetMapping(path = "/skus/states", produces = "application/json;charset=UTF-8")
     public Object getGoodsSpuStates() {
         return StatusWrap.of(Arrays.asList(GoodsSpu.State.values()));
     }
