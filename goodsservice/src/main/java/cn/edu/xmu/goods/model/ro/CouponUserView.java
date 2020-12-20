@@ -5,7 +5,7 @@ import cn.edu.xmu.goods.model.bo.CouponActivity;
 import lombok.Data;
 import lombok.Getter;
 
-@Getter
+@Data
 public class CouponUserView {
     private final Long id;
     private final CouponActivityShrunkView activity;

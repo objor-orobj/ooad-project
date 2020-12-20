@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 public class CouponActivity implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    public enum State implements Serializable{
+    public enum State implements Serializable {
         OFFLINE(0, "已下线"),
         ONLINE(1, "已上线"),
         DELETED(2, "已删除");
@@ -75,7 +75,7 @@ public class CouponActivity implements Serializable {
         this.state = State.values()[po.getState().intValue()];
         this.quantity = po.getQuantity();
         this.type = Type.values()[po.getQuantitiyType().intValue()];
-        this.validTerm = po.getValidTerm().intValue();
+        this.validTerm = po.getValidTerm() == null ? 0 : po.getValidTerm().intValue();
         this.imageUrl = po.getImageUrl();
         this.strategy = po.getStrategy();
         this.modifierId = po.getModiBy();

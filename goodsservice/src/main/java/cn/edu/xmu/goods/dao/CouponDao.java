@@ -1,5 +1,6 @@
 package cn.edu.xmu.goods.dao;
 
+import cn.edu.xmu.goods.controller.ShopController;
 import cn.edu.xmu.goods.mapper.CouponActivityPoMapper;
 import cn.edu.xmu.goods.mapper.CouponPoMapper;
 import cn.edu.xmu.goods.mapper.CouponSkuPoMapper;
@@ -17,6 +18,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Charsets;
 import com.google.common.hash.Funnels;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +56,8 @@ public class CouponDao implements InitializingBean {
     @Autowired
     private RedisTemplate<String, Serializable> redis;
 
+    private static final Logger logger = LoggerFactory.getLogger(CouponDao.class);
+
     @Value("${goods-service.coupon-activity.redis-timeout}")
     private Integer timeout;
 
@@ -75,8 +80,11 @@ public class CouponDao implements InitializingBean {
     public CouponActivity createActivity(@NotNull CouponActivity activity) {
         CouponActivityPo po = activity.toCouponActivityPo();
         try {
+            logger.debug("aa");
             couponActivityPoMapper.insert(po);
+            logger.debug("aa");
             if (activity.getType() == CouponActivity.Type.LIMITED_INVENTORY) {
+                logger.debug("creating pre-generated coupons");
                 for (int i = 0; i < activity.getQuantity(); ++i) {
                     CouponPo justPo = new CouponPo();
                     justPo.setName(activity.getName());
@@ -85,11 +93,14 @@ public class CouponDao implements InitializingBean {
                     justPo.setState((byte) 0);
                     justPo.setGmtCreate(LocalDateTime.now());
                     couponPoMapper.insert(justPo);
+                    logger.debug("created coupon: id " + justPo.getId());
                 }
             }
         } catch (DataAccessException exception) {
+            logger.debug("error creating activity");
             return null;
         }
+        logger.debug("created activity: id " + po.getId());
         return new CouponActivity(po);
     }
 
@@ -172,17 +183,19 @@ public class CouponDao implements InitializingBean {
             Integer pageSize,
             Boolean invalid
     ) {
+        logger.debug("shopId: " + shopId);
+        logger.debug("timeline: " + timeline);
+        logger.debug("page: " + page);
+        logger.debug("pageSize: " + pageSize);
+        logger.debug("invalid: " + invalid);
         CouponActivityPoExample example = new CouponActivityPoExample();
         CouponActivityPoExample.Criteria criteria = example.createCriteria();
         // 按店铺查询
-        if (shopId != null && !shopId.equals(0L)) {
+        if (shopId != null)
             criteria.andShopIdEqualTo(shopId);
-        }
         // 管理员查看下线活动，用户查看上线活动
         if (invalid)
-            criteria.andStateIn(Arrays.asList(
-                    CouponActivity.State.DELETED.getCode().byteValue()
-            ));
+            criteria.andStateEqualTo(CouponActivity.State.OFFLINE.getCode().byteValue());
         else
             criteria.andStateEqualTo(CouponActivity.State.ONLINE.getCode().byteValue());
         // 按时间线
@@ -190,6 +203,7 @@ public class CouponDao implements InitializingBean {
             switch (timeline) {
                 case 0:
                     criteria.andBeginTimeGreaterThan(LocalDateTime.now());
+                    break;
                 case 1:
                     criteria.andBeginTimeBetween(
                             LocalDate.now().plusDays(1).atTime(LocalTime.MIN),
@@ -198,8 +212,10 @@ public class CouponDao implements InitializingBean {
                 case 2:
                     criteria.andBeginTimeLessThan(LocalDateTime.now())
                             .andEndTimeGreaterThan(LocalDateTime.now());
+                    break;
                 case 3:
                     criteria.andEndTimeLessThan(LocalDateTime.now());
+                    break;
             }
         }
         List<CouponActivityPo> activityPos;
@@ -233,7 +249,7 @@ public class CouponDao implements InitializingBean {
             return null;
         PageInfo<CouponSkuPo> info = PageInfo.of(items);
         List<ReturnGoodsSkuVo> view = items.stream().map(
-                item -> goodsSkuDao.getSingleSimpleSku(item.getSkuId().intValue())
+                item -> goodsSkuDao.getSingleSimpleSkuPLUS(item.getSkuId().intValue())
         ).collect(Collectors.toList());
         return PageWrap.of(info, view);
     }

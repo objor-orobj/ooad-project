@@ -7,7 +7,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 public class FlashSaleItemExtendedView {
     private final Long id;
     private final ReturnGoodsSkuVo goodsSku;

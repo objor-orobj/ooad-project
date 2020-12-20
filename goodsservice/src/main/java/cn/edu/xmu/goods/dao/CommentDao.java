@@ -1,5 +1,6 @@
 package cn.edu.xmu.goods.dao;
 
+import cn.edu.xmu.goods.controller.ShopController;
 import cn.edu.xmu.goods.mapper.CommentPoMapper;
 import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.Status;
@@ -12,11 +13,13 @@ import cn.edu.xmu.goods.model.vo.CommentRetVo;
 import cn.edu.xmu.goods.model.vo.CommentVo;
 import cn.edu.xmu.order.service.OrderServiceInterface;
 import cn.edu.xmu.other.model.dto.CustomerDTO;
-import cn.edu.xmu.other.service.UserServiceInterface;
+import cn.edu.xmu.other.service.CustomerServiceInterface;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,11 +37,13 @@ import java.util.List;
  */
 @Repository
 public class CommentDao {
+    private static final Logger logger = LoggerFactory.getLogger(CommentDao.class);
+
     @Autowired
     private CommentPoMapper commentMapper;
 
     @DubboReference(version = "0.0.1")
-    private UserServiceInterface userService;
+    private CustomerServiceInterface userService;
 
     @DubboReference(version = "0.0.1")
     private OrderServiceInterface orderService;
@@ -53,11 +58,25 @@ public class CommentDao {
         criteria.andStateEqualTo(state.getCode().byteValue());
         com = commentMapper.selectByExample(example);
         if (com.size() == 0) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            return StatusWrap.of(new ArrayList<>());
         }
         List<CommentRetVo> commentRet = new ArrayList<>(com.size());
         for (CommentPo po : com) {
-            CustomerDTO customer = userService.getCustomerInfoById(po.getCustomerId());
+            logger.debug("customerId: " + po.getCustomerId());
+            CustomerDTO customer = null;
+            try {
+                customer = userService.getCustomerInfoById(po.getCustomerId());
+            } catch (Exception exception) {
+                logger.error("failed to fetch customer info");
+                exception.printStackTrace();
+            }
+            if (customer == null) {
+                logger.error("customer null");
+                continue;
+            }
+            logger.debug("dto id: " + customer.getId());
+            logger.debug("dto name: " + customer.getName());
+            logger.debug("dto userName: " + customer.getUserName());
             CommentRetVo comment = new CommentRetVo(po, customer);
             commentRet.add(comment);
         }
@@ -73,7 +92,7 @@ public class CommentDao {
         criteria.andCustomerIdEqualTo(customerId);
         com = commentMapper.selectByExample(example);
         if (com == null || com.isEmpty()) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            return StatusWrap.of(new ArrayList<>());
         }
         List<CommentRetVo> commentRet = new ArrayList<>(com.size());
         for (CommentPo po : com) {
@@ -111,7 +130,7 @@ public class CommentDao {
         }
         com = commentMapper.selectByExample(example);
         if (com == null || com.isEmpty()) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            return StatusWrap.of(new ArrayList<>());
         }
         List<CommentRetVo> commentRet = new ArrayList<>(com.size());
         for (CommentPo po : com) {

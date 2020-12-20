@@ -51,9 +51,9 @@ public class GrouponActivityDao {
         if (goodsSpu.getShopId() != po.getShopId() && po.getShopId() != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        if (shop.getState() != Shop.State.ONLINE) {
-            return StatusWrap.just(Status.SHOP_STATE_DENIED);
-        }
+//        if (shop.getState() != Shop.State.ONLINE) {
+//            return StatusWrap.just(Status.SHOP_STATE_DENIED);
+//        }
         if(po.getBeginTime().isBefore(LocalDateTime.now())
                 || po.getEndTime().isBefore(LocalDateTime.now())
                 || po.getEndTime().isBefore(po.getBeginTime())
@@ -94,13 +94,9 @@ public class GrouponActivityDao {
             StringBuilder message = new StringBuilder().append("getGrouponActivity: ").append(e.getMessage());
         }
 
-        if (null == grouponActivityList || grouponActivityList.isEmpty()) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        } else {
-            List<GrouponActivityOutVo> grouponActivityOutVos = grouponActivityList.stream().map(GrouponActivityOutVo::new).collect(Collectors.toList());
-            PageInfo<GrouponActivityPo> raw = PageInfo.of(grouponActivityList);
-            return StatusWrap.of(PageWrap.of(raw, grouponActivityOutVos));
-        }
+        List<GrouponActivityOutVo> grouponActivityOutVos = grouponActivityList.stream().map(GrouponActivityOutVo::new).collect(Collectors.toList());
+        PageInfo<GrouponActivityPo> raw = PageInfo.of(grouponActivityList);
+        return StatusWrap.of(PageWrap.of(raw, grouponActivityOutVos));
     }
 
     public ResponseEntity<StatusWrap> getGrouponActivity(GrouponActivityInVo vo) {
@@ -119,20 +115,24 @@ public class GrouponActivityDao {
                         criteria.andGoodsSpuIdEqualTo(vo.getGoodsSpuId())
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 1:
                         criteria.andGoodsSpuIdEqualTo(vo.getGoodsSpuId())
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDate.now().plusDays(1).atTime(LocalTime.MIN))
                                 .andBeginTimeLessThan(LocalDate.now().plusDays(1).atTime(LocalTime.MAX));
+                        break;
                     case 2:
                         criteria.andGoodsSpuIdEqualTo(vo.getGoodsSpuId())
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeLessThan(LocalDateTime.now())
                                 .andEndTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 3:
                         criteria.andGoodsSpuIdEqualTo(vo.getGoodsSpuId())
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andEndTimeLessThan(LocalDateTime.now());
+                        break;
                 }
             } else if (vo.getShopid() != null) {
                 switch (vo.getTimeline()) {
@@ -140,20 +140,24 @@ public class GrouponActivityDao {
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 1:
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDate.now().plusDays(1).atTime(LocalTime.MIN))
                                 .andBeginTimeLessThan(LocalDate.now().plusDays(1).atTime(LocalTime.MAX));
+                        break;
                     case 2:
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeLessThan(LocalDateTime.now())
                                 .andEndTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 3:
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andEndTimeLessThan(LocalDateTime.now());
+                        break;
                 }
             } else {
                 switch (vo.getTimeline()) {
@@ -161,20 +165,24 @@ public class GrouponActivityDao {
                         criteria
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 1:
                         criteria
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDate.now().plusDays(1).atTime(LocalTime.MIN))
                                 .andBeginTimeLessThan(LocalDate.now().plusDays(1).atTime(LocalTime.MAX));
+                        break;
                     case 2:
                         criteria
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeLessThan(LocalDateTime.now())
                                 .andEndTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 3:
                         criteria
                                 .andStateEqualTo(GrouponActivity.State.ONLINE.getCode().byteValue())
                                 .andEndTimeLessThan(LocalDateTime.now());
+                        break;
                 }
             }
         } else {
@@ -192,13 +200,9 @@ public class GrouponActivityDao {
             StringBuilder message = new StringBuilder().append("getGrouponActivity: ").append(e.getMessage());
         }
 
-        if (null == grouponActivityList || grouponActivityList.isEmpty()) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        } else {
-            List<GrouponActivityOutVo> grouponActivityOutVos = grouponActivityList.stream().map(GrouponActivityOutVo::new).collect(Collectors.toList());
-            PageInfo<GrouponActivityPo> raw = PageInfo.of(grouponActivityList);
-            return StatusWrap.of(PageWrap.of(raw, grouponActivityOutVos));
-        }
+        List<GrouponActivityOutVo> grouponActivityOutVos = grouponActivityList.stream().map(GrouponActivityOutVo::new).collect(Collectors.toList());
+        PageInfo<GrouponActivityPo> raw = PageInfo.of(grouponActivityList);
+        return StatusWrap.of(PageWrap.of(raw, grouponActivityOutVos));
     }
 
     public GrouponActivityPo getGrouponActivityById(Long Id) {

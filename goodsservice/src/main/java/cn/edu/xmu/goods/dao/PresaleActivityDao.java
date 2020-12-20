@@ -50,12 +50,32 @@ public class PresaleActivityDao {
         if (goodsSpu.getShopId() != po.getShopId() && po.getShopId() != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
+        if(getPresaleBySkuid(po.getGoodsSkuId()) != null)
+        {
+            return StatusWrap.just(Status.PRESALE_STATENOTALLOW);
+        }
         int ret = presaleActivityPoMapper.insert(po);
         if (ret != 0) {
             return StatusWrap.of(po, HttpStatus.CREATED);
         } else {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
+    }
+
+    public List<PresaleActivityPo> getPresaleBySkuid(Long id)
+    {
+        List<PresaleActivityPo> presaleActivityList = null;
+        PresaleActivityPoExample example = new PresaleActivityPoExample();
+        PresaleActivityPoExample.Criteria criteria = example.createCriteria();
+        criteria.andGoodsSkuIdEqualTo(id).andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue());
+        try {
+            presaleActivityList = presaleActivityPoMapper.selectByExample(example);
+        } catch (
+                DataAccessException e) {
+            StringBuilder message = new StringBuilder().append("getPresaleActivity: ").append(e.getMessage());
+        }
+        return presaleActivityList;
+
     }
 
     public PresaleActivityPo getPresaleActivityById(Long Id) {
@@ -77,20 +97,24 @@ public class PresaleActivityDao {
                         criteria.andGoodsSkuIdEqualTo(vo.getGoodsSkuId())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 1:
                         criteria.andGoodsSkuIdEqualTo(vo.getGoodsSkuId())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDate.now().plusDays(1).atTime(LocalTime.MIN))
                                 .andBeginTimeLessThan(LocalDate.now().plusDays(1).atTime(LocalTime.MAX));
+                        break;
                     case 2:
                         criteria.andGoodsSkuIdEqualTo(vo.getGoodsSkuId())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeLessThan(LocalDateTime.now())
                                 .andEndTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 3:
                         criteria.andGoodsSkuIdEqualTo(vo.getGoodsSkuId())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andEndTimeLessThan(LocalDateTime.now());
+                        break;
                 }
             } else if (vo.getShopid() != null) {
                 switch (vo.getTimeline()) {
@@ -98,20 +122,24 @@ public class PresaleActivityDao {
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 1:
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDate.now().plusDays(1).atTime(LocalTime.MIN))
                                 .andBeginTimeLessThan(LocalDate.now().plusDays(1).atTime(LocalTime.MAX));
+                        break;
                     case 2:
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeLessThan(LocalDateTime.now())
                                 .andEndTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 3:
                         criteria.andShopIdEqualTo(vo.getShopid())
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andEndTimeLessThan(LocalDateTime.now());
+                        break;
                 }
             } else {
                 switch (vo.getTimeline()) {
@@ -119,20 +147,24 @@ public class PresaleActivityDao {
                         criteria
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 1:
                         criteria
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeGreaterThan(LocalDate.now().plusDays(1).atTime(LocalTime.MIN))
                                 .andBeginTimeLessThan(LocalDate.now().plusDays(1).atTime(LocalTime.MAX));
+                        break;
                     case 2:
                         criteria
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andBeginTimeLessThan(LocalDateTime.now())
                                 .andEndTimeGreaterThan(LocalDateTime.now());
+                        break;
                     case 3:
                         criteria
                                 .andStateEqualTo(PresaleActivity.State.ONLINE.getCode().byteValue())
                                 .andEndTimeLessThan(LocalDateTime.now());
+                        break;
                 }
             }
         } else {
@@ -151,27 +183,34 @@ public class PresaleActivityDao {
             StringBuilder message = new StringBuilder().append("getPresaleActivity: ").append(e.getMessage());
         }
 
-        if (null == presaleActivityList || presaleActivityList.isEmpty()) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        } else {
-            List<PresaleActivityCreateVo> presaleActivities = presaleActivityList.stream().map(
-                    x -> {
-                        Shop shop = shopDao.select(x.getShopId());
-                        ReturnGoodsSkuVo goodsSku = goodsSkuDao.getSingleSimpleSku(x.getGoodsSkuId().intValue());
-                        return new PresaleActivityCreateVo(shop, goodsSku, x);
-                    }
-            ).collect(Collectors.toList());
-            PageInfo<PresaleActivityPo> presaleActivityPageInfo = PageInfo.of(presaleActivityList);
-            return StatusWrap.of(PageWrap.of(presaleActivityPageInfo, presaleActivities));
-        }
+
+        List<PresaleActivityCreateVo> presaleActivities = presaleActivityList.stream().map(
+                x -> {
+                    Shop shop = shopDao.select(x.getShopId());
+                    ReturnGoodsSkuVo goodsSku = goodsSkuDao.getSingleSimpleSku(x.getGoodsSkuId().intValue());
+                    return new PresaleActivityCreateVo(shop, goodsSku, x);
+                }
+                ).collect(Collectors.toList());
+        PageInfo<PresaleActivityPo> presaleActivityPageInfo = PageInfo.of(presaleActivityList);
+        return StatusWrap.of(PageWrap.of(presaleActivityPageInfo, presaleActivities));
     }
 
     public ResponseEntity<StatusWrap> getallPresaleAcitvity(PresaleActivityInVo vo) {
-        if (vo.getGoodsSkuId() != null) {
-            if (!goodsSkuDao.getShopIdBySkuId(vo.getGoodsSkuId()).equals(vo.getShopid())) {
-                return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
-            }
-        }
+//        if (vo.getGoodsSkuId() != null) {
+//            GoodsSkuPo skuPo = goodsSkuPoMapper.selectByPrimaryKey(vo.getGoodsSkuId());
+//            if(skuPo != null)
+//            {
+//                if (!goodsSkuDao.getShopIdBySkuId(vo.getGoodsSkuId()).equals(vo.getShopid())) {
+//                return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+//                }
+//            }else{
+//                return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+//            }
+//        }
+//        if(vo.getState() !=null && (vo.getState()> 2 || vo.getState() < 0))
+//        {
+//            return StatusWrap.just(Status.FIELD_NOTVALID);
+//        }
         List<PresaleActivityPo> presaleActivityList = null;
         PresaleActivityPoExample example = new PresaleActivityPoExample();
         PresaleActivityPoExample.Criteria criteria = example.createCriteria();
@@ -198,9 +237,11 @@ public class PresaleActivityDao {
             StringBuilder message = new StringBuilder().append("getallPresaleActivity: ").append(e.getMessage());
         }
 
-        if (null == presaleActivityList || presaleActivityList.isEmpty()) {
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        } else {
+        if(presaleActivityList == null || presaleActivityList.isEmpty())
+        {
+            return StatusWrap.of(presaleActivityList);
+        }
+        else {
             List<PresaleActivityCreateVo> presaleActivities = presaleActivityList.stream().map(
                     x -> {
                         Shop shop = shopDao.select(x.getShopId());

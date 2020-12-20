@@ -1,5 +1,6 @@
 package cn.edu.xmu.goods.service;
 
+import cn.edu.xmu.goods.controller.CouponController;
 import cn.edu.xmu.goods.dao.CouponDao;
 import cn.edu.xmu.goods.dao.GoodsSkuDao;
 import cn.edu.xmu.goods.dao.ShopDao;
@@ -22,6 +23,9 @@ import cn.edu.xmu.ooad.util.ReturnObject;
 import cn.edu.xmu.privilegeservice.client.IUserService;
 import com.github.pagehelper.PageInfo;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.DubboService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -38,15 +42,18 @@ import java.util.stream.Collectors;
 import static cn.edu.xmu.goods.model.Status.*;
 
 @Service
+@DubboService(version = "0.0.1")
 public class CouponService implements CouponServiceInterface {
     @Autowired
     private CouponDao couponDao;
     @Autowired
     private ShopDao shopDao;
-    @DubboReference
+    @DubboReference(version = "0.0.1-SNAPSHOT")
     private IUserService userService;
     @Autowired
     private GoodsSkuDao goodsSkuDao;
+
+    private static final Logger logger = LoggerFactory.getLogger(CouponService.class);
 
     @Value("${goods-service.image-pool.dav-url}")
     private String davUrl;
@@ -66,11 +73,24 @@ public class CouponService implements CouponServiceInterface {
             Long userId
     ) {
         Shop shop = shopDao.select(shopId);
-        if (shop == null)
+        if (shop == null) {
+            logger.debug("shop non-existent");
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        String userName = userService.getUserName(userId);
-        if (userName == null)
+        }
+        logger.debug("shop id ok");
+        String userName = null;
+        try {
+            userName = userService.getUserName(userId);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            logger.debug("exception fetching name");
             return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        }
+        if (userName == null) {
+            logger.debug("user name null");
+            return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        }
+        logger.debug("username got");
         CouponActivity create = new CouponActivity(vo);
         create.setShopId(shopId);
         create.setCreatorId(userId);
@@ -78,6 +98,7 @@ public class CouponService implements CouponServiceInterface {
         CouponActivity saved = couponDao.createActivity(create);
         if (saved == null)
             return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        logger.debug("created: id " + saved.getId());
         return StatusWrap.of(new CouponActivityExtendedView(
                 saved,
                 new ShopIdAndNameView(shop),
