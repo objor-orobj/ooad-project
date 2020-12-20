@@ -48,7 +48,7 @@ path = [
   "/shops/*/skus/*/onshelves",
   "/shops/*/skus/*/offshelves",
   # spu
-  "/spus/*/",
+  "/spus/*",
   "/shops/*/spus/**",
 ]
 

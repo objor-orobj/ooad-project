@@ -22,6 +22,7 @@ import cn.edu.xmu.ooad.util.ReturnObject;
 import cn.edu.xmu.privilegeservice.client.IUserService;
 import com.github.pagehelper.PageInfo;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 import static cn.edu.xmu.goods.model.Status.*;
 
 @Service
+@DubboService(version = "0.0.1")
 public class CouponService implements CouponServiceInterface {
     @Autowired
     private CouponDao couponDao;

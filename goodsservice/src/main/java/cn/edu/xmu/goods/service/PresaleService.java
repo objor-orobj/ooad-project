@@ -7,6 +7,7 @@ import cn.edu.xmu.goods.model.bo.GrouponActivity;
 import cn.edu.xmu.goods.model.bo.PresaleActivity;
 import cn.edu.xmu.goods.model.bo.Shop;
 import cn.edu.xmu.goods.model.vo.*;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
+@DubboService(version = "0.0.1")
 public class PresaleService implements PresaleServiceInterface {
     @Autowired
     private PresaleActivityDao presaleActivityDao;
