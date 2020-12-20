@@ -71,6 +71,7 @@ public class GoodsSkuDao {
         return (long) -1;
     }
 
+    //给出一个GoodsSkuPo以及shopId，判断这个sku是不是这个店铺的
     public boolean judgeResource(GoodsSkuPo skuPo,Long shopId)
     {
         GoodsSpuPo spuPo=goodsSpuPoMapper.selectByPrimaryKey(skuPo.getGoodsSpuId());
@@ -130,6 +131,7 @@ public class GoodsSkuDao {
 
     public ResponseEntity<StatusWrap> getGoodsSkus(GetGoodsSkuVo getSkuVo) {
         List<ReturnGoodsSkuVo> view = new ArrayList<>();
+        System.out.println("TEST");
         List<GoodsSkuPo> raw = new ArrayList<>();
         boolean ifNull = false;
         GoodsSkuPoExample example = new GoodsSkuPoExample();
@@ -219,6 +221,7 @@ public class GoodsSkuDao {
             if (skuPo == null) {
                 return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
             }
+            if(skuPo.getState().equals((byte)6)) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
             ReturnWholeGoodsSkuVo skuVo = new ReturnWholeGoodsSkuVo(skuPo, selectFloatPrice(skuPo.getId()));
             //spu信息
             GoodsSkuPoExample example = new GoodsSkuPoExample();
@@ -231,8 +234,8 @@ public class GoodsSkuDao {
             GoodsCategoryPo goodsCategoryPo = goodsCategoryPoMapper.selectByPrimaryKey(spuPo.getCategoryId());
 
             //TODO 查询运费模板
-            FreightModelDTO freightModelDTO;
-            freightModelDTO = freightServiceInterface.getFreightModelById(spuPo.getFreightId());
+            FreightModelDTO freightModelDTO=null;
+            if(spuPo.getFreightId()!=null) freightModelDTO = freightServiceInterface.getFreightModelById(spuPo.getFreightId());
 
             ShopPo shopPo = shopPoMapper.selectByPrimaryKey(spuPo.getShopId());
             //TODO 商品状态判断
@@ -452,14 +455,20 @@ public class GoodsSkuDao {
     }
 
     //TODO 未将用户id与name存入
-    public ResponseEntity<StatusWrap> invalidFloatPrice(Long userId, Long floatId) {
+    public ResponseEntity<StatusWrap> invalidFloatPrice(Long shopId,Long userId, Long floatId) {
+
         FloatPricePoExample example = new FloatPricePoExample();
         FloatPricePoExample.Criteria criteria = example.createCriteria();
         FloatPricePo po = floatPricePoMapper.selectByPrimaryKey(floatId);
         if (po == null)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        GoodsSkuPo goodsSkuPo=goodsSkuPoMapper.selectByPrimaryKey(po.getGoodsSkuId());
+
+        if(goodsSkuPo==null) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        if (!judgeResource(goodsSkuPo, shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+
         if (po.getValid().intValue() == 0)
-            return StatusWrap.ok();
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         po.setValid((byte) 0);
         po.setGmtModified(LocalDateTime.now());
         po.setInvalidBy(userId);

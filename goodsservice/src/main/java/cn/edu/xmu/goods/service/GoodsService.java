@@ -158,7 +158,7 @@ public class GoodsService implements GoodsServiceInterface {
         return goodsSkuDao.addFloatingPrice(shopId,userId,userService.getUserName(userId),skuId, vo);
     }
 
-    public ResponseEntity<StatusWrap> invalidFloatPrice(Long userId, Long floatId) {
-        return goodsSkuDao.invalidFloatPrice(userId,floatId);
+    public ResponseEntity<StatusWrap> invalidFloatPrice(Long shopId,Long userId, Long floatId) {
+        return goodsSkuDao.invalidFloatPrice(shopId,userId,floatId);
     }
 }
