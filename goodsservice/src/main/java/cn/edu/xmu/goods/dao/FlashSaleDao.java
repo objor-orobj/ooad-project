@@ -7,6 +7,9 @@ import cn.edu.xmu.goods.model.bo.FlashSale;
 import cn.edu.xmu.goods.model.po.*;
 import cn.edu.xmu.goods.model.ro.FlashSaleItemExtendedView;
 import cn.edu.xmu.goods.model.vo.ReturnGoodsSkuVo;
+import cn.edu.xmu.goods.service.FlashSaleService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +19,10 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +34,26 @@ public class FlashSaleDao {
     private FlashSaleItemPoMapper flashSaleItemPoMapper;
     @Autowired
     private GoodsSkuDao goodsSkuDao;
+
+    private static final Logger logger = LoggerFactory.getLogger(FlashSaleDao.class);
+
+    public boolean timeSegConflict(LocalDateTime date, Long timeSegId) {
+        FlashSalePoExample example = new FlashSalePoExample();
+        FlashSalePoExample.Criteria criteria = example.createCriteria();
+        criteria.andTimeSegIdEqualTo(timeSegId)
+                .andFlashDateBetween(
+                        date.toLocalDate().atTime(LocalTime.MIN),
+                        date.toLocalDate().atTime(LocalTime.MAX)
+                ).andStateIn(Arrays.asList(
+                FlashSale.State.OFFLINE.getCode().byteValue(),
+                FlashSale.State.ONLINE.getCode().byteValue()));
+        List<FlashSalePo> pos = flashSalePoMapper.selectByExample(example);
+        if (pos != null && pos.size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public FlashSale selectActivity(@NotNull Long id) {
         FlashSalePo po;
@@ -96,6 +121,7 @@ public class FlashSaleDao {
     public Flux<FlashSaleItemExtendedView> getAllFlashSaleItemsWithinTimeSegments(List<Long> timeSegIds) {
         return Mono.just(timeSegIds).map(
                 timeIds -> {
+                    logger.debug("timeSegIds: " + timeSegIds);
                     FlashSalePoExample saleExample = new FlashSalePoExample();
                     FlashSalePoExample.Criteria saleCriteria = saleExample.createCriteria();
                     saleCriteria.andTimeSegIdIn(timeIds)
@@ -103,15 +129,19 @@ public class FlashSaleDao {
                                     LocalDate.now().atTime(LocalTime.MIN),
                                     LocalDate.now().atTime(LocalTime.MAX)
                             );
-                    List<FlashSalePo> allSales;
+                    List<FlashSalePo> allSales = null;
                     try {
                         allSales = flashSalePoMapper.selectByExample(saleExample);
                     } catch (DataAccessException exception) {
+                        exception.printStackTrace();
+                    }
+                    // empty list if no sales
+                    if (allSales == null || allSales.size() == 0) {
+                        logger.debug("empty sales list");
                         return new ArrayList<FlashSaleItemPo>();
                     }
-                    if (allSales == null || allSales.size() == 0) // empty list if no sales
-                        return new ArrayList<FlashSaleItemPo>();
                     List<Long> saleIds = allSales.stream().map(FlashSalePo::getId).collect(Collectors.toList());
+                    System.out.println(1);
                     FlashSaleItemPoExample itemExample = new FlashSaleItemPoExample();
                     FlashSaleItemPoExample.Criteria itemCriteria = itemExample.createCriteria();
                     itemCriteria.andSaleIdIn(saleIds);

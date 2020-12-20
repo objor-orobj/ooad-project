@@ -257,10 +257,11 @@ public class CouponController {
     @Audit
     @PostMapping(path = "/couponactivities/{activityId}/usercoupons", produces = "application/json;charset=UTF-8")
     public ResponseEntity<StatusWrap> userClaimCoupon(
-            @LoginUser @ApiIgnore Long userId,
-            @Depart @ApiIgnore Long departId,
+            @LoginUser @ApiIgnore @RequestParam(required = false) Long userId,
+            @Depart @ApiIgnore @RequestParam(required = false) Long departId,
             @PathVariable Long activityId
     ) {
+        logger.debug("userId: " + userId + ", departId: " + departId);
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
         return couponService.userClaimCoupon(activityId, userId);

@@ -1,15 +1,16 @@
 package cn.edu.xmu.goods.model.vo;
 
+import lombok.Data;
 import lombok.Getter;
 
 import javax.validation.constraints.NotNull;
 
-@Getter
+@Data
 public class FlashSaleItemCreatorValidation {
-    @NotNull
+//    @NotNull
     private Long skuId;
-    @NotNull
+//    @NotNull
     private Long price;
-    @NotNull
+//    @NotNull
     private Integer quantity;
 }

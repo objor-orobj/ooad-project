@@ -258,25 +258,55 @@ public class CouponService implements CouponServiceInterface {
 
 
     public ResponseEntity<StatusWrap> selectActivity(Long activityId, Long visitorDepartId) {
+        logger.debug("activity.id: " + activityId);
         CouponActivity activity = couponDao.selectActivity(activityId);
-        if (activity == null)
+        if (activity == null) {
+            logger.debug("selectActivity: activity not exist");
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+
+        }
+        logger.debug("activity.state: " + activity.getState());
+        logger.debug("activity.shopId: " + activity.getShopId());
+        logger.debug("visitorDepartId: " + visitorDepartId);
         if ((activity.getState() != CouponActivity.State.ONLINE && visitorDepartId == -2)
                 || (visitorDepartId > 0 && !activity.getShopId().equals(visitorDepartId))) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
         Shop shop = shopDao.select(activity.getShopId());
-        String creatorName = userService.getUserName(activity.getCreatorId());
-        String modifierName;
-        if (creatorName == null)
-            return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        logger.debug("got shop.name: " + shop.getName());
+        String creatorName = null;
+        if (activity.getCreatorId() != null) {
+            try {
+                creatorName = userService.getUserName(activity.getCreatorId());
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            if (creatorName == null) {
+                logger.debug("creator name null");
+                return StatusWrap.just(INTERNAL_SERVER_ERR);
+            }
+            logger.debug("got creator.name: " + creatorName);
+        } else {
+            logger.debug("creator id not yet set, ignored");
+        }
         UserIdAndView creator = new UserIdAndView(activity.getCreatorId(), creatorName);
+        String modifierName = null;
         UserIdAndView modifier = null;
         if (activity.getModifierId() != null) {
-            modifierName = userService.getUserName(activity.getModifierId());
-            if (modifierName == null)
+            try {
+
+                modifierName = userService.getUserName(activity.getModifierId());
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            if (modifierName == null) {
+                logger.debug("modifier name null");
                 return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+            }
+            logger.debug("got modifier.name: " + modifierName);
             modifier = new UserIdAndView(activity.getModifierId(), modifierName);
+        } else {
+            logger.debug("modifier id not yet set, ignored");
         }
         return StatusWrap.of(new CouponActivityExtendedView(
                 activity,

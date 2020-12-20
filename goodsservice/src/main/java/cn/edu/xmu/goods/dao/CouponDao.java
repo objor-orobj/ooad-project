@@ -12,6 +12,7 @@ import cn.edu.xmu.goods.model.ro.CouponActivityShrunkView;
 import cn.edu.xmu.goods.model.ro.CouponUserView;
 import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.vo.ReturnGoodsSkuVo;
+import cn.edu.xmu.ooad.util.JacksonUtil;
 import cn.edu.xmu.ooad.util.bloom.BloomFilterHelper;
 import cn.edu.xmu.ooad.util.bloom.RedisBloomFilter;
 import com.github.pagehelper.PageHelper;
@@ -36,6 +37,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -53,50 +55,47 @@ public class CouponDao implements InitializingBean {
     private CouponPoMapper couponPoMapper;
     @Autowired
     private GoodsSkuDao goodsSkuDao;
-    @Autowired
-    private RedisTemplate<String, Serializable> redis;
+//    @Autowired
+//    private RedisTemplate<String, Serializable> redis;
 
     private static final Logger logger = LoggerFactory.getLogger(CouponDao.class);
 
-    @Value("${goods-service.coupon-activity.redis-timeout}")
-    private Integer timeout;
+//    @Value("${goods-service.coupon-activity.redis-timeout}")
+//    private Integer timeout;
 
-    private RedisBloomFilter<CharSequence> bloom;
-
-    @Value("${goods-service.coupon-activity.bloom-estimated-coupon-qty}")
-    private Integer bloomSize;
-
-    @Value("${goods-service.coupon-activity.bloom-acceptable-error-rate}")
-    private Double bloomErrorRate;
+//    private RedisBloomFilter<CharSequence> bloom;
+//
+//    @Value("${goods-service.coupon-activity.bloom-estimated-coupon-qty}")
+//    private Integer bloomSize;
+//
+//    @Value("${goods-service.coupon-activity.bloom-acceptable-error-rate}")
+//    private Double bloomErrorRate;
 
     @Override
     public void afterPropertiesSet() throws Exception {
-
-        BloomFilterHelper<CharSequence> helper = new BloomFilterHelper<>(
-                Funnels.stringFunnel(Charsets.UTF_8), bloomSize, bloomErrorRate
-        );
-        bloom = new RedisBloomFilter<>(redis, helper);
+//        BloomFilterHelper<CharSequence> helper = new BloomFilterHelper<>(
+//                Funnels.stringFunnel(Charsets.UTF_8), bloomSize, bloomErrorRate
+//        );
+//        bloom = new RedisBloomFilter<>(redis, helper);
     }
 
     public CouponActivity createActivity(@NotNull CouponActivity activity) {
         CouponActivityPo po = activity.toCouponActivityPo();
         try {
-            logger.debug("aa");
             couponActivityPoMapper.insert(po);
-            logger.debug("aa");
-            if (activity.getType() == CouponActivity.Type.LIMITED_INVENTORY) {
-                logger.debug("creating pre-generated coupons");
-                for (int i = 0; i < activity.getQuantity(); ++i) {
-                    CouponPo justPo = new CouponPo();
-                    justPo.setName(activity.getName());
-                    justPo.setCouponSn(Integer.valueOf(i).toString());
-                    justPo.setActivityId(activity.getId());
-                    justPo.setState((byte) 0);
-                    justPo.setGmtCreate(LocalDateTime.now());
-                    couponPoMapper.insert(justPo);
-                    logger.debug("created coupon: id " + justPo.getId());
-                }
-            }
+//            if (activity.getType() == CouponActivity.Type.LIMITED_INVENTORY) {
+//                logger.debug("creating pre-generated coupons");
+//                for (int i = 0; i < activity.getQuantity(); ++i) {
+//                    CouponPo justPo = new CouponPo();
+//                    justPo.setName(activity.getName());
+//                    justPo.setCouponSn(Integer.valueOf(i).toString());
+//                    justPo.setActivityId(activity.getId());
+//                    justPo.setState((byte) 0);
+//                    justPo.setGmtCreate(LocalDateTime.now());
+//                    couponPoMapper.insert(justPo);
+//                    logger.debug("created coupon: id " + justPo.getId());
+//                }
+//            }
         } catch (DataAccessException exception) {
             logger.debug("error creating activity");
             return null;
@@ -111,56 +110,68 @@ public class CouponDao implements InitializingBean {
      * automatically load Coupon if needed
      */
     public CouponActivity selectActivity(@NotNull Long id) {
-        CouponActivity value, cache;
-        // try fetch from redis
-        cache = (CouponActivity) redis.opsForValue().get("CA" + id);
-        if (cache != null) {
-            // getId() == null if activity non-existent
-            value = cache.getId().equals(-1L) ? null : cache;
-        } else {
-            // try fetch from database
-            CouponActivityPo po;
-            try {
-                po = couponActivityPoMapper.selectByPrimaryKey(id);
-            } catch (DataAccessException exception) {
-                return null;
-            }
-            // save null-ID CouponActivity into redis if non-existent
-            if (po == null) {
-                value = null;
-                cache = new CouponActivity();
-                cache.setId(-1L);
-            } else {
-                // save CouponActivity into redis
-                cache = value = new CouponActivity(po);
-                if (value.getQuantity() > 0 // if Coupon needed
-                        && value.getCouponTime().isBefore(LocalDateTime.now().plusSeconds(timeout)) // soon starting
-                        && value.getBeginTime().isBefore(LocalDateTime.now())// activity online
-                        && value.getEndTime().isAfter(LocalDateTime.now()) // activity online
-                        && value.getState() != CouponActivity.State.DELETED // not deleted
-                ) {
-                    CouponPoExample example = new CouponPoExample();
-                    CouponPoExample.Criteria criteria = example.createCriteria();
-                    criteria.andActivityIdEqualTo(value.getId());
-                    // fetch list of existing Coupons
-                    List<CouponPo> couponPoList;
-                    try {
-                        couponPoList = couponPoMapper.selectByExample(example);
-                    } catch (DataAccessException exception) {
-                        return null;
-                    }
-                    // save number of existing Coupons into redis
-                    redis.opsForValue().set("CN" + id, couponPoList.size(), timeout, TimeUnit.SECONDS);
-                    // clean up previous bloom
-                    redis.delete("CU" + id);
-                    // load userId into bloom
-                    for (CouponPo couponPo : couponPoList)
-                        bloom.addByBloomFilter("CU" + id, couponPo.getCustomerId().toString());
-                }
-            }
-        }
-        redis.opsForValue().set("CA" + id, cache, timeout, TimeUnit.SECONDS);
-        return value;
+//        CouponActivity value, cache;
+//        // try fetch from redis
+//        cache = (CouponActivity) redis.opsForValue().get("CA" + id);
+//        if (cache != null) {
+//            logger.debug("redis hit");
+//            // getId() == null if activity non-existent
+//            value = cache.getId().equals(-1L) ? null : cache;
+//            logger.debug("cache: id " + cache.getId());
+//        } else {
+//            logger.debug("redis miss");
+//            // try fetch from database
+//            CouponActivityPo po;
+//            try {
+//                po = couponActivityPoMapper.selectByPrimaryKey(id);
+//            } catch (DataAccessException exception) {
+//                logger.debug("database exception");
+//                return null;
+//            }
+//            // save null-ID CouponActivity into redis if non-existent
+//            if (po == null) {
+//                logger.debug("database not found");
+//                value = null;
+//                cache = new CouponActivity();
+//                cache.setId(-1L);
+//            } else {
+//                logger.debug("database hit");
+//                // save CouponActivity into redis
+//                cache = value = new CouponActivity(po);
+//                if (value.getQuantity() > 0 // if Coupon needed
+//                        && value.getCouponTime().isBefore(LocalDateTime.now().plusSeconds(timeout)) // soon starting
+//                        && value.getBeginTime().isBefore(LocalDateTime.now())// activity online
+//                        && value.getEndTime().isAfter(LocalDateTime.now()) // activity online
+//                        && value.getState() != CouponActivity.State.DELETED // not deleted
+//                ) {
+//                    logger.debug("loading coupons");
+//                    CouponPoExample example = new CouponPoExample();
+//                    CouponPoExample.Criteria criteria = example.createCriteria();
+//                    criteria.andActivityIdEqualTo(value.getId());
+//                    // fetch list of existing Coupons
+//                    List<CouponPo> couponPoList;
+//                    try {
+//                        couponPoList = couponPoMapper.selectByExample(example);
+//                    } catch (DataAccessException exception) {
+//                        return null;
+//                    }
+//                    logger.debug("coupons in total: " + value.getQuantity());
+//                    logger.debug("coupons taken: " + couponPoList.size());
+//                    // save number of existing Coupons into redis
+//                    redis.opsForValue().set("CN" + id, couponPoList.size(), timeout, TimeUnit.SECONDS);
+//                    // clean up previous bloom
+//                    redis.delete("CU" + id);
+//                    // load userId into bloom
+//                    for (CouponPo couponPo : couponPoList)
+//                        bloom.addByBloomFilter("CU" + id, couponPo.getCustomerId().toString());
+//                }
+//            }
+//        }
+//        redis.opsForValue().set("CA" + id, cache, timeout, TimeUnit.SECONDS);
+//        return value;
+        CouponActivityPo po = couponActivityPoMapper.selectByPrimaryKey(id);
+        if (po == null) return null;
+        return new CouponActivity(po);
     }
 
     /*
@@ -173,7 +184,7 @@ public class CouponDao implements InitializingBean {
         } catch (DataAccessException exception) {
             return null;
         }
-        redis.delete("CA" + activity.getId());
+//        redis.delete("CA" + activity.getId());
         return activity;
     }
 
@@ -211,6 +222,7 @@ public class CouponDao implements InitializingBean {
                             LocalDate.now().plusDays(1).atTime(LocalTime.MIN),
                             LocalDate.now().plusDays(1).atTime(LocalTime.MAX)
                     );
+                    break;
                 case 2:
                     criteria.andBeginTimeLessThan(LocalDateTime.now())
                             .andEndTimeGreaterThan(LocalDateTime.now());
@@ -283,10 +295,11 @@ public class CouponDao implements InitializingBean {
         } catch (DataAccessException exception) {
             return null;
         }
-        if (po == null){
-            CouponSkuPo skuPo= new CouponSkuPo();
+        if (po == null) {
+            CouponSkuPo skuPo = new CouponSkuPo();
             skuPo.setId(0L);
-            return skuPo;}
+            return skuPo;
+        }
         return po;
     }
 
@@ -350,31 +363,52 @@ public class CouponDao implements InitializingBean {
     public ResponseEntity<StatusWrap> tryClaimCoupon(Long activityId, Long userId) {
         // load activity
         CouponActivity activity = selectActivity(activityId);
+        logger.debug("try claim: activityId " + activity + ", userId " + userId);
         // no such activity
-        if (activity == null)
+        if (activity == null) {
+            logger.debug("no such activity");
             return StatusWrap.just(RESOURCE_ID_NOTEXIST);
+        }
+        logger.debug("activity.quantity: " + activity.getQuantity());
         // no need for coupon
         if (activity.getQuantity().equals(0))
             return StatusWrap.just(COUPON_NO_NEED);
+        logger.debug("activity.couponTime: " + activity.getCouponTime());
         // coupon time not met
         if (activity.getCouponTime().isAfter(LocalDateTime.now()))
             return StatusWrap.just(COUPON_NOTBEGIN);
+        logger.debug("activity.endTime: " + activity.getEndTime());
         // activity ended
         if (activity.getEndTime().isBefore(LocalDateTime.now()))
             return StatusWrap.just(COUPON_END);
+//        boolean exist = bloom.includeByBloomFilter("CU" + activityId, userId.toString());
+//        logger.debug("in bloom: " + exist);
         // user already has coupon
-        if (bloom.includeByBloomFilter("CU" + activityId, userId.toString()))
+        CouponPoExample example = new CouponPoExample();
+        CouponPoExample.Criteria criteria = example.createCriteria();
+        criteria.andActivityIdEqualTo(activityId);
+        List<CouponPo> taken;
+        try {
+            taken = couponPoMapper.selectByExample(example);
+        } catch (DataAccessException exception) {
+            return StatusWrap.just(INTERNAL_SERVER_ERR);
+        }
+        List<Long> userIds = taken.stream().map(CouponPo::getCustomerId).collect(Collectors.toList());
+        boolean exist = userIds.contains(userId);
+        if (exist)
             return StatusWrap.just(COUPON_ALREADY_CLAIMED);
-
         if (activity.getType() == CouponActivity.Type.SINGLE_MAXIMUM) {
             return claimUnlimited(activity, userId);
         } else {
+            if (userIds.size() >= activity.getQuantity())
+                return StatusWrap.just(COUPON_FINISH);
             return claimLimited(activity, userId);
         }
     }
 
     // CouponActivity.Type.SINGLE_MAXIMUM
     private ResponseEntity<StatusWrap> claimUnlimited(CouponActivity activity, Long userId) {
+        logger.debug("claim with no condition");
         List<Coupon> coupons = new ArrayList<>();
         // this should've been:
         // generate id and po and return coupons immediately
@@ -392,6 +426,7 @@ public class CouponDao implements InitializingBean {
             );
             justPo.setState((byte) 1);
             justPo.setGmtCreate(LocalDateTime.now());
+            justPo.setCouponSn(activity.getId() + userId.toString() + i);
             try {
                 couponPoMapper.insert(justPo);
             } catch (DataAccessException exception) {
@@ -399,39 +434,41 @@ public class CouponDao implements InitializingBean {
             }
             coupons.add(new Coupon(justPo));
         }
-        List<CouponUserView> view = coupons.stream().map(
-                coupon -> new CouponUserView(coupon, activity)
-        ).collect(Collectors.toList());
-        bloom.addByBloomFilter("CU" + activity.getId(), userId.toString());
+        List<String> view = coupons.stream().map(Coupon::getCouponSn).collect(Collectors.toList());
         return StatusWrap.of(view, HttpStatus.CREATED);
     }
 
     // CouponActivity.Type.LIMITED_INVENTORY
     private ResponseEntity<StatusWrap> claimLimited(CouponActivity activity, Long userId) {
-        Long incremented = redis.opsForValue().increment("CN" + activity.getId());
-        if (incremented == null) {
-            return StatusWrap.just(INTERNAL_SERVER_ERR);
-        }
-        if (incremented > activity.getQuantity())
-            return StatusWrap.just(COUPON_FINISH);
+        logger.debug("limited number of coupons");
+//        Long incremented = redis.opsForValue().increment("CN" + activity.getId());
+//        if (incremented == null) {
+//            return StatusWrap.just(INTERNAL_SERVER_ERR);
+//        }
+//        logger.debug("current taken in redis: " + incremented);
+//        logger.debug("maximum: " + activity.getQuantity());
+//        if (incremented > activity.getQuantity())
+//            return StatusWrap.just(COUPON_FINISH);
         // this should've been:
         // generate id and po and return coupons immediately
         // write to database with mq async
-        CouponPoExample example = new CouponPoExample();
-        CouponPoExample.Criteria criteria = example.createCriteria();
-        criteria.andActivityIdEqualTo(activity.getId()).andStateEqualTo((byte) 0);
-        List<CouponPo> couponPoList;
-        try {
-            couponPoList = couponPoMapper.selectByExample(example);
-        } catch (DataAccessException exception) {
-            return StatusWrap.just(INTERNAL_SERVER_ERR);
-        }
-        if (couponPoList == null)
-            return StatusWrap.just(INTERNAL_SERVER_ERR);
-        // this should not happened if perfect
-        if (couponPoList.size() <= 0)
-            return StatusWrap.just(COUPON_FINISH);
-        CouponPo his = couponPoList.get(0);
+//        CouponPoExample example = new CouponPoExample();
+//        CouponPoExample.Criteria criteria = example.createCriteria();
+//        criteria.andActivityIdEqualTo(activity.getId()).andStateEqualTo((byte) 0);
+//        List<CouponPo> couponPoList;
+//        try {
+//            couponPoList = couponPoMapper.selectByExample(example);
+//        } catch (DataAccessException exception) {
+//            return StatusWrap.just(INTERNAL_SERVER_ERR);
+//        }
+//        if (couponPoList == null)
+//            return StatusWrap.just(INTERNAL_SERVER_ERR);
+//        // this should not happened if perfect
+//        if (couponPoList.size() <= 0)
+//            return StatusWrap.just(COUPON_FINISH);
+//        CouponPo his = couponPoList.get(0);
+        CouponPo his = new CouponPo();
+        his.setActivityId(activity.getId());
         his.setCustomerId(userId);
         his.setBeginTime(LocalDateTime.now());
         his.setEndTime(
@@ -439,13 +476,19 @@ public class CouponDao implements InitializingBean {
                         ? activity.getEndTime()
                         : LocalDateTime.now().plusDays(activity.getValidTerm())
         );
-        his.setState((byte) 1);
+        his.setState(Coupon.State.TAKEN.getCode().byteValue());
+        his.setCouponSn(activity.getId() + userId.toString());
+        his.setGmtCreate(LocalDateTime.now());
         try {
             couponPoMapper.insert(his);
         } catch (DataAccessException exception) {
+            exception.printStackTrace();
             return StatusWrap.just(INTERNAL_SERVER_ERR);
         }
-        return StatusWrap.of(new CouponUserView(new Coupon(his), activity), HttpStatus.CREATED);
+        List<?> listed = Collections.singletonList(his.getCouponSn());
+        activity.setQuantity(activity.getQuantity() - 1);
+        updateActivity(activity);
+        return StatusWrap.of(listed, HttpStatus.CREATED);
     }
 
     // for interface

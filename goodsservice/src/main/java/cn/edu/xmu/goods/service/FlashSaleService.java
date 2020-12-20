@@ -14,13 +14,18 @@ import cn.edu.xmu.goods.model.vo.*;
 import cn.edu.xmu.other.service.TimeServiceInterface;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,11 +42,28 @@ public class FlashSaleService implements FlashSaleServiceInterface {
     @DubboReference(version = "0.0.1")
     private TimeServiceInterface timeSegmentService;
 
+    private static final Logger logger = LoggerFactory.getLogger(FlashSaleService.class);
 
     public ResponseEntity<StatusWrap> createWithinTimeSegment(FlashSaleCreatorValidation vo, Long timeSegId) {
-        FlashSaleTimeSegmentDTO timeSegment = timeSegmentService.getFlashSaleTimeSegmentById(timeSegId);
-        if (timeSegment == null)
+        if (vo.getFlashDate() == null
+                || vo.getFlashDate().isBefore(LocalDate.now().atTime(LocalTime.MAX))) {
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
+        FlashSaleTimeSegmentDTO timeSegment = null;
+        try {
+            timeSegment = timeSegmentService.getFlashSaleTimeSegmentById(timeSegId);
+        } catch (Exception exception) {
+            logger.error("error fetching timeSeg info");
+            exception.printStackTrace();
+        }
+        if (timeSegment == null) {
+            logger.error("timeSeg id invalid");
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
+        if (flashSaleDao.timeSegConflict(vo.getFlashDate(), timeSegId)) {
+            logger.debug("timeSeg conflict");
+            return StatusWrap.just(Status.TIMESEG_CONFLICT);
+        }
         FlashSale create = new FlashSale(vo);
         create.setTimeSegId(timeSegId);
         create.setState(FlashSale.State.OFFLINE);
@@ -53,9 +75,15 @@ public class FlashSaleService implements FlashSaleServiceInterface {
     }
 
     public ResponseEntity<StatusWrap> modifyInfo(Long activityId, FlashSaleModifierValidation vo) {
+        logger.debug("modified activity: " + activityId + ", flash date: " + vo.getFlashDate());
         FlashSale origin = flashSaleDao.selectActivity(activityId);
-        if (origin == null)
+        if (origin == null || origin.getState() == FlashSale.State.DELETED)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        logger.debug("activity state: " + origin.getState());
+        if (vo.getFlashDate() == null
+                || vo.getFlashDate().isBefore(LocalDate.now().atTime(LocalTime.MAX))) {
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         if (origin.getState() != FlashSale.State.OFFLINE)
             return StatusWrap.just(Status.FLASH_SALE_STATE_DENIED);
         FlashSale modified = new FlashSale(vo);
@@ -68,7 +96,7 @@ public class FlashSaleService implements FlashSaleServiceInterface {
 
     public ResponseEntity<StatusWrap> bringOnline(Long id) {
         FlashSale activity = flashSaleDao.selectActivity(id);
-        if (activity == null)
+        if (activity == null || activity.getState() == FlashSale.State.DELETED)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         if (activity.getState() == FlashSale.State.ONLINE)
             return StatusWrap.ok();
@@ -83,7 +111,7 @@ public class FlashSaleService implements FlashSaleServiceInterface {
 
     public ResponseEntity<StatusWrap> bringOffline(Long id) {
         FlashSale activity = flashSaleDao.selectActivity(id);
-        if (activity == null)
+        if (activity == null || activity.getState() == FlashSale.State.DELETED)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         if (activity.getState() == FlashSale.State.OFFLINE)
             return StatusWrap.ok();
@@ -99,10 +127,10 @@ public class FlashSaleService implements FlashSaleServiceInterface {
 
     public ResponseEntity<StatusWrap> forceCancel(Long id) {
         FlashSale activity = flashSaleDao.selectActivity(id);
-        if (activity == null)
+        if (activity == null || activity.getState() == FlashSale.State.DELETED)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        if (activity.getState() == FlashSale.State.DELETED)
-            return StatusWrap.ok();
+        if (activity.getState() == FlashSale.State.ONLINE)
+            return StatusWrap.just(Status.FLASH_SALE_STATE_DENIED);
         activity.setState(FlashSale.State.DELETED);
         FlashSale saved = flashSaleDao.updateActivity(activity);
         if (saved == null)
@@ -111,6 +139,8 @@ public class FlashSaleService implements FlashSaleServiceInterface {
     }
 
     public ResponseEntity<StatusWrap> insertItem(Long saleId, FlashSaleItemCreatorValidation vo) {
+        if (vo.getSkuId() == null || vo.getPrice() == null || vo.getQuantity() == null)
+            return StatusWrap.just(Status.FIELD_NOTVALID);
         FlashSale sale = flashSaleDao.selectActivity(saleId);
         GoodsSkuPo sku = goodsSkuDao.getSkuPoById(vo.getSkuId().intValue());
         if (sale == null || sku == null)
@@ -141,9 +171,17 @@ public class FlashSaleService implements FlashSaleServiceInterface {
     }
 
     public Flux<FlashSaleItemExtendedView> getCurrentFlashSaleItems() {
-        List<Long> ids = timeSegmentService.getCurrentFlashSaleTimeSegs();
-        if (ids == null || ids.size() <= 0)
+        ArrayList<Long> ids = null;
+        try {
+            ids = timeSegmentService.getCurrentFlashSaleTimeSegs();
+        } catch (Exception exception) {
+            logger.error("error fetching timeSeg");
+            exception.printStackTrace();
+        }
+        if (ids == null || ids.size() <= 0) {
+            logger.error(" empty timeSeg list");
             return Flux.empty();
+        }
         return flashSaleDao.getAllFlashSaleItemsWithinTimeSegments(ids);
     }
 

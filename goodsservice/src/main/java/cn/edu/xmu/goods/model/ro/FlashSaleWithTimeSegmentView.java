@@ -15,6 +15,7 @@ public class FlashSaleWithTimeSegmentView {
     private final LocalDateTime gmtCreate;
     private final LocalDateTime gmtModified;
 
+    @Data
     public static class TimeSegmentView {
         private final Long id;
         private final LocalDateTime beginTime;

@@ -80,6 +80,7 @@ public class CouponActivity implements Serializable {
         this.imageUrl = po.getImageUrl();
         this.strategy = po.getStrategy();
         this.modifierId = po.getModiBy();
+        this.creatorId = po.getCreatedBy();
         this.gmtCreated = po.getGmtCreate();
         this.modifierId = po.getModiBy();
     }

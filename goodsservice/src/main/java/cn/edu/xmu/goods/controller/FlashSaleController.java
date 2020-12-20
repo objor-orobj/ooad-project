@@ -40,7 +40,7 @@ public class FlashSaleController {
             @Depart @ApiIgnore Long departId,
             @PathVariable Long shopId,
             @PathVariable Long timeSegmentId,
-            @Validated @RequestBody FlashSaleCreatorValidation flashSaleVo
+            @RequestBody FlashSaleCreatorValidation flashSaleVo
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
@@ -57,7 +57,7 @@ public class FlashSaleController {
             @Depart @ApiIgnore Long departId,
             @PathVariable Long shopId,
             @PathVariable Long flashSaleId,
-            @Validated @RequestBody FlashSaleModifierValidation FlashSaleVo
+            @RequestBody FlashSaleModifierValidation FlashSaleVo
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
@@ -134,7 +134,7 @@ public class FlashSaleController {
             @Depart @ApiIgnore Long departId,
             @PathVariable Long shopId,
             @PathVariable Long flashSaleId,
-            @Validated @RequestBody FlashSaleItemCreatorValidation itemVo
+            @RequestBody FlashSaleItemCreatorValidation itemVo
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
@@ -163,16 +163,23 @@ public class FlashSaleController {
         return flashSaleService.removeItem(flashSaleItemId);
     }
 
-    @GetMapping(path = "/timesegments/{timeSegmentId}/flashsales", produces = "application/stream+json;charset=UTF-8")
+    @GetMapping(
+            path = "/timesegments/{timeSegmentId}/flashsales",
+//            produces = "application/stream+json;charset=UTF-8"
+            produces = "application/json;charset=UTF-8"
+    )
     public Flux<FlashSaleItemExtendedView> getFlashSaleItemsWithinTimeSegment(
             @PathVariable Long timeSegmentId
     ) {
         return flashSaleService.getFlashSaleItemsWithinTimeSegment(timeSegmentId);
     }
 
-    @GetMapping(path = "/flashsales/current", produces = "application/stream+json;charset=UTF-8")
+    @GetMapping(
+            path = "/flashsales/current",
+//            produces = "application/stream+json;charset=UTF-8"
+            produces = "application/json;charset=UTF-8"
+    )
     public Flux<FlashSaleItemExtendedView> getCurrentFlashSaleItems() {
-        logger.debug("get current flash sale");
         return flashSaleService.getCurrentFlashSaleItems();
     }
 }

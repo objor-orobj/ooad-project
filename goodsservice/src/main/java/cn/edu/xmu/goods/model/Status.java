@@ -33,7 +33,7 @@ public enum Status {
     SHOP_ALREADY_AUDITED(912, "店铺已完成审核"),
     SHOP_STATE_DENIED(980, "店铺状态禁止"),
     SKU_DISABLED(914, "商品已禁用"),
-    FLASH_SALE_STATE_DENIED(915, "店铺状态禁止"),
+    FLASH_SALE_STATE_DENIED(923, "店铺状态禁止"),
 
     // GoodsService
     SKU_NOT_HAVE_SPU(916, "商品sku无spu集合"),
@@ -48,7 +48,7 @@ public enum Status {
 
 
     GOODS_STATE_DENIED(922, "商品状态禁止"),
-    COUPON_ACTIVITY_ITEM_DUPLICATED(923, "优惠活动商品重复添加"),
+    COUPON_ACTIVITY_ITEM_DUPLICATED(934, "优惠活动商品重复添加"),
     COUPON_NO_NEED(924, "活动无需使用优惠券"),
     COUPON_ALREADY_CLAIMED(925, "用户已领取过此优惠券"),
 
@@ -59,7 +59,8 @@ public enum Status {
     ADDED_BRAND(930,"已加入品牌"),
     ADDED_CATEGORY(931,"已加入分类"),
     NOT_ADDED_BRAND(932,"未加入品牌"),
-    NOT_ADDED_CATEGORY(933,"未加入分类");
+    NOT_ADDED_CATEGORY(933,"未加入分类"),
+    TIMESEG_CONFLICT(604,"时段冲突");
 
     private final Integer errno;
     private final String errmsg;
