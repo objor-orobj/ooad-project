@@ -3,7 +3,6 @@ package cn.edu.xmu.goods.model.vo;
 import cn.edu.xmu.goods.model.bo.GoodsCategory;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 /**
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class GoodsCategoryVo {
-    @NotBlank(message="name不得为空")
+    //@NotBlank(message="name不得为空")
     private String name;
 
     public GoodsCategory createGoodsCategory(){

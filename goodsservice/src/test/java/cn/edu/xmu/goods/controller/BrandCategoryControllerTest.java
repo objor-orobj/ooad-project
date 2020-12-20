@@ -16,13 +16,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = GoodsServiceApplication.class)   //标识本类是一个SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class GoodsControllerTest {
+class BrandCategoryControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    /*public GoodsControllerTest() {
+    /*public BrandCategoryControllerTest() {
         SqlScript.run("/goods-schema.sql");
-        SqlScript.run("/cn/edu/xmu/goods/controller/GoodsControllerTest.sql");
+        SqlScript.run("/cn/edu/xmu/goods/controller/BrandCategoryControllerTest.sql");
     }*/
 
     @Test

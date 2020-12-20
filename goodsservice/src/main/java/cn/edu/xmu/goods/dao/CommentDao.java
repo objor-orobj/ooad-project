@@ -1,11 +1,13 @@
 package cn.edu.xmu.goods.dao;
 
 import cn.edu.xmu.goods.mapper.CommentPoMapper;
+import cn.edu.xmu.goods.mapper.GoodsSkuPoMapper;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.Comment;
 import cn.edu.xmu.goods.model.po.CommentPo;
 import cn.edu.xmu.goods.model.po.CommentPoExample;
+import cn.edu.xmu.goods.model.po.GoodsSkuPo;
 import cn.edu.xmu.goods.model.vo.CommentConfirmVo;
 import cn.edu.xmu.goods.model.vo.CommentRetVo;
 import cn.edu.xmu.goods.model.vo.CommentVo;
@@ -30,9 +32,15 @@ import java.util.List;
 public class CommentDao {
     @Autowired
     private CommentPoMapper commentMapper;
+    @Autowired
+    private GoodsSkuPoMapper goodsSkuPoMapper;
 
 
     public ResponseEntity<StatusWrap> getSkuComments(Long skuId, Integer page, Integer pageSize){
+        GoodsSkuPo sku= goodsSkuPoMapper.selectByPrimaryKey(skuId);
+        if(sku==null){
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
         List<CommentPo> com = null;
         CommentPoExample example=new CommentPoExample();
         CommentPoExample.Criteria criteria=example.createCriteria();
@@ -42,7 +50,7 @@ public class CommentDao {
         criteria.andStateEqualTo(state.getCode().byteValue());
         com=commentMapper.selectByExample(example);
         if(com.size()==0){
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            return StatusWrap.of(new ArrayList<>());
         }
         List<CommentRetVo> commentRet=new ArrayList<>(com.size());
         for(CommentPo po:com){
@@ -61,7 +69,7 @@ public class CommentDao {
         criteria.andCustomerIdEqualTo(customerId);
         com=commentMapper.selectByExample(example);
         if(com==null||com.isEmpty()){
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            return StatusWrap.of(new ArrayList<>());
         }
         List<CommentRetVo> commentRet=new ArrayList<>(com.size());
         for(CommentPo po:com){
@@ -91,7 +99,7 @@ public class CommentDao {
         }
         com=commentMapper.selectByExample(example);
         if(com==null||com.isEmpty()){
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            return StatusWrap.of(new ArrayList<>());
         }
         List<CommentRetVo> commentRet=new ArrayList<>(com.size());
         for(CommentPo po:com){
@@ -104,6 +112,9 @@ public class CommentDao {
 
     public ResponseEntity<StatusWrap> createComment(Long customerId,Long orderitemId,CommentVo vo){
         //skuId
+        if(vo.getContent()==null||vo.getType()==null){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         CommentPoExample example=new CommentPoExample();
         CommentPoExample.Criteria criteria=example.createCriteria();
         criteria.andCustomerIdEqualTo(customerId);
@@ -128,6 +139,9 @@ public class CommentDao {
     }
 
     public ResponseEntity<StatusWrap> confirmComment(Long commentId, CommentConfirmVo vo){
+        if(vo.getConclusion()==null){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
+        }
         CommentPo po=commentMapper.selectByPrimaryKey(commentId);
         if(po==null)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);

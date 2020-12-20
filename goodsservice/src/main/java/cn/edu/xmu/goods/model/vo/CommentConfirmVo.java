@@ -2,8 +2,6 @@ package cn.edu.xmu.goods.model.vo;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
-
 /**
  * @pragram:oomall
  * @description:
@@ -12,6 +10,6 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class CommentConfirmVo {
-    @NotNull
+    //@NotNull
     private Boolean conclusion;
 }

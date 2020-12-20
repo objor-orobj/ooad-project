@@ -4,8 +4,6 @@ package cn.edu.xmu.goods.model.vo;
 import cn.edu.xmu.goods.model.bo.Comment;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
@@ -16,10 +14,10 @@ import java.time.LocalDateTime;
  */
 @Data
 public class CommentVo {
-    @NotNull(message="type不得为空")
+    //@NotNull(message="type不得为空")
     private Comment.Type type;
 
-    @NotBlank(message="content不得为空")
+    //@NotBlank(message="content不得为空")
     private String content;
 
     public Comment createComment(){

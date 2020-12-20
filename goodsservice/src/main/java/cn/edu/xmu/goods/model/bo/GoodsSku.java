@@ -55,7 +55,7 @@ public class GoodsSku {
     private String imageUrl;
     private Integer inventory;
     private String detail;
-    private Byte disabled;
+    private Byte disable;
     private LocalDateTime gmtCreate;
     private LocalDateTime gmtModified;
 
@@ -89,7 +89,7 @@ public class GoodsSku {
         vo.setImageUrl(po.getImageUrl());
         vo.setInventory(po.getInventory());
         vo.setOriginalPrice(po.getOriginalPrice());
-        vo.setDisabled(po.getDisabled()==1);
+        vo.setDisable(po.getDisabled()==1);
 
         return vo;
     }

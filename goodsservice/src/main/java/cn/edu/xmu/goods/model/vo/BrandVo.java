@@ -3,7 +3,6 @@ package cn.edu.xmu.goods.model.vo;
 import cn.edu.xmu.goods.model.bo.Brand;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 /**
@@ -14,10 +13,10 @@ import java.time.LocalDateTime;
  */
 @Data
 public class BrandVo {
-    @NotBlank(message="name不得为空")
+    //@NotBlank(message="name不得为空")
     private String name;
 
-    @NotBlank(message="detail不得为空")
+    //@NotBlank(message="detail不得为空")
     private String detail;
 
     public Brand createBrand(){
