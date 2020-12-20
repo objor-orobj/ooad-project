@@ -26,6 +26,7 @@ public enum Status {
     COUPON_NOTBEGIN(909, "未到优惠卷领取时间"),
     COUPON_FINISH(910, "优惠卷领罄"),
     COUPON_END(911, "优惠卷活动终止"),
+    Log_END_NULL(612,"结束时间不能为空"),
 
     LOGIN_REQUIRED(704, "未登录"), // !!! actually for gateway
 

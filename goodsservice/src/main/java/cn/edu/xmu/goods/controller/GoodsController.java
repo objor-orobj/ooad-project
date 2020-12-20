@@ -256,8 +256,8 @@ public class GoodsController {
         return goodsService.getGoodsSkus(getSkuVo);
     }
 
-    @DubboReference(version = "0.0.1")
-    private FootprintServiceInterface footprint;
+//    @DubboReference(version = "0.0.1")
+//    private FootprintServiceInterface footprint;
 
     @ApiOperation(value = "获得sku的详细信息")
     @ApiImplicitParams({
@@ -269,7 +269,8 @@ public class GoodsController {
     })
     @GetMapping(path = "/skus/{id}", produces = "application/json;charset=UTF-8")
     public Object getSkuDetailedById(@PathVariable Long id) {
-        footprint.addFootprint(1L, id);
+//        footprint.addFootprint(1L, id);
+        System.out.println("TEST");
         return goodsService.getSkuDetailedById(id);
     }
 
@@ -573,6 +574,6 @@ public class GoodsController {
         if (!shopId.equals(departId) && departId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        return goodsService.invalidFloatPrice(userId, id);
+        return goodsService.invalidFloatPrice(shopId,userId, id);
     }
 }

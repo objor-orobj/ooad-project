@@ -32,7 +32,7 @@ public class GoodsService implements GoodsServiceInterface {
     @DubboReference(version = "0.0.1-SNAPSHOT")
     private IUserService userService;
 
-    @DubboReference(version = "0.0.1-SNAPSHOT")
+    @DubboReference(version = "0.0.1")
     private ShareServiceInterface shareServiceInterface;
 
     @Override
@@ -158,7 +158,7 @@ public class GoodsService implements GoodsServiceInterface {
         return goodsSkuDao.addFloatingPrice(shopId,userId,userService.getUserName(userId),skuId, vo);
     }
 
-    public ResponseEntity<StatusWrap> invalidFloatPrice(Long userId, Long floatId) {
-        return goodsSkuDao.invalidFloatPrice(userId,floatId);
+    public ResponseEntity<StatusWrap> invalidFloatPrice(Long shopId,Long userId, Long floatId) {
+        return goodsSkuDao.invalidFloatPrice(shopId,userId,floatId);
     }
 }
