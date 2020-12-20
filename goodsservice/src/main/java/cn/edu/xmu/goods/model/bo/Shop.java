@@ -70,7 +70,8 @@ public class Shop {
     public Shop(ShopPo po) {
         this.id = po.getId();
         this.name = po.getName();
-        this.state = State.fromCode(po.getState().intValue());
+        if (po.getState() != null)
+            this.state = State.fromCode(po.getState().intValue());
         this.gmtCreate = po.getGmtCreate();
         this.gmtModified = po.getGmtModified();
     }

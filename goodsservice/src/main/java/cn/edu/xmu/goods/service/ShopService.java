@@ -32,14 +32,20 @@ public class ShopService implements ShopServiceInterface {
 
     @Override
     public ShopDTO getShopInfoById(Long id) {
-        Shop bo = shopDao.select(id);
-        if (bo == null) return null;
-        ShopDTO dto = new ShopDTO();
-        dto.setId(bo.getId());
-        dto.setName(bo.getName());
-        dto.setState(bo.getState().getCode().byteValue());
-        dto.setGmtCreate(bo.getGmtCreate());
-        dto.setGmtModified(bo.getGmtModified());
+        ShopDTO dto = null;
+        try {
+            Shop bo = shopDao.select(id);
+            if (bo == null) return null;
+            dto = new ShopDTO();
+            dto.setId(bo.getId());
+            dto.setName(bo.getName());
+            if (bo.getState() != null)
+                dto.setState(bo.getState().getCode().byteValue());
+            dto.setGmtCreate(bo.getGmtCreate());
+            dto.setGmtModified(bo.getGmtModified());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
         return dto;
     }
 
@@ -70,8 +76,7 @@ public class ShopService implements ShopServiceInterface {
             logger.debug("no such shop");
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        if(origin.getState() == Shop.State.REJECTED)
-        {
+        if (origin.getState() == Shop.State.REJECTED) {
             return StatusWrap.just(Status.SHOP_STATE_DENIED);
         }
         logger.debug("shop[" + origin.getId() + "] state: " + origin.getState().getName());

@@ -231,7 +231,7 @@ public class GoodsController {
         return StatusWrap.of(Arrays.asList(GoodsSpu.State.values()));
     }
 
-    @ApiOperation(value="查询sku",produces="application/json;charset=UTF-8")
+    @ApiOperation(value = "查询sku", produces = "application/json;charset=UTF-8")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", dataType = "long", name = "shopId", value = "商铺id"),
             @ApiImplicitParam(paramType = "query", dataType = "String", name = "skuSn", value = "商品SKUsn"),
@@ -248,10 +248,8 @@ public class GoodsController {
                                @RequestParam(required = false) String skuSn,
                                @RequestParam(required = false) Long spuId,
                                @RequestParam(required = false) String spuSn,
-                               @RequestParam(required = false) Integer page,
-                               @RequestParam(required = false) Integer pageSize) {
-        page = (page == null) ? 1 : page;
-        pageSize = (pageSize == null) ? 10 : pageSize;
+                               @RequestParam(required = false, defaultValue = "1") Integer page,
+                               @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
         GetGoodsSkuVo getSkuVo = new GetGoodsSkuVo(shopId, skuSn, spuId, spuSn, page, pageSize);
         return goodsService.getGoodsSkus(getSkuVo);
     }
@@ -337,7 +335,7 @@ public class GoodsController {
         if (!shopId.equals(departId) && departId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        return goodsService.deleteSku(shopId,id);
+        return goodsService.deleteSku(shopId, id);
     }
 
     @Audit
@@ -363,7 +361,7 @@ public class GoodsController {
         if (!shopId.equals(departId) && departId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        return goodsService.updateSku(shopId,id, vo);
+        return goodsService.updateSku(shopId, id, vo);
     }
 
     //缺少运费模板
@@ -393,7 +391,6 @@ public class GoodsController {
     @GetMapping(path = "/share/{sid}/skus/{id}")
     public Object getSkuBySid(@PathVariable Long sid,
                               @PathVariable Long id) {
-
         logger.debug("sid:" + sid + "id:" + id);
         return goodsService.getSkuBySid(sid, id);
     }
@@ -551,7 +548,7 @@ public class GoodsController {
         if (!shopId.equals(departId) && departId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        return goodsService.addFloatingPrice(shopId,userId,id, vo);
+        return goodsService.addFloatingPrice(shopId, userId, id, vo);
     }
 
     @Audit
@@ -574,6 +571,6 @@ public class GoodsController {
         if (!shopId.equals(departId) && departId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        return goodsService.invalidFloatPrice(shopId,userId, id);
+        return goodsService.invalidFloatPrice(shopId, userId, id);
     }
 }

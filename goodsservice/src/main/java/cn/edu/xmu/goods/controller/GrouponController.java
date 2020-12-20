@@ -85,7 +85,6 @@ public class GrouponController {
     }
 
 
-
     @Audit
     @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", required = true)
     @PutMapping(path = "/shops/{shopId}/groupons/{id}")

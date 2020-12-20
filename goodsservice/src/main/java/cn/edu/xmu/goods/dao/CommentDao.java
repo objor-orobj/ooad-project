@@ -1,6 +1,5 @@
 package cn.edu.xmu.goods.dao;
 
-import cn.edu.xmu.goods.controller.ShopController;
 import cn.edu.xmu.goods.mapper.CommentPoMapper;
 import cn.edu.xmu.goods.mapper.GoodsSkuPoMapper;
 import cn.edu.xmu.goods.model.PageWrap;
@@ -10,19 +9,20 @@ import cn.edu.xmu.goods.model.bo.Comment;
 import cn.edu.xmu.goods.model.po.CommentPo;
 import cn.edu.xmu.goods.model.po.CommentPoExample;
 import cn.edu.xmu.goods.model.po.GoodsSkuPo;
+import cn.edu.xmu.goods.model.po.GoodsSkuPoExample;
 import cn.edu.xmu.goods.model.vo.CommentConfirmVo;
 import cn.edu.xmu.goods.model.vo.CommentRetVo;
 import cn.edu.xmu.goods.model.vo.CommentVo;
 import cn.edu.xmu.order.service.OrderServiceInterface;
 import cn.edu.xmu.other.model.dto.CustomerDTO;
 import cn.edu.xmu.other.service.CustomerServiceInterface;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
@@ -54,16 +54,32 @@ public class CommentDao {
     private OrderServiceInterface orderService;
 
     public ResponseEntity<StatusWrap> getSkuComments(Long skuId, Integer page, Integer pageSize) {
-        List<CommentPo> com = null;
+        logger.debug("skuId: " + skuId);
+        logger.debug("page: " + page);
+        PageHelper.startPage(page, pageSize);
+        GoodsSkuPo goodsSkuPo = null;
+        try {
+//            GoodsSkuPoExample example = new GoodsSkuPoExample();
+//            GoodsSkuPoExample.Criteria criteria = example.createCriteria();
+//            criteria.andIdEqualTo(skuId);
+//            List<GoodsSkuPo> all = goodsSkuPoMapper.selectByExample(example);
+//            if (all == null || all.size() == 0)
+//                goodsSkuPo = null;
+//            else
+//                goodsSkuPo = all.get(0);
+            goodsSkuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
+        } catch (DataAccessException exception) {
+            exception.printStackTrace();
+        }
+        if (goodsSkuPo == null) {
+            logger.debug("sku not found");
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        }
         CommentPoExample example = new CommentPoExample();
         CommentPoExample.Criteria criteria = example.createCriteria();
-        Comment.State state = Comment.State.SUCCESS;
-        PageHelper.startPage(page, pageSize);
-        GoodsSkuPo goodsSkuPo=goodsSkuPoMapper.selectByPrimaryKey(skuId);
-        if(goodsSkuPo==null) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         criteria.andGoodsSkuIdEqualTo(skuId);
-        criteria.andStateEqualTo(state.getCode().byteValue());
-        com = commentMapper.selectByExample(example);
+        criteria.andStateEqualTo(Comment.State.SUCCESS.getCode().byteValue());
+        List<CommentPo> com = commentMapper.selectByExample(example);
         if (com.size() == 0) {
             return StatusWrap.of(new ArrayList<>());
         }
@@ -150,27 +166,75 @@ public class CommentDao {
     }
 
     public ResponseEntity<StatusWrap> createComment(Long customerId, Long orderitemId, CommentVo vo) {
-        Long skuId = orderService.getSkuIdByOrderItemId(orderitemId);
+        logger.debug("ordertimeId: " + orderitemId);
+        logger.debug("customerId: " + customerId);
+        Boolean belongs = false;
+        try {
+            belongs = orderService.isOrderItemBelongToUser(orderitemId, customerId);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            logger.error("error confirming order item");
+        }
+        if (belongs == null)
+            return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        if (!belongs)
+            return StatusWrap.just(Status.USER_NOTBUY);
+        Long skuId = null;
+        logger.debug("orderItemId: " + orderitemId);
+        logger.debug("comment.content: " + vo.getContent());
+        logger.debug("comment.type: " + vo.getType());
+        try {
+            skuId = orderService.getSkuIdByOrderItemId(orderitemId);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            logger.error("error fetching skuId");
+        }
+        if (skuId == null) {
+            return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        }
         if (vo.getContent() == null || vo.getType() == null) {
             return StatusWrap.just(Status.FIELD_NOTVALID);
         }
         CommentPoExample example = new CommentPoExample();
         CommentPoExample.Criteria criteria = example.createCriteria();
-        criteria.andCustomerIdEqualTo(customerId);
-        criteria.andOrderitemIdEqualTo(orderitemId);
-        criteria.andGoodsSkuIdEqualTo(skuId);
-        List<CommentPo> com = commentMapper.selectByExample(example);
-        if (com.size() != 0) {
+        logger.debug("query customerId: " + customerId);
+        logger.debug("query orderitemId: " + orderitemId);
+        logger.debug("query skuId: " + skuId);
+        criteria.andCustomerIdEqualTo(customerId)
+                .andOrderitemIdEqualTo(orderitemId)
+                .andGoodsSkuIdEqualTo(skuId);
+        List<CommentPo> com = null;
+        try {
+            com = commentMapper.selectByExample(example);
+        } catch (DataAccessException exception) {
+            exception.printStackTrace();
+            logger.error("error query comments");
+        }
+        logger.debug("existing comment: " + com);
+        if (com != null && com.size() != 0) {
             return StatusWrap.just(Status.COMMENT_CREATED);
         }
         CommentPo po = vo.createComment().getCommentPo();
         po.setOrderitemId(orderitemId);
         po.setCustomerId(customerId);
+        po.setGoodsSkuId(skuId);
         po.setState(Comment.State.UNCHECK.getCode().byteValue());
         po.setGmtCreate(LocalDateTime.now());
-        int ret = commentMapper.insert(po);
-
-        CustomerDTO customer = userService.getCustomerInfoById(po.getCustomerId());
+        int ret;
+        try {
+            ret = commentMapper.insert(po);
+        } catch (DataAccessException exception) {
+            logger.debug("error saving to database");
+            return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        }
+        CustomerDTO customer = null;
+        try {
+            customer = userService.getCustomerInfoById(po.getCustomerId());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            logger.error("error fetching customerInfo");
+            return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        }
         CommentRetVo retVo = new CommentRetVo(po, customer);
         if (ret != 0) {
             return StatusWrap.of(retVo, HttpStatus.CREATED);

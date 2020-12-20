@@ -2,7 +2,7 @@ path = [
   # comment
   "/comments",
   "/comments/states",
-  "/orderItems/*/comments",
+  "/orderitems/*/comments",
   "/shops/*/comments/**",
   "/skus/*/comments",
   # coupon
@@ -42,7 +42,8 @@ path = [
   "/shops/*/skus/*/floatPrices",
   "/shops/*/floatPrices/*",
   # sku
-  "/skus",  
+  "/skus",
+  "/skus/*",  
   "/skus/states",
   "/shops/*/skus/*",
   "/shops/*/skus/*/uploadImg",

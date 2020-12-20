@@ -1,5 +1,6 @@
 package cn.edu.xmu.goods.service;
 
+import cn.edu.xmu.goods.controller.GoodsController;
 import cn.edu.xmu.goods.dao.GoodsSkuDao;
 import cn.edu.xmu.goods.dao.GoodsSpuDao;
 import cn.edu.xmu.goods.mapper.GoodsSkuPoMapper;
@@ -16,6 +17,8 @@ import cn.edu.xmu.privilegeservice.client.IUserService;
 import com.github.pagehelper.PageInfo;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -23,7 +26,7 @@ import java.util.List;
 
 @DubboService(version = "0.0.1")
 public class GoodsService implements GoodsServiceInterface {
-        @Autowired
+    @Autowired
     private GoodsSkuDao goodsSkuDao;
 
     @Autowired
@@ -35,9 +38,10 @@ public class GoodsService implements GoodsServiceInterface {
     @DubboReference(version = "0.0.1")
     private ShareServiceInterface shareServiceInterface;
 
+    private static final Logger logger = LoggerFactory.getLogger(GoodsService.class);
+
     @Override
     public boolean compareInventoryBySkuId(Long skuId, Integer amount) {
-
         return goodsSkuDao.compareInventoryBySkuId(skuId, amount);
     }
 
@@ -68,12 +72,11 @@ public class GoodsService implements GoodsServiceInterface {
 
     @Override
     public Boolean hasGoodsSku(Long skuId) {
-        return goodsSkuDao.selectGoodsForCustomer(skuId)!=null;
+        return goodsSkuDao.selectGoodsForCustomer(skuId) != null;
     }
 
     @Override
-    public Long getShopIdBySkuId(Long skuId)
-    {
+    public Long getShopIdBySkuId(Long skuId) {
         return goodsSkuDao.getShopIdBySkuId(skuId);
     }
 
@@ -88,8 +91,7 @@ public class GoodsService implements GoodsServiceInterface {
     }
 
     @Override
-    public GoodsSkuInfo getGoodsSkuInfoAlone(Long goodsSkuId)
-    {
+    public GoodsSkuInfo getGoodsSkuInfoAlone(Long goodsSkuId) {
         return goodsSkuDao.getGoodsSkuInfoAlone(goodsSkuId);
     }
 
@@ -109,24 +111,36 @@ public class GoodsService implements GoodsServiceInterface {
         return goodsSkuDao.uploadSkuImg(shopId, skuId, img);
     }
 
-    public ResponseEntity<StatusWrap> deleteSku(Long shopId,Long skuId) {
-        return goodsSkuDao.deleteSku(shopId,skuId);
+    public ResponseEntity<StatusWrap> deleteSku(Long shopId, Long skuId) {
+        return goodsSkuDao.deleteSku(shopId, skuId);
     }
 
-    public ResponseEntity<StatusWrap> updateSku(Long shopId,Long skuId, ModifySkuVo modifySkuVo) {
-        return goodsSkuDao.updateSku(shopId,skuId, modifySkuVo);
+    public ResponseEntity<StatusWrap> updateSku(Long shopId, Long skuId, ModifySkuVo modifySkuVo) {
+        return goodsSkuDao.updateSku(shopId, skuId, modifySkuVo);
     }
 
     public ResponseEntity<StatusWrap> getSpuById(Long spuId) {
         return goodsSpuDao.getSpuById(spuId);
     }
 
-    public ResponseEntity<StatusWrap> getSkuBySid(Long sid,Long skuId) {
-        Long shareSkuId=shareServiceInterface.getSkuIdByShareId(sid);
-        if(shareSkuId.equals((long)0)) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        if(!shareSkuId.equals(skuId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
-        GoodsSkuPo po= goodsSkuDao.getSkuPoById(skuId.intValue());
-        if(po==null||po.getDisabled()==1||po.getState()!=4) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+    public ResponseEntity<StatusWrap> getSkuBySid(Long sid, Long skuId) {
+        logger.debug("shareId: " + sid + ", skuId" + skuId);
+        Long shareSkuId = null;
+        try {
+            shareSkuId = shareServiceInterface.getSkuIdByShareId(sid);
+        } catch (Exception exception) {
+            logger.error("error fetching share serivce");
+            exception.printStackTrace();
+        }
+        if (shareSkuId == null) {
+            logger.debug("share sku id null");
+            return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        }
+        if (shareSkuId.equals((long) 0)) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        if (!shareSkuId.equals(skuId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        GoodsSkuPo po = goodsSkuDao.getSkuPoById(skuId.intValue());
+        if (po == null || po.getDisabled() == 1 || po.getState() != 4)
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         return goodsSkuDao.getSkuDetailedById(skuId);
     }
 
@@ -146,19 +160,19 @@ public class GoodsService implements GoodsServiceInterface {
         return goodsSpuDao.deleteSpu(shopId, spuId);
     }
 
-    public ResponseEntity<StatusWrap> putGoodsOnSale(Long shopId,Long spuId) {
+    public ResponseEntity<StatusWrap> putGoodsOnSale(Long shopId, Long spuId) {
         return goodsSkuDao.putGoodsOnSale(shopId, spuId);
     }
 
     public ResponseEntity<StatusWrap> putOffGoodsOnSale(Long shopId, Long spuId) {
-        return goodsSkuDao.putOffGoodsOnSale(shopId,spuId);
+        return goodsSkuDao.putOffGoodsOnSale(shopId, spuId);
     }
 
-    public ResponseEntity<StatusWrap> addFloatingPrice(Long shopId, Long userId,Long skuId, FloatPricesGetVo vo) {
-        return goodsSkuDao.addFloatingPrice(shopId,userId,userService.getUserName(userId),skuId, vo);
+    public ResponseEntity<StatusWrap> addFloatingPrice(Long shopId, Long userId, Long skuId, FloatPricesGetVo vo) {
+        return goodsSkuDao.addFloatingPrice(shopId, userId, userService.getUserName(userId), skuId, vo);
     }
 
-    public ResponseEntity<StatusWrap> invalidFloatPrice(Long shopId,Long userId, Long floatId) {
-        return goodsSkuDao.invalidFloatPrice(shopId,userId,floatId);
+    public ResponseEntity<StatusWrap> invalidFloatPrice(Long shopId, Long userId, Long floatId) {
+        return goodsSkuDao.invalidFloatPrice(shopId, userId, floatId);
     }
 }
