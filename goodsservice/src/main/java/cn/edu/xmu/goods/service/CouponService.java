@@ -114,7 +114,7 @@ public class CouponService implements CouponServiceInterface {
             Long departId
     ) {
         CouponActivity origin = couponDao.selectActivity(id);
-        if (origin == null)
+        if (origin == null || origin.getState() == CouponActivity.State.DELETED)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         if (!departId.equals(0L) && !departId.equals(origin.getShopId()))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
@@ -132,7 +132,7 @@ public class CouponService implements CouponServiceInterface {
 
     public ResponseEntity<StatusWrap> bringActivityOnline(Long id, Long departId) {
         CouponActivity activity = couponDao.selectActivity(id);
-        if (activity == null)
+        if (activity == null || activity.getState() == CouponActivity.State.DELETED)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         if (!departId.equals(0L) && !departId.equals(activity.getShopId()))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
@@ -150,7 +150,7 @@ public class CouponService implements CouponServiceInterface {
 
     public ResponseEntity<StatusWrap> bringActivityOffline(Long id, Long departId) {
         CouponActivity activity = couponDao.selectActivity(id);
-        if (activity == null)
+        if (activity == null || activity.getState() == CouponActivity.State.DELETED)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         if (!departId.equals(0L) && !departId.equals(activity.getShopId()))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
@@ -158,6 +158,8 @@ public class CouponService implements CouponServiceInterface {
             return StatusWrap.ok();
         if (activity.getState() != CouponActivity.State.ONLINE)
             return StatusWrap.just(Status.COUPON_ACTIVITY_STATE_DENIED);
+        if (activity.getState() != CouponActivity.State.DELETED)
+            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         activity.setState(CouponActivity.State.OFFLINE);
         activity.setGmtCreated(LocalDateTime.now());
         CouponActivity saved = couponDao.updateActivity(activity);
@@ -285,12 +287,18 @@ public class CouponService implements CouponServiceInterface {
     }
 
     public ResponseEntity<StatusWrap> addItemsToActivity(Long activityId, List<Long> skuIds, Long departId) {
+        logger.error("coupon activity id: " + activityId);
         CouponActivity activity = couponDao.selectActivity(activityId);
-        // activity not exist
-        if (activity == null)
+        // activity not exist or logically deleted
+        if (activity == null || activity.getState() == CouponActivity.State.DELETED)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        // shop admin has no right beyond his own shop
-        if (!departId.equals(0L) && !departId.equals(activity.getShopId()))
+        logger.debug("coupon activity state: " + activity.getState().getCode() + " " + activity.getState().getName());
+        // activity state denied
+        if (activity.getState() != CouponActivity.State.OFFLINE)
+            return StatusWrap.just(COUPON_ACTIVITY_STATE_DENIED);
+        logger.debug("departId: " + departId + ", activity.shopId: " + activity.getShopId());
+        // shop & admin has no right beyond his own shop
+        if (!departId.equals(activity.getShopId()))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         // load existing items
         List<Long> exist = couponDao.selectItemIdsOfActivity(activityId);
@@ -299,18 +307,25 @@ public class CouponService implements CouponServiceInterface {
             return StatusWrap.just(INTERNAL_SERVER_ERR);
         // load sku data
         for (Long skuId : skuIds) {
+            logger.debug("try adding skuId " + skuId);
             // if sku already exists
-            if (exist.contains(skuId))
+            if (exist.contains(skuId)) {
+                logger.debug("already exist in activity");
                 return StatusWrap.just(COUPON_ACTIVITY_ITEM_DUPLICATED);
+            }
             // if sku id not exist
             GoodsSkuPo po = goodsSkuDao.getSkuPoById(skuId.intValue());
-            if (po == null)
+            if (po == null) {
+                logger.debug("skuId actually non-existent");
                 return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            }
             // if sku offline
             if (po.getDisabled().equals((byte) 1))
                 return StatusWrap.just(GOODS_STATE_DENIED);
             // if bad shop owner
-            if (!departId.equals(0L) && !departId.equals(goodsSkuDao.getShopIdBySkuId(skuId)))
+            Long skuShopId = goodsSkuDao.getShopIdBySkuId(skuId);
+            logger.debug("activity.shopId: " + activity.getShopId() + ", sku.shopId: " + skuShopId);
+            if (!activity.getShopId().equals(skuShopId))
                 return StatusWrap.just(RESOURCE_ID_OUTSCOPE);
         }
         // keep track of newly inserted items
