@@ -12,22 +12,22 @@ import java.time.LocalDateTime;
 public class GrouponActivityVo {
     @ApiModelProperty(value = "活动名称")
     private String name;
-    @NotNull
+//    @NotNull
     @ApiModelProperty(value = "活动开始时间")
     //@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime beginTime;
-    @NotNull
+//    @NotNull
     @ApiModelProperty(value = "活动结束时间")
     //@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
-    @Range(min=0, max=2)
+//    @Range(min=0, max=2)
     @ApiModelProperty(value = "活动状态")
     private Byte state;
     @ApiModelProperty(value = "店铺id")
     private Long shopId;
     @ApiModelProperty(value = "活动商品spuid")
     private Long goodsSpuId;
-    @NotBlank
+//    @NotBlank
     @ApiModelProperty(value = "团购规则")
     private String strategy;
     @ApiModelProperty(value = "创建时间")

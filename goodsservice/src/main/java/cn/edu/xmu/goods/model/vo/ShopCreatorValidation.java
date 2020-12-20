@@ -6,6 +6,6 @@ import javax.validation.constraints.NotEmpty;
 
 @Getter
 public class ShopCreatorValidation {
-    @NotEmpty
+//    @NotEmpty
     private String name;
 }

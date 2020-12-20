@@ -6,7 +6,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 public class CouponActivityShrunkView {
     private final Long id;
     private final String name;

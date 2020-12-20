@@ -44,13 +44,16 @@ public class GrouponService {
     }
 
     public ResponseEntity<StatusWrap> deleteGrouponActivity(Long shopId, Long id) {
-        GrouponActivity grouponActivity = new GrouponActivity(grouponActivitydao.getGrouponActivityById(id));
-        if (grouponActivity.getState() == GrouponActivity.State.DELETE) {
-            return StatusWrap.just(Status.OK);
-        }
-        if (grouponActivity.getState() == GrouponActivity.State.ONLINE) {
-            return StatusWrap.just(Status.GROUPON_STATENOTALLOW);
-        }
+//        GrouponActivity grouponActivity = new GrouponActivity(grouponActivitydao.getGrouponActivityById(id));
+////        if (grouponActivity.getState() == GrouponActivity.State.DELETE) {
+////            return StatusWrap.just(Status.OK);
+////        }
+//        if(grouponActivity == null){
+//            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+//        }
+//        if (grouponActivity.getState() == GrouponActivity.State.ONLINE) {
+//            return StatusWrap.just(Status.GROUPON_STATENOTALLOW);
+//        }
         return grouponActivitydao.deleteGrouponActivityById(shopId, id);
     }
 }

@@ -1,9 +1,8 @@
-
 path = [
   # comment
   "/comments",
   "/comments/states",
-  "/orderItems/*/comments"
+  "/orderItems/*/comments",
   "/shops/*/comments/**",
   "/skus/*/comments",
   # coupon
@@ -30,7 +29,7 @@ path = [
   "/shops/*/onshelves",
   "/shops/*/offshelves",
   # brands
-  "/brands"
+  "/brands",
   "/shops/*/brands",
   "/shops/*/brands/**",
   "/shops/*/spus/*/brands/**",
@@ -43,13 +42,14 @@ path = [
   "/shops/*/skus/*/floatPrices",
   "/shops/*/floatPrices/*",
   # sku
+  "/skus",
   "/skus/states",
-  "/shops/*/skus/*/",
+  "/shops/*/skus/*",
   "/shops/*/skus/*/uploadImg",
   "/shops/*/skus/*/onshelves",
   "/shops/*/skus/*/offshelves",
   # spu
-  "/spus/*/",
+  "/spus/*",
   "/shops/*/spus/**",
 ]
 

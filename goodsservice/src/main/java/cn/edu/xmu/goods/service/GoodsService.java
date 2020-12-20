@@ -22,7 +22,7 @@ import java.util.List;
 
 @DubboService(version = "0.0.1")
 public class GoodsService implements GoodsServiceInterface {
-    @Autowired
+        @Autowired
     private GoodsSkuDao goodsSkuDao;
 
     @Autowired
@@ -105,12 +105,12 @@ public class GoodsService implements GoodsServiceInterface {
         return goodsSkuDao.uploadSkuImg(shopId, skuId, img);
     }
 
-    public ResponseEntity<StatusWrap> deleteSku(Long skuId) {
-        return goodsSkuDao.deleteSku(skuId);
+    public ResponseEntity<StatusWrap> deleteSku(Long shopId,Long skuId) {
+        return goodsSkuDao.deleteSku(shopId,skuId);
     }
 
-    public ResponseEntity<StatusWrap> updateSku(Long skuId, ModifySkuVo modifySkuVo) {
-        return goodsSkuDao.updateSku(skuId, modifySkuVo);
+    public ResponseEntity<StatusWrap> updateSku(Long shopId,Long skuId, ModifySkuVo modifySkuVo) {
+        return goodsSkuDao.updateSku(shopId,skuId, modifySkuVo);
     }
 
     public ResponseEntity<StatusWrap> getSpuById(Long spuId) {
@@ -139,16 +139,16 @@ public class GoodsService implements GoodsServiceInterface {
         return goodsSpuDao.deleteSpu(shopId, spuId);
     }
 
-    public ResponseEntity<StatusWrap> putGoodsOnSale(Long spuId) {
-        return goodsSkuDao.putGoodsOnSale( spuId);
+    public ResponseEntity<StatusWrap> putGoodsOnSale(Long shopId,Long spuId) {
+        return goodsSkuDao.putGoodsOnSale(shopId, spuId);
     }
 
-    public ResponseEntity<StatusWrap> putOffGoodsOnSale( Long spuId) {
-        return goodsSkuDao.putOffGoodsOnSale(spuId);
+    public ResponseEntity<StatusWrap> putOffGoodsOnSale(Long shopId, Long spuId) {
+        return goodsSkuDao.putOffGoodsOnSale(shopId,spuId);
     }
 
-    public ResponseEntity<StatusWrap> addFloatingPrice( Long userId,Long skuId, FloatPricesGetVo vo) {
-        return goodsSkuDao.addFloatingPrice(userId,userService.getUserName(userId),skuId, vo);
+    public ResponseEntity<StatusWrap> addFloatingPrice(Long shopId, Long userId,Long skuId, FloatPricesGetVo vo) {
+        return goodsSkuDao.addFloatingPrice(shopId,userId,userService.getUserName(userId),skuId, vo);
     }
 
     public ResponseEntity<StatusWrap> invalidFloatPrice(Long userId, Long floatId) {

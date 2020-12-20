@@ -11,6 +11,8 @@ import cn.edu.xmu.ooad.annotation.Depart;
 import cn.edu.xmu.ooad.annotation.LoginUser;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -23,6 +25,7 @@ import java.util.List;
 
 @RestController
 public class CouponController {
+    private static final Logger logger = LoggerFactory.getLogger(CouponController.class);
     @Autowired
     private CouponService couponService;
 
@@ -42,9 +45,9 @@ public class CouponController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
-        // shop owner only, no super user
-        if (!departId.equals(shopId))
+        if (!departId.equals(shopId) && !departId.equals(0L))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        logger.debug("create coupon activity: shopId " + shopId + ", departId " + departId + ", userId " + userId);
         return couponService.createActivityOfShop(couponActivityVo, shopId, userId);
     }
 
@@ -63,6 +66,8 @@ public class CouponController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return couponService.modifyActivityInfo(couponActivityId, couponActivityVo, userId, departId);
     }
 
@@ -84,6 +89,8 @@ public class CouponController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return couponService.setActivityImage(couponActivityId, file, userId, departId);
     }
 
@@ -109,7 +116,7 @@ public class CouponController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
-        if (!departId.equals(shopId))
+        if (!departId.equals(shopId) && !departId.equals(0L))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return couponService.selectHiddenActivitiesOfShop(shopId, page, pageSize);
     }
@@ -134,6 +141,8 @@ public class CouponController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return couponService.selectActivity(activityId, departId);
     }
 
@@ -152,6 +161,8 @@ public class CouponController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return couponService.bringActivityOnline(activityId, departId);
     }
 
@@ -169,6 +180,8 @@ public class CouponController {
             @PathVariable Long id) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return couponService.bringActivityOffline(id, departId);
     }
 
@@ -183,6 +196,8 @@ public class CouponController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return couponService.deleteActivity(id, departId);
     }
 
@@ -202,6 +217,8 @@ public class CouponController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return couponService.addItemsToActivity(activityId, skuIds, departId);
     }
 
@@ -216,6 +233,8 @@ public class CouponController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
+        if (!departId.equals(shopId) && !departId.equals(0L))
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return couponService.removeItem(activityId, departId);
     }
 

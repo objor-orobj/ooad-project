@@ -1,8 +1,9 @@
 package cn.edu.xmu.goods.model.ro;
 
+import lombok.Data;
 import lombok.Getter;
 
-@Getter
+@Data
 public class UserIdAndView {
     private final Long id;
     private final String userName;

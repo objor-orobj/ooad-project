@@ -9,10 +9,8 @@ public class PresaleActivityInVo {
 
     private Long shopid;
     private Long goodsSkuId;
-    @Range(min=0, max=2)
     @ApiModelProperty(value = "状态")
     private Integer state;
-    @Range(min=0, max=3)
     @ApiModelProperty(value = "时间")
     private Integer timeline;
     private Integer page;

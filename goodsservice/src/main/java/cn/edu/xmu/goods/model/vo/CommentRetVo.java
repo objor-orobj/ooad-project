@@ -2,6 +2,7 @@ package cn.edu.xmu.goods.model.vo;
 
 import cn.edu.xmu.goods.model.bo.Comment;
 import cn.edu.xmu.goods.model.po.CommentPo;
+import cn.edu.xmu.other.model.dto.CustomerDTO;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @Data
 public class CommentRetVo {
     private Long id;
-    private Long customerId;
+    private CustomerDTO customer;
     private Long goodsSkuId;
     private Integer type;
     private String content;
@@ -23,9 +24,9 @@ public class CommentRetVo {
     private LocalDateTime gmtCreate;
     private LocalDateTime gmtModified;
 
-    public CommentRetVo(CommentPo obj){
+    public CommentRetVo(CommentPo obj,CustomerDTO customer){
         this.id=obj.getId();
-        this.customerId=obj.getCustomerId();
+        this.customer =customer;
         this.goodsSkuId=obj.getGoodsSkuId();
         switch(obj.getType()){
             case 0:this.type= Comment.Type.GOOD.getCode();break;
