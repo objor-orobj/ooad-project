@@ -281,8 +281,10 @@ public class CouponDao implements InitializingBean {
         } catch (DataAccessException exception) {
             return null;
         }
-        if (po == null)
-            return new CouponSkuPo();
+        if (po == null){
+            CouponSkuPo skuPo= new CouponSkuPo();
+            skuPo.setId(0L);
+            return skuPo;}
         return po;
     }
 
