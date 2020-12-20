@@ -1,25 +1,22 @@
 package cn.edu.xmu.goods.dao;
 
+import cn.edu.xmu.goods.controller.ShopController;
 import cn.edu.xmu.goods.mapper.*;
+import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
-import cn.edu.xmu.goods.model.bo.GoodsSku;
-import cn.edu.xmu.goods.model.bo.GoodsSpu;
-import cn.edu.xmu.goods.model.dto.GoodsSkuInfo;
-import cn.edu.xmu.order.model.dto.FreightModelDTO;
 import cn.edu.xmu.goods.model.dto.GoodsInfoDTO;
 import cn.edu.xmu.goods.model.dto.GoodsSkuDTO;
+import cn.edu.xmu.goods.model.dto.GoodsSkuInfo;
 import cn.edu.xmu.goods.model.po.*;
 import cn.edu.xmu.goods.model.vo.*;
-import cn.edu.xmu.order.service.FreightServiceInterface;
-import cn.edu.xmu.goods.service.GoodsService;
-import cn.edu.xmu.ooad.util.ResponseCode;
-import cn.edu.xmu.ooad.util.ReturnObject;
 import cn.edu.xmu.order.model.dto.FreightModelDTO;
+import cn.edu.xmu.order.service.FreightServiceInterface;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.bouncycastle.LICENSE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -54,6 +51,9 @@ public class GoodsSkuDao {
 
     @DubboReference(version = "0.0.1")
     private FreightServiceInterface freightServiceInterface;
+
+    private static final Logger logger = LoggerFactory.getLogger(GoodsSkuDao.class);
+
 
     public Long selectFloatPrice(Long id) {
         FloatPricePoExample example = new FloatPricePoExample();
@@ -129,13 +129,15 @@ public class GoodsSkuDao {
     }
 
     public ResponseEntity<StatusWrap> getGoodsSkus(GetGoodsSkuVo getSkuVo) {
-        List<GoodsSkuPo> skus =new ArrayList<>();
+        List<ReturnGoodsSkuVo> view = new ArrayList<>();
+        List<GoodsSkuPo> raw = new ArrayList<>();
+        boolean ifNull = false;
         GoodsSkuPoExample example = new GoodsSkuPoExample();
         GoodsSkuPoExample.Criteria criteria = example.createCriteria();
         if (getSkuVo.getShopId() != null || (getSkuVo.getSpuSn() != null && getSkuVo.getSpuSn().length() > 0)) {
             GoodsSpuPoExample example1 = new GoodsSpuPoExample();
             GoodsSpuPoExample.Criteria criteria1 = example1.createCriteria();
-            boolean ifNull = true;//判断要查询的sku是否数量为0
+            ifNull = true;//判断要查询的sku是否数量为0
             if (getSkuVo.getShopId() != null && getSkuVo.getSpuSn() != null && getSkuVo.getSpuSn().length() > 0) {
                 example1.or().andShopIdEqualTo(getSkuVo.getShopId()).andGoodsSnEqualTo(getSkuVo.getSpuSn());
             } else {
@@ -145,29 +147,26 @@ public class GoodsSkuDao {
                     example1.or().andGoodsSnEqualTo(getSkuVo.getSpuSn());
             }
             List<GoodsSpuPo> spuPo = goodsSpuPoMapper.selectByExample(example1);
-            if (spuPo == null || spuPo.size() == 0) {
-                return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-            }
-            for (GoodsSpuPo goodsSpuPo : spuPo) {
-                if (getSkuVo.getGoodsSpuId() != null && !getSkuVo.getGoodsSpuId().equals(goodsSpuPo.getId()))
-                    continue;
-                ifNull = false;
-                if (getSkuVo.getSkuSn() != null && getSkuVo.getSkuSn().length() > 0) {
-                    //TODO 商品状态与其余条件筛选
-                    example.or().andGoodsSpuIdEqualTo(goodsSpuPo.getId()).andSkuSnEqualTo(getSkuVo.getSkuSn()).andDisabledEqualTo((byte) 0).andStateEqualTo((byte) 4);
-                } else {
-                    example.or().andGoodsSpuIdEqualTo(goodsSpuPo.getId()).andDisabledEqualTo((byte) 0).andStateEqualTo((byte) 4);
+            if (!(spuPo == null || spuPo.size() == 0)) {
+                view = new ArrayList<>();
+                ifNull = true;
+            } else {
+                for (GoodsSpuPo goodsSpuPo : spuPo) {
+                    if (getSkuVo.getGoodsSpuId() != null && !getSkuVo.getGoodsSpuId().equals(goodsSpuPo.getId()))
+                        continue;
+                    ifNull = false;
+                    if (getSkuVo.getSkuSn() != null && getSkuVo.getSkuSn().length() > 0) {
+                        //TODO 商品状态与其余条件筛选
+                        example.or().andGoodsSpuIdEqualTo(goodsSpuPo.getId()).andSkuSnEqualTo(getSkuVo.getSkuSn()).andDisabledEqualTo((byte) 0).andStateEqualTo((byte) 4);
+                    } else {
+                        example.or().andGoodsSpuIdEqualTo(goodsSpuPo.getId()).andDisabledEqualTo((byte) 0).andStateEqualTo((byte) 4);
+                    }
+
                 }
-
+                if (ifNull) {
+                    view = new ArrayList<>();
+                }
             }
-            if (ifNull)
-            {
-                PageInfo<?> VO = PageInfo.of(skus);
-                return StatusWrap.of(VO);
-            }
-
-            PageHelper.startPage(getSkuVo.getPage(), getSkuVo.getPageSize());
-            skus = goodsSkuPoMapper.selectByExample(example);
         } else {
             //TODO 商品状态与其余条件筛选
             if (getSkuVo.getGoodsSpuId() != null && getSkuVo.getSkuSn() != null && getSkuVo.getSkuSn().length() > 0)
@@ -180,17 +179,16 @@ public class GoodsSkuDao {
                 else
                     example.or().andDisabledEqualTo((byte) 0).andStateEqualTo((byte) 4);
             }
-            PageHelper.startPage(getSkuVo.getPage(), getSkuVo.getPageSize());
-            skus = goodsSkuPoMapper.selectByExample(example);
         }
+        if (!ifNull) {
 
-        if (skus == null || skus.size() == 0) {
-            PageInfo<?> VO = PageInfo.of(skus);
-            return StatusWrap.of(VO);
+            PageHelper.startPage(getSkuVo.getPage(), getSkuVo.getPageSize());
+            raw = goodsSkuPoMapper.selectByExample(example);
+
         }
-        List<ReturnGoodsSkuVo> vos = skus.stream().map(sku -> new ReturnGoodsSkuVo(sku, selectFloatPrice(sku.getId()))).collect(Collectors.toList());
-        PageInfo<?> VO = PageInfo.of(vos);
-        return StatusWrap.of(VO);
+        view = raw.stream().map(sku -> new ReturnGoodsSkuVo(sku, selectFloatPrice(sku.getId()))).collect(Collectors.toList());
+
+        return StatusWrap.of(PageWrap.of(PageInfo.of(raw), view));
     }
 
     public ReturnGoodsSkuVo getSingleSimpleSku(Integer id) {
@@ -264,9 +262,9 @@ public class GoodsSkuDao {
         GoodsSkuPoExample example1 = new GoodsSkuPoExample();
         GoodsSkuPoExample.Criteria criteria1 = example1.createCriteria();
         //判断是否有spu
-        GoodsSpuPo spuPo=goodsSpuPoMapper.selectByPrimaryKey(goodsSpuId);
-        if(spuPo==null) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        if(!spuPo.getShopId().equals(shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        GoodsSpuPo spuPo = goodsSpuPoMapper.selectByPrimaryKey(goodsSpuId);
+        if (spuPo == null) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        if (!spuPo.getShopId().equals(shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
 //        example.or().andShopIdEqualTo(shopId).andIdEqualTo(goodsSpuId);
 //        List<GoodsSpuPo> spuPo = goodsSpuPoMapper.selectByExample(example);
 //        if (spuPo == null || spuPo.size() <= 0) {
@@ -322,12 +320,17 @@ public class GoodsSkuDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> deleteSku(Long shopId,Long skuId) {
+    public ResponseEntity<StatusWrap> deleteSku(Long shopId, Long skuId) {
+        logger.debug("delete: shopId " + shopId + ", skuId " + skuId);
         GoodsSkuPo skuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
         if (skuPo == null) {
+            logger.debug("skuId not found");
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        if(!judgeResource(skuPo,shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        if (!judgeResource(skuPo, shopId)) {
+            logger.debug("sku don't belong to shop");
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        }
         //TODO 商品状态修改,删除商品商品已删除时的错误码
         if (skuPo.getState().intValue() == 6)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);/*StatusWrap.ok();*/
@@ -341,12 +344,12 @@ public class GoodsSkuDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> updateSku(Long shopId,Long skuId, ModifySkuVo modifySkuVo) {
+    public ResponseEntity<StatusWrap> updateSku(Long shopId, Long skuId, ModifySkuVo modifySkuVo) {
         GoodsSkuPo skuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
         if (skuPo == null) {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        if(!judgeResource(skuPo,shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        if (!judgeResource(skuPo, shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         GoodsSkuPo po = modifySkuVo.asNewSku().toGoodsSkuPo();
         po.setId(skuId);
         po.setGmtModified(LocalDateTime.now());
@@ -358,11 +361,11 @@ public class GoodsSkuDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> putGoodsOnSale(Long shopId,Long skuId) {
+    public ResponseEntity<StatusWrap> putGoodsOnSale(Long shopId, Long skuId) {
         GoodsSkuPo skuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
         if (skuPo == null)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        if(!judgeResource(skuPo,shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        if (!judgeResource(skuPo, shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         //TODO 商品状态修改
         if (skuPo.getState().intValue() == 4)
             return StatusWrap.just(Status.STATE_NOCHANGE);
@@ -376,14 +379,13 @@ public class GoodsSkuDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> putOffGoodsOnSale(Long shopId,Long skuId) {
+    public ResponseEntity<StatusWrap> putOffGoodsOnSale(Long shopId, Long skuId) {
         GoodsSkuPo skuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
         if (skuPo == null)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        if(!judgeResource(skuPo,shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        if (!judgeResource(skuPo, shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         //TODO 商品状态修改
-        if (skuPo.getState().intValue() == 0)
-        {
+        if (skuPo.getState().intValue() == 0) {
             return StatusWrap.just(Status.STATE_NOCHANGE);
         }
 
@@ -397,7 +399,7 @@ public class GoodsSkuDao {
         }
     }
 
-    public ResponseEntity<StatusWrap> addFloatingPrice(Long shopId,Long userId, String userName, Long skuId, FloatPricesGetVo vo) {
+    public ResponseEntity<StatusWrap> addFloatingPrice(Long shopId, Long userId, String userName, Long skuId, FloatPricesGetVo vo) {
         FloatPricePoExample example = new FloatPricePoExample();
         FloatPricePoExample.Criteria criteria = example.createCriteria();
 
@@ -428,7 +430,7 @@ public class GoodsSkuDao {
             if (ret != 0) {
                 FloatPricesReturnVo floatPricesReturnVo = new FloatPricesReturnVo(po);
                 floatPricesReturnVo.setCreatedBy(userId, userName);
-                floatPricesReturnVo.setModifiedBy(userId,userName);
+                floatPricesReturnVo.setModifiedBy(userId, userName);
                 return StatusWrap.of(floatPricesReturnVo, HttpStatus.CREATED);
             } else {
                 return StatusWrap.just(Status.DATABASE_OPERATION_ERROR);

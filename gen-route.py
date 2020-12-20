@@ -42,7 +42,7 @@ path = [
   "/shops/*/skus/*/floatPrices",
   "/shops/*/floatPrices/*",
   # sku
-  "/skus"
+  "/skus",  
   "/skus/states",
   "/shops/*/skus/*",
   "/shops/*/skus/*/uploadImg",

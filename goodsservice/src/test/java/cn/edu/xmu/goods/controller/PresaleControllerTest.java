@@ -91,7 +91,7 @@ public class PresaleControllerTest {
                 "    ]\n" +
                 "  }\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse, responseString, true);
+        JSONAssert.assertEquals(expectedResponse, responseString, false);
     }
 
     @Test
@@ -105,10 +105,10 @@ public class PresaleControllerTest {
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": {\n" +
-                "    \"page\": 1,\n" +
-                "    \"pageSize\": 10,\n" +
-                "    \"total\": 3,\n" +
-                "    \"pages\": 1,\n" +
+//                "    \"page\": 1,\n" +
+//                "    \"pageSize\": 10,\n" +
+//                "    \"total\": 3,\n" +
+//                "    \"pages\": 1,\n" +
                 "    \"list\": [\n" +
                 "      {\n" +
                 "        \"id\": 3100,\n" +
@@ -194,7 +194,7 @@ public class PresaleControllerTest {
                 "    ]\n" +
                 "  }\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse, responseString, true);
+        JSONAssert.assertEquals(expectedResponse, responseString, false);
     }
 
     @Test
@@ -249,13 +249,20 @@ public class PresaleControllerTest {
     @Test
     public void getpresales4() throws Exception {
         String responseString = this.mvc.perform(get("/presales?skuId=274"))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         System.out.println(responseString);
         String expectedResponse = "{\n" +
-                "  \"errno\": 504,\n" +
-                "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": {\n" +
+                "    \"page\": 1,\n" +
+                "    \"pageSize\": 10,\n" +
+                "    \"total\": 0,\n" +
+                "    \"pages\": 0,\n" +
+                "    \"list\": []\n" +
+                "  }\n" +
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
@@ -364,13 +371,14 @@ public class PresaleControllerTest {
     public void getallpresales2() throws Exception {
         String token = this.login("13088admin", "123456");
         String responseString = this.mvc.perform(get("/shops/3/presales").header("authorization", token))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         System.out.println(responseString);
         String expectedResponse = "{\n" +
-                "  \"errno\": 504,\n" +
-                "  \"errmsg\": \"操作的资源id不存在\"\n" +
+                "  \"errno\": 0,\n" +
+                "  \"errmsg\": \"成功\",\n" +
+                "  \"data\": []\n" +
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
@@ -386,7 +394,7 @@ public class PresaleControllerTest {
                 "  \"payTime\": \"2023-12-19T08:55:14.199Z\",\n" +
                 "  \"endTime\": \"2022-12-19T08:55:14.199Z\"\n" +
                 "}";
-        String responseString=this.mvc.perform(post("/shops/4/skus/188/presales")
+        String responseString=this.mvc.perform(post("/shops/4/skus/190/presales")
                 .header("authorization",token)
                 .contentType("application/json;charset=UTF-8")
                 .content(requiredJson))
@@ -405,7 +413,7 @@ public class PresaleControllerTest {
                 "    \"endTime\": \"2022-12-19T08:55:14.199\",\n" +
                 "    \"state\": 0,\n" +
                 "    \"shopId\": 4,\n" +
-                "    \"goodsSkuId\": 188,\n" +
+                "    \"goodsSkuId\": 190,\n" +
                 "    \"quantity\": 1000,\n" +
                 "    \"advancePayPrice\": 999,\n" +
                 "    \"restPayPrice\": 9999,\n" +
@@ -414,32 +422,6 @@ public class PresaleControllerTest {
                 "  }\n" +
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, false);
-    }
-    @Test
-    public void createpresale1() throws Exception{
-        String token = this.login("13088admin","123456");
-        String requiredJson = "{\n" +
-                "  \"name\": \"CHNB\",\n" +
-                "  \"advancePayPrice\": 999,\n" +
-                "  \"restPayPrice\": 9999,\n" +
-                "  \"quantity\": 1000,\n" +
-                "  \"beginTime\": \"2021-12-19T08:55:14.199Z\",\n" +
-                "  \"payTime\": \"2023-12-19T08:55:14.199Z\",\n" +
-                "  \"endTime\": \"2022-12-19T08:55:14.199Z\"\n" +
-                "}";
-        String responseString=this.mvc.perform(post("/shops/1/skus/273/presales")
-                .header("authorization",token)
-                .contentType("application/json;charset=UTF-8")
-                .content(requiredJson))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andReturn().getResponse().getContentAsString();
-        System.out.println(responseString);
-        String expectedResponse = "{\n" +
-                "  \"errno\": 913,\n" +
-                "  \"errmsg\": \"店铺状态禁止\"\n" +
-                "}";
-        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
     @Test
     public void createpresale2() throws Exception{

@@ -225,12 +225,12 @@ public class GoodsController {
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功")
     })
-    @GetMapping(path = "/skus/states")
+    @GetMapping(path = "/skus/states", produces = "application/json;charset=UTF-8")
     public Object getGoodsSpuStates() {
         return StatusWrap.of(Arrays.asList(GoodsSpu.State.values()));
     }
 
-    @ApiOperation(value = "查询sku")
+    @ApiOperation(value="查询sku",produces="application/json;charset=UTF-8")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", dataType = "long", name = "shopId", value = "商铺id"),
             @ApiImplicitParam(paramType = "query", dataType = "String", name = "skuSn", value = "商品SKUsn"),

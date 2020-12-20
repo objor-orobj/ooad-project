@@ -34,7 +34,6 @@ public class ShopDao {
      * shopId not checked, return null on failure
      */
     public Shop update(@NotNull Shop shop) {
-
         try {
             mapper.updateByPrimaryKeySelective(shop.toShopPo());
         } catch (DataAccessException exception) {

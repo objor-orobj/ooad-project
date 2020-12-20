@@ -19,19 +19,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = GoodsServiceApplication.class)   //标识本类是一个SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class BrandCategoryControllerTest {
-
+class BrandCategoryControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    public BrandCategoryControllerTest() {
-        SqlScript.run("");
-        SqlScript.run("");
-    }
-
+    /*public BrandCategoryControllerTest() {
+        SqlScript.run("/goods-schema.sql");
+        SqlScript.run("/cn/edu/xmu/goods/controller/BrandCategoryControllerTest.sql");
+    }*/
     @Test
-    void createBrand1() throws Exception{
-        String contentJson ="{\n" +
+    void createBrand1() throws Exception {
+        String contentJson = "{\n" +
                 "  \"detail\": \"string\",\n" +
                 "  \"name\": \"brand2\"\n" +
                 "}";
@@ -41,7 +39,7 @@ public class BrandCategoryControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": {\n" +
@@ -53,12 +51,12 @@ public class BrandCategoryControllerTest {
                 "    \"gmtModified\": null\n" +
                 "  }\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,false);
+        JSONAssert.assertEquals(expectedResponse, responseString, false);
     }
 
     @Test
-    void createBrand2() throws Exception{
-        String contentJson ="{\n" +
+    void createBrand2() throws Exception {
+        String contentJson = "{\n" +
                 "  \"detail\": \"string\",\n" +
                 "  \"name\": \"戴荣华\"\n" +
                 "}";
@@ -68,16 +66,16 @@ public class BrandCategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 926,\n" +
                 "  \"errmsg\": \"品牌名重复\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void createGoodsCategory1() throws Exception{
-        String contentJson ="{\n" +
+    void createGoodsCategory1() throws Exception {
+        String contentJson = "{\n" +
                 "  \"name\": \"brand2\"\n" +
                 "}";
         String responseString = this.mvc.perform(post("/shops/1/categories/0/subcategories")
@@ -86,7 +84,7 @@ public class BrandCategoryControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": {\n" +
@@ -97,12 +95,12 @@ public class BrandCategoryControllerTest {
                 "    \"gmtModified\": null\n" +
                 "  }\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,false);
+        JSONAssert.assertEquals(expectedResponse, responseString, false);
     }
 
     @Test
-    void createGoodsCategory2() throws Exception{
-        String contentJson ="{\n" +
+    void createGoodsCategory2() throws Exception {
+        String contentJson = "{\n" +
                 "  \"name\": \"艺术品\"\n" +
                 "}";
         String responseString = this.mvc.perform(post("/shops/1/categories/0/subcategories")
@@ -111,16 +109,16 @@ public class BrandCategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 927,\n" +
                 "  \"errmsg\": \"分类名重复\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void createGoodsCategory3() throws Exception{
-        String contentJson ="{\n" +
+    void createGoodsCategory3() throws Exception {
+        String contentJson = "{\n" +
                 "  \"name\": \"brand1\"\n" +
                 "}";
         String responseString = this.mvc.perform(post("/shops/1/categories/2/subcategories")
@@ -129,11 +127,11 @@ public class BrandCategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 928,\n" +
                 "  \"errmsg\": \"父分类不存在\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
@@ -142,12 +140,12 @@ public class BrandCategoryControllerTest {
     }
 
     @Test
-    void getAllBrands() throws Exception{
-        String responseString=this.mvc.perform(get("/brands").queryParam("page","1").queryParam("pageSize","5"))
+    void getAllBrands() throws Exception {
+        String responseString = this.mvc.perform(get("/brands").queryParam("page", "1").queryParam("pageSize", "5"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": {\n" +
@@ -199,16 +197,16 @@ public class BrandCategoryControllerTest {
                 "    ]\n" +
                 "  }\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void getGoodsCategory1() throws Exception{
-        String responseString=this.mvc.perform(get("/categories/122/subcategories"))
+    void getGoodsCategory1() throws Exception {
+        String responseString = this.mvc.perform(get("/categories/122/subcategories"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": [\n" +
@@ -228,25 +226,25 @@ public class BrandCategoryControllerTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void getGoodsCategory2() throws Exception{
-        String responseString=this.mvc.perform(get("/categories/139/subcategories"))
+    void getGoodsCategory2() throws Exception {
+        String responseString = this.mvc.perform(get("/categories/139/subcategories"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 504,\n" +
                 "  \"errmsg\": \"操作的资源id不存在\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void modifyBrand1() throws Exception{
-        String contentJson ="{\n" +
+    void modifyBrand1() throws Exception {
+        String contentJson = "{\n" +
                 "  \"detail\": \"string\",\n" +
                 "  \"name\": \"string\"\n" +
                 "}";
@@ -256,16 +254,16 @@ public class BrandCategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void modifyBrand2() throws Exception{
-        String contentJson ="{\n" +
+    void modifyBrand2() throws Exception {
+        String contentJson = "{\n" +
                 "  \"detail\": \"string\",\n" +
                 "  \"name\": \"aaa\"\n" +
                 "}";
@@ -275,16 +273,16 @@ public class BrandCategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 926,\n" +
                 "  \"errmsg\": \"品牌名重复\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void modifyBrand3() throws Exception{
-        String contentJson ="{\n" +
+    void modifyBrand3() throws Exception {
+        String contentJson = "{\n" +
                 "  \"detail\": \"string\",\n" +
                 "  \"name\": \"aaa\"\n" +
                 "}";
@@ -294,16 +292,16 @@ public class BrandCategoryControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 504,\n" +
                 "  \"errmsg\": \"操作的资源id不存在\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void modifyGoodsCategory1() throws Exception{
-        String contentJson ="{\n" +
+    void modifyGoodsCategory1() throws Exception {
+        String contentJson = "{\n" +
                 "  \"name\": \"aa\"\n" +
                 "}";
         String responseString = this.mvc.perform(put("/shops/1/categories/145")
@@ -312,16 +310,16 @@ public class BrandCategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void modifyGoodsCategory2() throws Exception{
-        String contentJson ="{\n" +
+    void modifyGoodsCategory2() throws Exception {
+        String contentJson = "{\n" +
                 "  \"name\": \"艺术品\"\n" +
                 "}";
         String responseString = this.mvc.perform(put("/shops/1/categories/128")
@@ -330,16 +328,16 @@ public class BrandCategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 929,\n" +
                 "  \"errmsg\": \"分类名重复\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void modifyGoodsCategory3() throws Exception{
-        String contentJson ="{\n" +
+    void modifyGoodsCategory3() throws Exception {
+        String contentJson = "{\n" +
                 "  \"name\": \"艺术\"\n" +
                 "}";
         String responseString = this.mvc.perform(put("/shops/1/categories/1")
@@ -348,206 +346,206 @@ public class BrandCategoryControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 504,\n" +
                 "  \"errmsg\": \"操作的资源id不存在\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void deleteBrand1() throws Exception{
+    void deleteBrand1() throws Exception {
         String responseString = this.mvc.perform(delete("/shops/1/brands/128"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void deleteBrand2() throws Exception{
+    void deleteBrand2() throws Exception {
         String responseString = this.mvc.perform(delete("/shops/1/brands/1"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 504,\n" +
                 "  \"errmsg\": \"操作的资源id不存在\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void deleteGoodsCategory1() throws Exception{
+    void deleteGoodsCategory1() throws Exception {
         String responseString = this.mvc.perform(delete("/shops/1/categories/145"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void deleteGoodsCategory2() throws Exception{
+    void deleteGoodsCategory2() throws Exception {
         String responseString = this.mvc.perform(delete("/shops/1/categories/1"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 504,\n" +
                 "  \"errmsg\": \"操作的资源id不存在\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void addSpuToBrand1() throws Exception{
+    void addSpuToBrand1() throws Exception {
         String responseString = this.mvc.perform(post("/shops/1/spus/680/brands/103"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void addSpuToBrand2() throws Exception{
+    void addSpuToBrand2() throws Exception {
         String responseString = this.mvc.perform(post("/shops/1/spus/699/brands/102"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 504,\n" +
                 "  \"errmsg\": \"操作的资源id不存在\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void addSpuToBrand3() throws Exception{
+    void addSpuToBrand3() throws Exception {
         String responseString = this.mvc.perform(post("/shops/1/spus/663/brands/105"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 930,\n" +
                 "  \"errmsg\": \"已加入品牌\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void addSpuToCategory1() throws Exception{
+    void addSpuToCategory1() throws Exception {
         String responseString = this.mvc.perform(post("/shops/1/spus/680/categories/123"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void addSpuToCategory2() throws Exception{
+    void addSpuToCategory2() throws Exception {
         String responseString = this.mvc.perform(post("/shops/1/spus/680/categories/1"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 504,\n" +
                 "  \"errmsg\": \"操作的资源id不存在\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void addSpuToCategory3() throws Exception{
+    void addSpuToCategory3() throws Exception {
         String responseString = this.mvc.perform(post("/shops/1/spus/680/categories/123"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void removeSpuFromBrand1() throws Exception{
+    void removeSpuFromBrand1() throws Exception {
         String responseString = this.mvc.perform(delete("/shops/1/spus/680/brands/102"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void removeSpuFromBrand2() throws Exception{
+    void removeSpuFromBrand2() throws Exception {
         String responseString = this.mvc.perform(delete("/shops/1/spus/680/brands/1"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 504,\n" +
                 "  \"errmsg\": \"操作的资源id不存在\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void removeSpuFromBrand3() throws Exception{
+    void removeSpuFromBrand3() throws Exception {
         String responseString = this.mvc.perform(delete("/shops/1/spus/680/brands/103"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 932,\n" +
                 "  \"errmsg\": \"未加入品牌\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void removeSpuFromCategory1() throws Exception{
+    void removeSpuFromCategory1() throws Exception {
         String responseString = this.mvc.perform(delete("/shops/1/spus/680/categories/122"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
-    void removeSpuFromCategory2() throws Exception{
+    void removeSpuFromCategory2() throws Exception {
         String responseString = this.mvc.perform(delete("/shops/1/spus/680/categories/1"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse="{\n" +
+        String expectedResponse = "{\n" +
                 "  \"errno\": 504,\n" +
                 "  \"errmsg\": \"操作的资源id不存在\"\n" +
                 "}";
-        JSONAssert.assertEquals(expectedResponse,responseString,true);
+        JSONAssert.assertEquals(expectedResponse, responseString, true);
     }
 
     @Test
@@ -561,11 +559,5 @@ public class BrandCategoryControllerTest {
                 "  \"errmsg\": \"未加入分类\"\n" +
                 "}";
         JSONAssert.assertEquals(expectedResponse, responseString, true);
-    }
-
-    private String login(String userName, String password) throws Exception{
-        //String token="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0aGlzIGlzIGEgdG9rZW4iLCJhdWQiOiJNSU5JQVBQIiwidG9rZW5JZCI6IjIwMjAxMjE5MTgxNDE0OEw0IiwiaXNzIjoiT09BRCIsImRlcGFydElkIjowLCJleHAiOjE2MDgzNzY0NTQsInVzZXJJZCI6MSwiaWF0IjoxNjA4MzcyODU0fQ.NxK5qj_i_LpwiFYC6fiXi_BLkoyDzCOvjUNuWOm4ymE";
-        String token = new JwtHelper().createToken(1L, 0L, 3600);
-        return token;
     }
 }

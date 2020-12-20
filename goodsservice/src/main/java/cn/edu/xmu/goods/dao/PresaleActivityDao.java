@@ -52,6 +52,7 @@ public class PresaleActivityDao {
         }
         if(getPresaleBySkuid(po.getGoodsSkuId()) != null)
         {
+            System.out.println(getPresaleBySkuid(po.getGoodsSkuId()));
             return StatusWrap.just(Status.PRESALE_STATENOTALLOW);
         }
         int ret = presaleActivityPoMapper.insert(po);
@@ -73,6 +74,10 @@ public class PresaleActivityDao {
         } catch (
                 DataAccessException e) {
             StringBuilder message = new StringBuilder().append("getPresaleActivity: ").append(e.getMessage());
+        }
+        if(presaleActivityList == null || presaleActivityList.isEmpty())
+        {
+            return null;
         }
         return presaleActivityList;
 
