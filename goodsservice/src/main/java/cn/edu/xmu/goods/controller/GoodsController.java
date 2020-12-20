@@ -25,7 +25,6 @@ import springfox.documentation.annotations.ApiIgnore;
 import java.util.Arrays;
 
 @RestController
-@RequestMapping(value = "", produces = "application/json;charset=UTF-8")
 public class GoodsController {
     @Autowired
     private GoodsService goodsService;
@@ -267,7 +266,7 @@ public class GoodsController {
     @ApiResponses({
             @ApiResponse(code=0,message="成功")
     })
-    @GetMapping(path = "/skus")
+    @GetMapping(path = "/skus", produces = "application/json;charset=UTF-8")
     public Object getGoodsSkus(@RequestParam(required = false) Long shopId,
                                @RequestParam(required = false) String skuSn,
                                @RequestParam(required = false) Long spuId,
@@ -290,8 +289,9 @@ public class GoodsController {
             @ApiResponse(code=0,message="成功"),
             @ApiResponse(code=504,message="操作的资源id不存在")
     })
-    @GetMapping(path = "/skus/{id}")
+    @GetMapping(path = "/skus/{id}", produces = "application/json;charset=UTF-8")
     public Object getSkuDetailedById(@PathVariable Long id) {
+        System.out.println("TEST");
         footprint.addFootprint(1L,id);
         return goodsService.getSkuDetailedById(id);
     }
@@ -359,7 +359,7 @@ public class GoodsController {
         if (!shopId.equals(departId) && departId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        return goodsService.deleteSku(id);
+        return goodsService.deleteSku(shopId,id);
     }
 
     @Audit
@@ -385,7 +385,7 @@ public class GoodsController {
         if (!shopId.equals(departId) && departId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        return goodsService.updateSku(id, vo);
+        return goodsService.updateSku(shopId,id, vo);
     }
 
     //缺少运费模板
@@ -415,6 +415,7 @@ public class GoodsController {
     @GetMapping(path = "/share/{sid}/skus/{id}")
     public Object getSkuBySid(@PathVariable Long sid,
                               @PathVariable Long id) {
+        System.out.println("TEST2");
         logger.debug("sid:"+sid+"id:"+id);
         return goodsService.getSkuBySid(sid,id);
     }
@@ -523,7 +524,7 @@ public class GoodsController {
         if (!shopId.equals(departId) && departId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        return goodsService.putGoodsOnSale( id);
+        return goodsService.putGoodsOnSale(shopId, id);
     }
 
     @Audit
@@ -547,7 +548,7 @@ public class GoodsController {
         if (!shopId.equals(departId) && departId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        return goodsService.putOffGoodsOnSale( id);
+        return goodsService.putOffGoodsOnSale(shopId, id);
     }
 
     @Audit
@@ -572,7 +573,7 @@ public class GoodsController {
         if (!shopId.equals(departId) && departId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
-        return goodsService.addFloatingPrice(userId,id, vo);
+        return goodsService.addFloatingPrice(shopId,userId,id, vo);
     }
 
     @Audit
