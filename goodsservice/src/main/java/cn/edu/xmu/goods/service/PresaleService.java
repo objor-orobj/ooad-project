@@ -39,9 +39,9 @@ public class PresaleService implements PresaleServiceInterface {
         ) {
             return StatusWrap.just(Status.FIELD_NOTVALID);
         }
-        if (shop.getState() != Shop.State.ONLINE) {
-            return StatusWrap.just(Status.SHOP_STATE_DENIED);
-        }
+//        if (shop.getState() != Shop.State.ONLINE) {
+//            return StatusWrap.just(Status.SHOP_STATE_DENIED);
+//        }
         if (goodsSku == null) {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }

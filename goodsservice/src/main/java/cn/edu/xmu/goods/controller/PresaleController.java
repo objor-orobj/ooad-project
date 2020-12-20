@@ -71,7 +71,7 @@ public class PresaleController {
     ) {
         if (departId == null || userId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
-        if (!departId.equals(shopId) || !departId.equals(0L))
+        if (!departId.equals(shopId) && !departId.equals(0L))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         PresaleActivityInVo presaleActivityInVo = new PresaleActivityInVo(shopId, skuId, state, null, page, pageSize);
         return presaleService.getallPresaleActivity(presaleActivityInVo);
