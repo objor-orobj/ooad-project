@@ -147,7 +147,7 @@ public class GoodsSkuDao {
                     example1.or().andGoodsSnEqualTo(getSkuVo.getSpuSn());
             }
             List<GoodsSpuPo> spuPo = goodsSpuPoMapper.selectByExample(example1);
-            if (!(spuPo == null || spuPo.size() == 0)) {
+            if (spuPo == null || spuPo.size() == 0) {
                 view = new ArrayList<>();
                 ifNull = true;
             } else {
