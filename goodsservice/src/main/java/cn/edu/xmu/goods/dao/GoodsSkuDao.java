@@ -307,6 +307,7 @@ public class GoodsSkuDao {
     }
 
     public ResponseEntity<StatusWrap> deleteSku(Long skuId) {
+
         GoodsSkuPo skuPo = goodsSkuPoMapper.selectByPrimaryKey(skuId);
         if (skuPo == null) {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);

@@ -61,7 +61,7 @@ public class ShopController {
             @Depart @ApiIgnore Long departId,
             @RequestBody ShopCreatorValidation vo
     ) {
-        if (!shopId.equals(departId)) {
+        if (!departId.equals(shopId) && !departId.equals(0L)) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
         return shopService.modifyInfo(shopId, vo);
@@ -80,7 +80,7 @@ public class ShopController {
         if (userId == null || departId == null) {
             return StatusWrap.just(Status.LOGIN_REQUIRED);
         }
-        if (!shopId.equals(departId) && departId != 0) {
+        if (!departId.equals(shopId) && !departId.equals(0L)) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
         return shopService.forceClose(shopId);
@@ -103,7 +103,7 @@ public class ShopController {
         if (userId == null || departId == null) {
             return StatusWrap.just(Status.LOGIN_REQUIRED);
         }
-        if (departId != 0 || zero != 0) {
+        if (!departId.equals(shopId) && !departId.equals(0L)) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
         return shopService.audit(shopId, vo.getConclusion());
@@ -118,8 +118,8 @@ public class ShopController {
             @Depart @ApiIgnore Long departId,
             @PathVariable Long shopId
     ) {
-        if (!shopId.equals(departId)) {
-            return StatusWrap.of(Status.RESOURCE_ID_OUTSCOPE);
+        if (!departId.equals(shopId) && !departId.equals(0L)) {
+            return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
         return shopService.bringOnline(shopId);
     }
@@ -132,7 +132,7 @@ public class ShopController {
     public ResponseEntity<StatusWrap> bringShopOffline(
             @Depart @ApiIgnore Long departId,
             @PathVariable Long shopId) {
-        if (!shopId.equals(departId)) {
+        if (!departId.equals(shopId) && !departId.equals(0L)) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         }
         return shopService.bringOffline(shopId);

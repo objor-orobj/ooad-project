@@ -61,7 +61,7 @@ public class Shop {
         ShopPo po = new ShopPo();
         po.setId(id);
         po.setName(name);
-        po.setState(state.getCode().byteValue());
+        po.setState(state == null ? null : state.getCode().byteValue());
         po.setGmtCreate(gmtCreate);
         po.setGmtModified(gmtModified);
         return po;
@@ -73,6 +73,9 @@ public class Shop {
         this.state = State.fromCode(po.getState().intValue());
         this.gmtCreate = po.getGmtCreate();
         this.gmtModified = po.getGmtModified();
+    }
+
+    public Shop() {
     }
 
     public Shop(ShopCreatorValidation vo) {
