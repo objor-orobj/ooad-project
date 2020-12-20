@@ -124,13 +124,13 @@ public class CommentController {
         return commentService.createComment(userId,id,vo);
     }
 
-    @Audit
+   @Audit
     @ApiOperation(value="管理员审核评论",produces="application/json;charset=UTF-8")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "Token", required = true),
             @ApiImplicitParam(paramType="path",dataType="int",name="did",value="shop id",required=true),
             @ApiImplicitParam(paramType="path",dataType="int",name="id",value="comment id",required=true),
-            @ApiImplicitParam(paramType="body",dataType = "CommentConfirmVo",name="vo",value="可修改的评论信息",required=true)
+            @ApiImplicitParam(paramType="body",dataType = "CommentConfirmVo",name="vo",value="可修改的评论信息",required=false)
     })
     @ApiResponses({
             @ApiResponse(code=0,message="成功")
@@ -140,11 +140,14 @@ public class CommentController {
                                  @PathVariable Long id,
                                  @PathVariable Long did,
                                  @Depart @ApiIgnore Long departId,
-                                 @RequestBody CommentConfirmVo vo) {
+                                 @RequestBody(required = false) CommentConfirmVo vo) {
         if (departId == null||userId==null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
         if (!departId.equals(did) && departId != 0) {
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        }
+        if(vo==null){
+            return StatusWrap.just(Status.FIELD_NOTVALID);
         }
         return commentService.confirmComment(id,vo);
     }
