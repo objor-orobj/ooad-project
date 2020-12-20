@@ -411,7 +411,7 @@ public class GoodsSkuDao {
         if (goodsSkuPo.getInventory() < vo.getQuantity())
             return StatusWrap.just(Status.SKU_NOTENOUGH);
         if(vo.getEndTime()==null) return StatusWrap.just(Status.Log_END_NULL);
-        if(vo.getEndTime().isBefore(vo.getBeginTime())) return StatusWrap.just(Status.FIELD_NOTVALID);
+        if(vo.getBeginTime().isBefore(LocalDateTime.now())) return StatusWrap.just(Status.FIELD_NOTVALID);
         if(vo.getBeginTime().isAfter(vo.getEndTime())) return StatusWrap.just(Status.Log_Bigger);
 
         if(vo.getQuantity()<0||vo.getBeginTime().isBefore(LocalDateTime.now())||vo.getEndTime().isBefore(LocalDateTime.now())) return StatusWrap.just(Status.FIELD_NOTVALID);

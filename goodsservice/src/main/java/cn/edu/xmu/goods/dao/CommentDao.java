@@ -2,12 +2,14 @@ package cn.edu.xmu.goods.dao;
 
 import cn.edu.xmu.goods.controller.ShopController;
 import cn.edu.xmu.goods.mapper.CommentPoMapper;
+import cn.edu.xmu.goods.mapper.GoodsSkuPoMapper;
 import cn.edu.xmu.goods.model.PageWrap;
 import cn.edu.xmu.goods.model.Status;
 import cn.edu.xmu.goods.model.StatusWrap;
 import cn.edu.xmu.goods.model.bo.Comment;
 import cn.edu.xmu.goods.model.po.CommentPo;
 import cn.edu.xmu.goods.model.po.CommentPoExample;
+import cn.edu.xmu.goods.model.po.GoodsSkuPo;
 import cn.edu.xmu.goods.model.vo.CommentConfirmVo;
 import cn.edu.xmu.goods.model.vo.CommentRetVo;
 import cn.edu.xmu.goods.model.vo.CommentVo;
@@ -42,6 +44,9 @@ public class CommentDao {
     @Autowired
     private CommentPoMapper commentMapper;
 
+    @Autowired
+    private GoodsSkuPoMapper goodsSkuPoMapper;
+
     @DubboReference(version = "0.0.1")
     private CustomerServiceInterface userService;
 
@@ -54,6 +59,8 @@ public class CommentDao {
         CommentPoExample.Criteria criteria = example.createCriteria();
         Comment.State state = Comment.State.SUCCESS;
         PageHelper.startPage(page, pageSize);
+        GoodsSkuPo goodsSkuPo=goodsSkuPoMapper.selectByPrimaryKey(skuId);
+        if(goodsSkuPo==null) return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         criteria.andGoodsSkuIdEqualTo(skuId);
         criteria.andStateEqualTo(state.getCode().byteValue());
         com = commentMapper.selectByExample(example);
