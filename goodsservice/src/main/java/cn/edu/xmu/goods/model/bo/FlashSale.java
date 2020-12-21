@@ -32,6 +32,14 @@ public class FlashSale {
         public String getName() {
             return name;
         }
+
+        public static State fromCode(Byte code) {
+            if (code == null) return OFFLINE;
+            else if (code.equals((byte) 0)) return OFFLINE;
+            else if (code.equals((byte) 1)) return ONLINE;
+            else if (code.equals((byte) 2)) return DELETED;
+            return OFFLINE;
+        }
     }
 
     private Long id;
@@ -56,8 +64,7 @@ public class FlashSale {
         this.id = po.getId();
         this.flashDate = po.getFlashDate();
         this.timeSegId = po.getTimeSegId();
-        if (po.getState() != null)
-            this.state = State.values()[po.getState()];
+        this.state = State.fromCode(po.getState());
         this.gmtCreate = po.getGmtCreate();
         this.gmtModified = po.getGmtModified();
     }
