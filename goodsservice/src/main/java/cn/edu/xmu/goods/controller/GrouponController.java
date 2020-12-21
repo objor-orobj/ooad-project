@@ -8,18 +8,25 @@ import cn.edu.xmu.goods.service.GrouponService;
 import cn.edu.xmu.ooad.annotation.Audit;
 import cn.edu.xmu.ooad.annotation.Depart;
 import cn.edu.xmu.ooad.annotation.LoginUser;
+import cn.edu.xmu.ooad.util.Common;
+import cn.edu.xmu.ooad.util.ResponseCode;
+import cn.edu.xmu.ooad.util.ReturnObject;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
 @RestController
 @RequestMapping(value = "", produces = "application/json;charset=UTF-8")
 public class GrouponController {
+    @Autowired
+    private HttpServletResponse httpServletResponse;
     @Autowired
     private GrouponService grouponService;
 
@@ -72,10 +79,31 @@ public class GrouponController {
             @PathVariable Long shopId,
             @RequestParam(required = false) Long spu_id,
             @RequestParam(required = false) Integer state,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime beginTime,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
+            @RequestParam(required = false) String beginStr,
+            @RequestParam(required = false) String endStr,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize) {
+        LocalDateTime beginTime = null, endTime = null;
+        try {
+            if (beginStr != null) {
+                beginTime = LocalDateTime.parse(beginStr);
+            }
+            if (endStr != null) {
+                endTime = LocalDateTime.parse(endStr);
+            }
+        } catch (Exception e) {
+            try {
+                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyy-MMM-dd HH:mm:ss");
+                if (beginStr != null) {
+                    beginTime = LocalDateTime.parse(beginStr, format);
+                }
+                if (endStr != null) {
+                    endTime = LocalDateTime.parse(endStr, format);
+                }
+            } catch (Exception ee) {
+                return StatusWrap.just(Status.FIELD_NOTVALID);
+            }
+        }
         if (departId == null || userId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
         if (!departId.equals(shopId) && !departId.equals(0L))

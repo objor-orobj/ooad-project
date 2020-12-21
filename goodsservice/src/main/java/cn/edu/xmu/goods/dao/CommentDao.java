@@ -146,6 +146,15 @@ public class CommentDao {
                 case 2:
                     s = 2;
                     break;
+//            GoodsSkuPoExample snDupExample = new GoodsSkuPoExample();
+//            GoodsSkuPoExample.Criteria snDupCriteria = snDupExample.createCriteria();
+//            snDupCriteria.andSkuSnEqualTo(vo.getSn());
+//            List<GoodsSkuPo> dup = goodsSkuPoMapper.selectByExample(snDupExample);
+//            logger.debug("dup: " + dup);
+//            if (dup != null && dup.size() > 0) {
+//                return StatusWrap.just(Status.SKUSN_SAME);
+//            }
+//        }
                 default:
                     return StatusWrap.just(Status.FIELD_NOTVALID);
             }

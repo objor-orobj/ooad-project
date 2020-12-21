@@ -132,6 +132,7 @@ public class GoodsService implements GoodsServiceInterface {
             logger.error("error fetching share service");
             exception.printStackTrace();
         }
+        logger.debug("ans: " + ok);
         if (ok == null) {
             logger.debug("share answer id null");
             return StatusWrap.just(Status.INTERNAL_SERVER_ERR);

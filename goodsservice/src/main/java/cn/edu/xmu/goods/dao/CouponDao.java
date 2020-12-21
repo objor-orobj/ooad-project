@@ -35,10 +35,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -435,7 +432,9 @@ public class CouponDao implements InitializingBean {
             coupons.add(new Coupon(justPo));
         }
         List<String> view = coupons.stream().map(Coupon::getCouponSn).collect(Collectors.toList());
-        return StatusWrap.of(view, HttpStatus.CREATED);
+        Map<String, Object> listed = new HashMap<>();
+        listed.put("list", view);
+        return StatusWrap.of(listed, HttpStatus.CREATED);
     }
 
     // CouponActivity.Type.LIMITED_INVENTORY
@@ -485,10 +484,12 @@ public class CouponDao implements InitializingBean {
             exception.printStackTrace();
             return StatusWrap.just(INTERNAL_SERVER_ERR);
         }
-        List<?> listed = Collections.singletonList(his.getCouponSn());
+        List<String> listed = Collections.singletonList(his.getCouponSn());
         activity.setQuantity(activity.getQuantity() - 1);
         updateActivity(activity);
-        return StatusWrap.of(listed, HttpStatus.CREATED);
+        Map<String, Object> view = new HashMap<>();
+        view.put("list", listed);
+        return StatusWrap.of(view, HttpStatus.CREATED);
     }
 
     // for interface

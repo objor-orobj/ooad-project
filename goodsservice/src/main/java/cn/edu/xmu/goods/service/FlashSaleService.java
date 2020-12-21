@@ -60,10 +60,10 @@ public class FlashSaleService implements FlashSaleServiceInterface {
             logger.error("timeSeg id invalid");
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        if (flashSaleDao.timeSegConflict(vo.getFlashDate(), timeSegId)) {
-            logger.debug("timeSeg conflict");
-            return StatusWrap.just(Status.TIMESEG_CONFLICT);
-        }
+//        if (flashSaleDao.timeSegConflict(vo.getFlashDate(), timeSegId)) {
+//            logger.debug("timeSeg conflict");
+//            return StatusWrap.just(Status.TIMESEG_CONFLICT);
+//        }
         FlashSale create = new FlashSale(vo);
         create.setTimeSegId(timeSegId);
         create.setState(FlashSale.State.OFFLINE);
