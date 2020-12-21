@@ -126,7 +126,9 @@ public class FlashSaleService implements FlashSaleServiceInterface {
 
 
     public ResponseEntity<StatusWrap> forceCancel(Long id) {
+        logger.debug("deleting: flashSaleId " + id);
         FlashSale activity = flashSaleDao.selectActivity(id);
+        logger.debug("found for");
         if (activity == null || activity.getState() == FlashSale.State.DELETED)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         if (activity.getState() == FlashSale.State.ONLINE)

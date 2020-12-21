@@ -432,9 +432,7 @@ public class CouponDao implements InitializingBean {
             coupons.add(new Coupon(justPo));
         }
         List<String> view = coupons.stream().map(Coupon::getCouponSn).collect(Collectors.toList());
-        Map<String, Object> listed = new HashMap<>();
-        listed.put("list", view);
-        return StatusWrap.of(listed, HttpStatus.CREATED);
+        return StatusWrap.of(view, HttpStatus.CREATED);
     }
 
     // CouponActivity.Type.LIMITED_INVENTORY
@@ -487,9 +485,7 @@ public class CouponDao implements InitializingBean {
         List<String> listed = Collections.singletonList(his.getCouponSn());
         activity.setQuantity(activity.getQuantity() - 1);
         updateActivity(activity);
-        Map<String, Object> view = new HashMap<>();
-        view.put("list", listed);
-        return StatusWrap.of(view, HttpStatus.CREATED);
+        return StatusWrap.of(listed, HttpStatus.CREATED);
     }
 
     // for interface
