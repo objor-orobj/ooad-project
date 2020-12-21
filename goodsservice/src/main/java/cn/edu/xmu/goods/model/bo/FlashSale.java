@@ -46,7 +46,7 @@ public class FlashSale {
         po.setId(id);
         po.setFlashDate(flashDate);
         po.setTimeSegId(timeSegId);
-        po.setState(state.getCode().byteValue());
+        po.setState(state == null ? null : state.getCode().byteValue());
         po.setGmtCreate(gmtCreate);
         po.setGmtModified(gmtModified);
         return po;
@@ -56,7 +56,8 @@ public class FlashSale {
         this.id = po.getId();
         this.flashDate = po.getFlashDate();
         this.timeSegId = po.getTimeSegId();
-        this.state = State.values()[po.getState()];
+        if (po.getState() != null)
+            this.state = State.values()[po.getState()];
         this.gmtCreate = po.getGmtCreate();
         this.gmtModified = po.getGmtModified();
     }

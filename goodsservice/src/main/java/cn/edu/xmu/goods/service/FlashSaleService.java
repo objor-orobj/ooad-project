@@ -128,15 +128,17 @@ public class FlashSaleService implements FlashSaleServiceInterface {
     public ResponseEntity<StatusWrap> forceCancel(Long id) {
         logger.debug("deleting: flashSaleId " + id);
         FlashSale activity = flashSaleDao.selectActivity(id);
-        logger.debug("found for");
+        logger.debug("found activity: " + activity);
         if (activity == null || activity.getState() == FlashSale.State.DELETED)
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+        logger.debug("activity state: " + activity.getState());
         if (activity.getState() == FlashSale.State.ONLINE)
             return StatusWrap.just(Status.FLASH_SALE_STATE_DENIED);
         activity.setState(FlashSale.State.DELETED);
         FlashSale saved = flashSaleDao.updateActivity(activity);
         if (saved == null)
             return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        logger.debug("seems ok");
         return StatusWrap.ok();
     }
 
