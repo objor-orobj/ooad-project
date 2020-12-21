@@ -12,7 +12,6 @@ import cn.edu.xmu.ooad.annotation.LoginUser;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -29,7 +28,7 @@ import java.util.Arrays;
 public class CommentController {
     @Autowired
     private CommentService commentService;
-
+//
     @ApiOperation(value = "获得评论的所有状态", produces = "application/json;charset=UTF-8")
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功")
