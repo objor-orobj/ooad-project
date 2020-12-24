@@ -366,6 +366,19 @@ public class GoodsSkuDao {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
         if (!judgeResource(skuPo, shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+        GoodsSkuPoExample goodsSkuPoExample = new GoodsSkuPoExample();
+        GoodsSkuPoExample.Criteria criteria = goodsSkuPoExample.createCriteria();
+        goodsSkuPoExample.or().andGoodsSpuIdEqualTo(skuPo.getGoodsSpuId());
+        List<GoodsSkuPo> goodsSkuPos=goodsSkuPoMapper.selectByExample(goodsSkuPoExample);
+        if(goodsSkuPos!=null&&goodsSkuPos.size()>0)
+        {
+            for (GoodsSkuPo goodsSkuPo : goodsSkuPos) {
+                if (vo.getName()!=null&&vo.getDetail()!=null&&vo.getInventory()!=null&&vo.getWeight()!=null&&vo.getConfiguration()!=null&&vo.getOriginalPrice()!=null&&vo.getName().equals(goodsSkuPo.getName())&&vo.getOriginalPrice().equals(goodsSkuPo.getOriginalPrice())&&vo.getConfiguration().equals(goodsSkuPo.getConfiguration())&&vo.getWeight().equals(goodsSkuPo.getWeight())&&vo.getInventory().equals(goodsSkuPo.getInventory())&&vo.getDetail().equals(goodsSkuPo.getDetail()))
+                    return StatusWrap.just(Status.SKUSN_SAME);
+            }
+        }
+
+
         GoodsSkuPo po = vo.asNewSku().toGoodsSkuPo();
         po.setId(skuId);
         po.setGmtModified(LocalDateTime.now());
