@@ -9,7 +9,6 @@ import cn.edu.xmu.goods.model.bo.Comment;
 import cn.edu.xmu.goods.model.po.CommentPo;
 import cn.edu.xmu.goods.model.po.CommentPoExample;
 import cn.edu.xmu.goods.model.po.GoodsSkuPo;
-import cn.edu.xmu.goods.model.po.GoodsSkuPoExample;
 import cn.edu.xmu.goods.model.vo.CommentConfirmVo;
 import cn.edu.xmu.goods.model.vo.CommentRetVo;
 import cn.edu.xmu.goods.model.vo.CommentVo;
@@ -146,6 +145,15 @@ public class CommentDao {
                 case 2:
                     s = 2;
                     break;
+//            GoodsSkuPoExample snDupExample = new GoodsSkuPoExample();
+//            GoodsSkuPoExample.Criteria snDupCriteria = snDupExample.createCriteria();
+//            snDupCriteria.andSkuSnEqualTo(vo.getSn());
+//            List<GoodsSkuPo> dup = goodsSkuPoMapper.selectByExample(snDupExample);
+//            logger.debug("dup: " + dup);
+//            if (dup != null && dup.size() > 0) {
+//                return StatusWrap.just(Status.SKUSN_SAME);
+//            }
+//        }
                 default:
                     return StatusWrap.just(Status.FIELD_NOTVALID);
             }

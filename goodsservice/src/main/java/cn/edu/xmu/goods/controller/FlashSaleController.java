@@ -44,7 +44,7 @@ public class FlashSaleController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
-        if (!departId.equals(0L))
+        if (!departId.equals(0L) && !departId.equals(shopId))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return flashSaleService.createWithinTimeSegment(flashSaleVo, timeSegmentId);
     }
@@ -61,7 +61,7 @@ public class FlashSaleController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
-        if (!departId.equals(0L))
+        if (!departId.equals(0L) && !departId.equals(shopId))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return flashSaleService.modifyInfo(flashSaleId, FlashSaleVo);
     }
@@ -80,7 +80,7 @@ public class FlashSaleController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
-        if (!departId.equals(0L))
+        if (!departId.equals(0L) && !departId.equals(shopId))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return flashSaleService.bringOnline(flashSaleId);
     }
@@ -99,7 +99,7 @@ public class FlashSaleController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
-        if (!departId.equals(0L))
+        if (!departId.equals(0L) && !departId.equals(shopId))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return flashSaleService.bringOffline(flashSaleId);
     }
@@ -118,7 +118,7 @@ public class FlashSaleController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
-        if (!departId.equals(0L))
+        if (!departId.equals(0L) && !departId.equals(shopId))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return flashSaleService.forceCancel(flashSaleId);
     }
@@ -138,7 +138,7 @@ public class FlashSaleController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
-        if (!departId.equals(0L))
+        if (!departId.equals(0L) && !departId.equals(shopId))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return flashSaleService.insertItem(flashSaleId, itemVo);
     }
@@ -158,7 +158,7 @@ public class FlashSaleController {
     ) {
         if (userId == null || departId == null)
             return StatusWrap.just(Status.LOGIN_REQUIRED);
-        if (!departId.equals(0L))
+        if (!departId.equals(0L) && !departId.equals(shopId))
             return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
         return flashSaleService.removeItem(flashSaleItemId);
     }

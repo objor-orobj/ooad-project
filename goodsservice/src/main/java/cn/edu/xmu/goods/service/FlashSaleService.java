@@ -60,10 +60,10 @@ public class FlashSaleService implements FlashSaleServiceInterface {
             logger.error("timeSeg id invalid");
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
-        if (flashSaleDao.timeSegConflict(vo.getFlashDate(), timeSegId)) {
-            logger.debug("timeSeg conflict");
-            return StatusWrap.just(Status.TIMESEG_CONFLICT);
-        }
+//        if (flashSaleDao.timeSegConflict(vo.getFlashDate(), timeSegId)) {
+//            logger.debug("timeSeg conflict");
+//            return StatusWrap.just(Status.TIMESEG_CONFLICT);
+//        }
         FlashSale create = new FlashSale(vo);
         create.setTimeSegId(timeSegId);
         create.setState(FlashSale.State.OFFLINE);
@@ -126,15 +126,23 @@ public class FlashSaleService implements FlashSaleServiceInterface {
 
 
     public ResponseEntity<StatusWrap> forceCancel(Long id) {
-        FlashSale activity = flashSaleDao.selectActivity(id);
-        if (activity == null || activity.getState() == FlashSale.State.DELETED)
-            return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
-        if (activity.getState() == FlashSale.State.ONLINE)
-            return StatusWrap.just(Status.FLASH_SALE_STATE_DENIED);
-        activity.setState(FlashSale.State.DELETED);
-        FlashSale saved = flashSaleDao.updateActivity(activity);
-        if (saved == null)
-            return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+        try {
+            logger.debug("deleting: flashSaleId " + id);
+            FlashSale activity = flashSaleDao.selectActivity(id);
+            logger.debug("found activity: " + activity);
+            if (activity == null || activity.getState() == FlashSale.State.DELETED)
+                return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
+            logger.debug("activity state: " + activity.getState());
+            if (activity.getState() == FlashSale.State.ONLINE)
+                return StatusWrap.just(Status.FLASH_SALE_STATE_DENIED);
+            activity.setState(FlashSale.State.DELETED);
+            FlashSale saved = flashSaleDao.updateActivity(activity);
+            if (saved == null)
+                return StatusWrap.just(Status.INTERNAL_SERVER_ERR);
+            logger.debug("seems ok");
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
         return StatusWrap.ok();
     }
 
