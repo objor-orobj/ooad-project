@@ -365,6 +365,7 @@ public class GoodsController {
     }
 
     //缺少运费模板
+    //冲业绩
     @ApiOperation(value = "无需登录查看一条商品SPU的详细信息")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "path", dataType = "long", name = "id", value = "商品SPU ID", required = true)
