@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Arrays;
-//
 @RestController
 @RequestMapping(value = "", produces = "application/json;charset=UTF-8")
 public class GoodsController {
