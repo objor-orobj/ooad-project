@@ -9,7 +9,6 @@ import cn.edu.xmu.goods.model.bo.Comment;
 import cn.edu.xmu.goods.model.po.CommentPo;
 import cn.edu.xmu.goods.model.po.CommentPoExample;
 import cn.edu.xmu.goods.model.po.GoodsSkuPo;
-import cn.edu.xmu.goods.model.po.GoodsSkuPoExample;
 import cn.edu.xmu.goods.model.vo.CommentConfirmVo;
 import cn.edu.xmu.goods.model.vo.CommentRetVo;
 import cn.edu.xmu.goods.model.vo.CommentVo;
@@ -32,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * //
  * @pragram:oomall
  * @description:
  * @author:JMDZWT

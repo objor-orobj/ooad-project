@@ -366,6 +366,7 @@ public class GoodsSkuDao {
             return StatusWrap.just(Status.RESOURCE_ID_NOTEXIST);
         }
         if (!judgeResource(skuPo, shopId)) return StatusWrap.just(Status.RESOURCE_ID_OUTSCOPE);
+
         GoodsSkuPoExample example = new GoodsSkuPoExample();
         GoodsSkuPoExample.Criteria criteria = example.createCriteria();
         criteria.andGoodsSpuIdEqualTo(skuPo.getGoodsSpuId());
@@ -389,6 +390,7 @@ public class GoodsSkuDao {
                     return StatusWrap.just(Status.SKUSN_SAME);
             }
         }
+
         GoodsSkuPo po = vo.asNewSku().toGoodsSkuPo();
         po.setId(skuId);
         po.setGmtModified(LocalDateTime.now());

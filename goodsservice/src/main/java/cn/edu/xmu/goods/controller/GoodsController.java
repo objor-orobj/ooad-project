@@ -11,10 +11,7 @@ import cn.edu.xmu.goods.service.GoodsService;
 import cn.edu.xmu.ooad.annotation.Audit;
 import cn.edu.xmu.ooad.annotation.Depart;
 import cn.edu.xmu.ooad.annotation.LoginUser;
-import cn.edu.xmu.other.service.FootprintServiceInterface;
 import io.swagger.annotations.*;
-import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Arrays;
-
 @RestController
 @RequestMapping(value = "", produces = "application/json;charset=UTF-8")
 public class GoodsController {
@@ -365,6 +361,7 @@ public class GoodsController {
     }
 
     //缺少运费模板
+    //冲业绩
     @ApiOperation(value = "无需登录查看一条商品SPU的详细信息")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "path", dataType = "long", name = "id", value = "商品SPU ID", required = true)
