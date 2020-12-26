@@ -2,7 +2,6 @@
 
 Hosting goods-service by OOOO.
 
-
 ## Testing
 
 Create a profile for testing `goodsservice/src/main/resources/application-dev.yaml`.
