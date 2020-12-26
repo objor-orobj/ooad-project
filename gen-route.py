@@ -84,8 +84,8 @@ all = {
         'user': [],
         'admin': [
             r'/shops/{shopId}/categories/{id}/subcategories',
-            r'/shops/{shopId}//categories/{id}',
-            r'/shops/{shopId}//categories/{id}',
+            r'/shops/{shopId}/categories/{id}',
+            r'/shops/{shopId}/categories/{id}',
             r'/shops/{id}/brands',
             r'/shops/{shopId}/brands/{id}/uploadImg',
             r'/shops/{shopId}/brands/{id}',
